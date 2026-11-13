@@ -407,3 +407,33 @@ h1, h2, .tile b, .btn, .stat b { font-family: var(--sans); }
 .toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom)); transform: translateX(-50%); background: var(--text); color: var(--bg); padding: 10px 16px; border-radius: 12px; font-size: 14px; z-index: 50; max-width: calc(100% - 32px); }
 .center { text-align: center; }
 .big-emoji { font-size: 56px; }
+
+/* Kalender-Lektion */
+.cal-card { padding-top: 12px; }
+.cal-head { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 8px; }
+.cal-nav { width: 42px; height: 42px; border-radius: 50%; border: 0; background: var(--surface-2); color: var(--text); font-size: 24px; line-height: 1; cursor: pointer; }
+.cal-title { flex: 1; display: flex; justify-content: center; gap: 4px; }
+.cal-title button, .cal-title span { border: 0; background: none; color: var(--text); font: 700 21px var(--sans); padding: 4px 10px; border-radius: 10px; cursor: pointer; }
+.cal-title button.sel { background: var(--accent); color: var(--on-accent); }
+.cal-grid { display: grid; grid-template-columns: 30px repeat(7, 1fr); gap: 3px; }
+.cal-grid button { border: 0; background: none; color: var(--text); font: 500 16px var(--sans); padding: 0; height: 40px; border-radius: 50%; cursor: pointer; }
+.cal-grid .cal-dow { font: 500 14px var(--jp); color: var(--muted); height: 30px; border-radius: 8px; }
+.cal-grid .we { color: var(--accent); }
+.cal-grid .cal-day.out { opacity: .35; }
+.cal-grid .cal-day.today { box-shadow: inset 0 0 0 2px var(--text); font-weight: 700; }
+.cal-grid .cal-wk { font: 500 12px var(--jp); color: var(--muted); background: var(--surface-2); border-radius: 8px; height: 34px; align-self: center; }
+.cal-grid .soft { background: var(--accent-soft); border-radius: 10px; }
+.cal-grid .sel { background: var(--accent); color: var(--on-accent); opacity: 1; }
+.cal-grid .qmark { background: var(--accent); color: var(--on-accent); opacity: 1; animation: pulse 1.4s infinite; }
+.cal-grid .ok { background: var(--good-soft); box-shadow: inset 0 0 0 2px var(--good); opacity: 1; }
+.cal-grid .bad { background: var(--bad-soft); box-shadow: inset 0 0 0 2px var(--bad); }
+.cal-every { margin-top: 10px; justify-content: center; }
+.cal-every .chip { font-family: var(--jp); }
+.cal-info-t { font-weight: 600; margin-bottom: 4px; }
+.cal-line { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-top: 1px solid var(--line); }
+.cal-w { flex: 1; display: flex; flex-direction: column; }
+.cal-w .jp { font-size: 22px; font-weight: 600; line-height: 1.5; }
+.cal-w small { color: var(--muted); font-size: 13px; }
+.cal-q { min-height: 0; padding: 6px 4px 12px; }
+#calmode { margin-bottom: 12px; }
+.topbar h1.can-back { cursor: pointer; }

@@ -21,6 +21,7 @@
     return defaults();
   }
   let DB = load();
+  DB.counterCats = (DB.counterCats || []).filter(c => c !== "kal");
   function save() { try { localStorage.setItem(KEY, JSON.stringify(DB)); } catch (e) { toast("Speichern nicht möglich"); } }
   try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch (e) { }
 
@@ -77,9 +78,25 @@
     $title.textContent = title;
     $back.hidden = !opts.back;
     $back.onclick = opts.back || null;
+    $title.onclick = opts.back || null;              // auch Tippen auf den Titel geht zurück
+    $title.classList.toggle("can-back", !!opts.back);
     $app.innerHTML = html;
     window.scrollTo(0, 0);
+    syncHistory();
   }
+  // Zurück-Geste von Android: ein Verlaufseintrag pro Unterseite, „Zurück“ ruft den Zurück-Knopf auf
+  let skipPop = false;
+  const inSub = () => history.state && history.state.sub;
+  function syncHistory() {
+    if (!$back.hidden && !inSub()) history.pushState({ sub: true }, "");
+    else if ($back.hidden && inSub()) { skipPop = true; history.back(); }
+  }
+  history.replaceState({ root: true }, "");
+  window.addEventListener("popstate", () => {
+    if (skipPop) { skipPop = false; return; }
+    if (!$back.hidden && $back.onclick) $back.onclick();
+    syncHistory();                                   // z. B. wenn „Lernrunde beenden?“ abgebrochen wurde
+  });
   function toast(msg) {
     const t = document.getElementById("toast"); t.textContent = msg; t.hidden = false;
     clearTimeout(toast._t); toast._t = setTimeout(() => (t.hidden = true), 2200);
@@ -150,6 +167,7 @@
           <div class="stat"><b>${learned}</b><span>gelernt</span></div>
         </div>
         <button class="btn primary" id="go">${due + learning + fresh ? "Vokabeln lernen" : "Alles erledigt 🎉"}</button>
+        ${learned ? `<button class="btn" id="practice">Gelernte Wörter üben</button>` : ""}
         <p class="small muted center" style="margin:8px 0 0">${fresh} neue Wörter verfügbar · heute ${todayCount} Karten</p>
       </div>
       <div class="tiles">${[
@@ -157,14 +175,17 @@
         ["m-story", "fuji", "📖", "Lesebücher", "Geschichten & Fragen"],
         ["m-write", "brush", "✍️", "Schreiben", "Kanji & Kana zeichnen"],
         ["m-counters", "soroban", "三", "Zählwörter", "ひとつ, さんぼん …"],
+        ["m-cal", "s-calendar", "📅", "Kalender", "きょう, らいしゅう …"],
         ["m-list", "sakura", "🔎", "Wortliste", "Suchen & ergänzen"],
         ["m-groups", "torii", "📚", "Lektionen", `${DB.groups.length} von ${GROUPS.length} aktiv`],
         ["m-settings", "fan", "⚙️", "Einstellungen", "Design, Schrift, Sicherung"],
       ].map(([id, ic, emo, t, sub], i) => `<button class="tile ${(Math.floor(i / 2) + i % 2) % 2 ? "beige" : "red"}" id="${id}">
-          <span class="ico"><i class="emo">${emo}</i><svg class="pic"><use href="#i-${ic}"/></svg></span>
+          <span class="ico"><i class="emo">${emo}</i><svg class="pic"><use href="#${ic.startsWith("s-") ? ic : "i-" + ic}"/></svg></span>
           <b>${t}</b><small>${sub}</small></button>`).join("")}</div>
     `);
     document.getElementById("go").onclick = () => startSession();
+    if (learned) document.getElementById("practice").onclick = startPractice;
+    document.getElementById("m-cal").onclick = () => calendarView();
     document.getElementById("m-groups").onclick = groupsView;
     document.getElementById("m-counters").onclick = countersView;
     document.getElementById("m-list").onclick = () => listView();
@@ -216,7 +237,17 @@
     for (const w of shuffle(due)) queue.push({ w, st: "r" });
     if (!queue.length) { toast("Gerade nichts zu tun – wähle mehr Lektionen!"); return; }
     queue.sort((a, b) => (a.st === "r" ? 9 : a.st) - (b.st === "r" ? 9 : b.st));
-    S = { queue, done: 0, total: queue.length, right: 0, wrong: 0, finished: new Set() };
+    S = { queue, done: 0, total: queue.length, right: 0, wrong: 0, finished: new Set(), err: {} };
+    nextCard();
+  }
+  // Extra-Übung mit gelernten Wörtern – verändert den Lernplan nicht
+  function startPractice() {
+    const learned = WORDS.filter(w => { const p = prog(w); return p && p.s >= 5; });
+    if (!learned.length) { toast("Noch keine gelernten Wörter"); return; }
+    // schwächere Wörter (kleine Box, kürzlich Fehler) kommen eher dran
+    const pick = learned.map(w => ({ w, k: (prog(w).b || 0) - (prog(w).h ? 2 : 0) + Math.random() * 3 }))
+      .sort((a, b) => a.k - b.k).slice(0, 15).map(x => ({ w: x.w, st: "r" }));
+    S = { queue: shuffle(pick), done: 0, total: pick.length, right: 0, wrong: 0, finished: new Set(), err: {}, practice: true };
     nextCard();
   }
   function shuffle(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
@@ -229,14 +260,27 @@
   function answer(task, ok) {
     const w = task.w; logCard();
     if (ok) S.right++; else S.wrong++;
-    if (task.st === "r" || task.review) {
+    if (!ok) S.err[w.id] = (S.err[w.id] || 0) + 1;
+    if (S.practice) {
+      if (ok) S.finished.add(w.id); else { insertLater({ w, st: "r" }); S.total++; }
+    } else if (task.st === "r" || task.review) {
       const p = prog(w);
-      if (ok) { p.b = Math.min(p.b + 1, INTERVALS.length - 1); p.d = Date.now() + INTERVALS[p.b] * DAY - 3600000; S.finished.add(w.id); }
+      if (ok) {
+        // h = Extra-Tage: nach Fehlern beim Lernen kommt das Wort zuerst täglich wieder
+        if (p.h) { p.h--; p.d = Date.now() + DAY - 3600000; }
+        else { p.b = Math.min(p.b + 1, INTERVALS.length - 1); p.d = Date.now() + INTERVALS[p.b] * DAY - 3600000; }
+        S.finished.add(w.id);
+      }
       else { p.b = 1; p.s = 2; insertLater({ w, st: 2 }); S.total++; }
     } else {
       if (ok) {
         const n = nextStage(task.st, w);
-        if (n >= 5) { DB.progress[w.id] = { s: 5, b: 1, d: Date.now() + DAY - 3600000 }; S.finished.add(w.id); }
+        if (n >= 5) {
+          const e = S.err[w.id] || 0;
+          DB.progress[w.id] = { s: 5, b: 1, d: Date.now() + DAY - 3600000 };
+          if (e) DB.progress[w.id].h = e >= 3 ? 2 : 1;
+          S.finished.add(w.id);
+        }
         else { DB.progress[w.id] = { s: n, b: 0, d: 0 }; insertLater({ w, st: n }, 2, 5); S.total++; }
       } else {
         DB.progress[w.id] = { s: task.st, b: 0, d: 0 };
@@ -260,7 +304,7 @@
   function cardShell(task, inner) {
     const pct = Math.round(100 * S.done / Math.max(S.total, 1));
     return `<div class="progress"><i style="width:${pct}%"></i></div>
-      <div class="stage-label"><span>${task.review ? "Wiederholung · " : ""}${STAGES[task.mode]}</span><span>${S.done}/${S.total}</span></div>
+      <div class="stage-label"><span>${S.practice ? "Extra-Übung · " : task.review ? "Wiederholung · " : ""}${STAGES[task.mode]}</span><span>${S.done}/${S.total}</span></div>
       <div class="card">${inner}</div>`;
   }
   const backHome = () => { if (confirm("Lernrunde beenden? Dein Fortschritt ist gespeichert.")) home(); };
@@ -386,11 +430,240 @@
     const n = S.finished.size;
     show("Geschafft!", `<div class="card center">
       <div class="big-emoji">🎉</div>
-      <h2>Lernrunde fertig</h2>
-      <p>${S.right} richtig · ${S.wrong} falsch<br>${n} Wörter abgeschlossen</p>
+      <h2>${S.practice ? "Extra-Übung fertig" : "Lernrunde fertig"}</h2>
+      <p>${S.right} richtig · ${S.wrong} falsch<br>${S.practice ? `${n} Wörter geübt<br><span class="small muted">Dein Wiederholungsplan bleibt unverändert.</span>` : `${n} Wörter abgeschlossen`}</p>
       <button class="btn primary" id="again">Noch eine Runde</button>
       <button class="btn" id="home">Zur Startseite</button></div>`);
-    $("#again").onclick = startSession; $("#home").onclick = home;
+    $("#again").onclick = S.practice ? startPractice : startSession; $("#home").onclick = home;
+  }
+
+  // ---------- Kalender-Lektion ----------
+  const CAL_REL = {
+    day: { "-2": ["おととい", "一昨日", "vorgestern"], "-1": ["きのう", "昨日", "gestern"], "0": ["きょう", "今日", "heute"], "1": ["あした", "明日", "morgen"], "2": ["あさって", "明後日", "übermorgen"] },
+    week: { "-2": ["せんせんしゅう", "先々週", "vorletzte Woche"], "-1": ["せんしゅう", "先週", "letzte Woche"], "0": ["こんしゅう", "今週", "diese Woche"], "1": ["らいしゅう", "来週", "nächste Woche"], "2": ["さらいしゅう", "再来週", "übernächste Woche"] },
+    month: { "-2": ["せんせんげつ", "先々月", "vorletzter Monat"], "-1": ["せんげつ", "先月", "letzter Monat"], "0": ["こんげつ", "今月", "dieser Monat"], "1": ["らいげつ", "来月", "nächster Monat"], "2": ["さらいげつ", "再来月", "übernächster Monat"] },
+    year: { "-2": ["おととし", "一昨年", "vorletztes Jahr"], "-1": ["きょねん", "去年", "letztes Jahr"], "0": ["ことし", "今年", "dieses Jahr"], "1": ["らいねん", "来年", "nächstes Jahr"], "2": ["さらいねん", "再来年", "übernächstes Jahr"] },
+  };
+  const CAL_EVERY = [["まいにち", "毎日", "jeden Tag"], ["まいしゅう", "毎週", "jede Woche"], ["まいつき", "毎月", "jeden Monat"], ["まいとし", "毎年", "jedes Jahr (auch: まいねん)"], ["まいあさ", "毎朝", "jeden Morgen"], ["まいばん", "毎晩", "jeden Abend"]];
+  const ent = (kana, kanji, de) => ({ kana, kanji, de, romaji: Kana.kanaToRomaji(kana) });
+  const relEnt = (t, off) => { const r = CAL_REL[t][off]; return r ? ent(...r) : null; };
+  const day0 = d => { const x = new Date(d); x.setHours(0, 0, 0, 0); return x; };
+  const dkey = d => `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+  const parseKey = k => { const [y, m, d] = k.split("-").map(Number); return new Date(y, m - 1, d); };
+  const monday = d => { const x = day0(d); x.setDate(x.getDate() - (x.getDay() + 6) % 7); return x; };
+  const dayDiff = (a, b) => Math.round((day0(a) - day0(b)) / DAY);
+  const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+  const rndi = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+  const MON = () => Counters.MONTHS_DE;
+  function yearKana(y) { const r = Counters.numReading(y); return (r.endsWith("よん") ? r.slice(0, -1) : r) + "ねん"; }
+  const dowEnt = i => ent(...Counters.YOUBI[i]);
+  const dateEnt = d => ent(Counters.GATSU[d.getMonth() + 1] + " " + Counters.HI[d.getDate()], `${d.getMonth() + 1}月${d.getDate()}日`, `${d.getDate()}. ${MON()[d.getMonth() + 1]}`);
+
+  function dayInfo(d) {
+    const today = day0(new Date()), diff = dayDiff(d, today), dow = (d.getDay() + 6) % 7;
+    const wk = Math.round((monday(d) - monday(today)) / (7 * DAY));
+    const items = [], r = relEnt("day", diff);
+    if (r) items.push(r);
+    else if (Math.abs(diff) <= 10) { const n = Math.abs(diff); items.push(ent(Counters.HI[n] + (diff < 0 ? "まえ" : "ご"), `${n}日${diff < 0 ? "前" : "後"}`, diff < 0 ? `vor ${n} Tagen` : `in ${n} Tagen`)); }
+    const w = relEnt("week", wk), y = Counters.YOUBI[dow];
+    if (w && diff !== 0) items.push(ent(w.kana + "の " + y[0], w.kanji + "の" + y[1], `${w.de}, ${y[2]}`));
+    items.push(dateEnt(d), dowEnt(dow));
+    return { title: `${y[2]}, ${d.getDate()}. ${MON()[d.getMonth() + 1]} ${d.getFullYear()}`, items };
+  }
+  function weekInfo(m0) {
+    const wk = Math.round((m0 - monday(new Date())) / (7 * DAY)), su = addDays(m0, 6), r = relEnt("week", wk);
+    return { title: `Woche vom ${m0.getDate()}. ${MON()[m0.getMonth() + 1]} bis ${su.getDate()}. ${MON()[su.getMonth() + 1]}`, items: r ? [r] : [],
+      note: r ? "" : "Eigene Wörter gibt es nur für ±2 Wochen: せんせんしゅう · せんしゅう · こんしゅう · らいしゅう · さらいしゅう." };
+  }
+  function monthInfo(y, m) {
+    const now = new Date(), r = relEnt("month", (y - now.getFullYear()) * 12 + m - now.getMonth());
+    const items = r ? [r] : [];
+    items.push(ent(Counters.GATSU[m + 1], `${m + 1}月`, MON()[m + 1]), ent(yearKana(y) + " " + Counters.GATSU[m + 1], `${y}年${m + 1}月`, `${MON()[m + 1]} ${y}`));
+    return { title: `${MON()[m + 1]} ${y}`, items };
+  }
+  function yearInfo(y) {
+    const r = relEnt("year", y - new Date().getFullYear()), items = r ? [r] : [];
+    items.push(ent(yearKana(y), `${y}年`, `das Jahr ${y}`));
+    return { title: `Jahr ${y}`, items, note: "年 (ねん) = Jahr. Achtung: 4年 = よねん." };
+  }
+  function calInfoHTML(info) {
+    return `<div class="cal-info-t">${esc(info.title)}</div>` + info.items.map((e, i) => `<div class="cal-line">
+      <div class="cal-w">${jp(e)}<small>${esc(e.de)}</small></div><button class="speak-btn" data-say="${i}">🔊</button></div>`).join("")
+      + (info.note ? `<p class="small muted" style="margin:8px 0 0">${esc(info.note)}</p>` : "");
+  }
+  function calGridHTML(start, weeks, month) {
+    const today = day0(new Date());
+    let h = `<div class="cal-grid"><span></span>` + Counters.YOUBI.map((y, i) => `<button class="cal-dow${i > 4 ? " we" : ""}" data-dow="${i}">${y[1][0]}</button>`).join("");
+    for (let r = 0; r < weeks; r++) {
+      const m0 = addDays(start, r * 7), wk = dkey(m0);
+      h += `<button class="cal-wk" data-wk="${wk}" aria-label="Woche">週</button>`;
+      for (let c = 0; c < 7; c++) {
+        const d = addDays(m0, c), cls = ["cal-day"];
+        if (c > 4) cls.push("we");
+        if (month != null && d.getMonth() !== month) cls.push("out");
+        if (dayDiff(d, today) === 0) cls.push("today");
+        h += `<button class="${cls.join(" ")}" data-d="${dkey(d)}" data-row="${wk}" data-col="${c}">${d.getDate()}</button>`;
+      }
+    }
+    return h + `</div>`;
+  }
+  // Zellen eines Ziels finden: {kind: day|week|date|dow|month, k}
+  function calCells(t) {
+    const all = [...$app.querySelectorAll(".cal-grid button")];
+    if (t.kind === "day") return all.filter(b => b.dataset.d === t.k);
+    if (t.kind === "week") return all.filter(b => b.dataset.wk === t.k || b.dataset.row === t.k);
+    if (t.kind === "date") return all.filter(b => b.dataset.d && parseKey(b.dataset.d).getDate() === t.k);
+    if (t.kind === "dow") return all.filter(b => b.dataset.dow == t.k || b.dataset.col == t.k);
+    if (t.kind === "month") return all.filter(b => b.dataset.d && !b.classList.contains("out"));
+    if (t.kind === "all") return all.filter(b => b.dataset.d);
+    return [];
+  }
+
+  let CAL = null;
+  function calendarView() {
+    const now = new Date();
+    if (!CAL) CAL = { y: now.getFullYear(), m: now.getMonth(), sel: { t: "day", k: dkey(now) } };
+    current = { rerender: calendarView };
+    const sel = CAL.sel, start = monday(new Date(CAL.y, CAL.m, 1));
+    const weeks = Math.round((monday(new Date(CAL.y, CAL.m + 1, 0)) - start) / (7 * DAY)) + 1;
+    const isNow = CAL.y === now.getFullYear() && CAL.m === now.getMonth();
+    show("Kalender", `
+      <div class="seg" id="calmode"><button class="on">Entdecken</button><button data-m="quiz">Üben</button></div>
+      <div class="card cal-card">
+        <div class="cal-head">
+          <button class="cal-nav" id="prev" aria-label="Monat zurück">‹</button>
+          <div class="cal-title"><button id="cy" class="${sel.t === "year" ? "sel" : ""}">${CAL.y}年</button><button id="cm" class="${sel.t === "month" ? "sel" : ""}">${CAL.m + 1}月</button></div>
+          <button class="cal-nav" id="next" aria-label="Monat vor">›</button>
+        </div>
+        ${calGridHTML(start, weeks, CAL.m)}
+        <div class="chip-row cal-every">${CAL_EVERY.map((e, i) => `<button class="chip ${sel.t === "every" && sel.i === i ? "on" : ""}" data-ev="${i}">${e[1]}</button>`).join("")}</div>
+        ${isNow ? "" : `<button class="btn" id="today" style="margin-top:8px">Zurück zu heute</button>`}
+      </div>
+      <div class="card" id="calinfo"></div>
+      <p class="small muted center">Tippe auf einen Tag, auf 週 (Woche), auf Monat oder Jahr oben, auf einen Wochentag oder auf 毎… (jede/r).</p>`, { back: home });
+
+    // Auswahl markieren und Info zeigen
+    let info;
+    if (sel.t === "day") { calCells({ kind: "day", k: sel.k }).forEach(b => b.classList.add("sel")); info = dayInfo(parseKey(sel.k)); }
+    else if (sel.t === "week") { calCells({ kind: "week", k: sel.k }).forEach(b => b.classList.add(b.dataset.wk ? "sel" : "soft")); info = weekInfo(parseKey(sel.k)); }
+    else if (sel.t === "month") { calCells({ kind: "month" }).forEach(b => b.classList.add("soft")); info = monthInfo(CAL.y, CAL.m); }
+    else if (sel.t === "year") info = yearInfo(CAL.y);
+    else if (sel.t === "dow") {
+      calCells({ kind: "dow", k: sel.i }).forEach(b => b.classList.add(b.dataset.dow ? "sel" : "soft"));
+      const y = Counters.YOUBI[sel.i];
+      info = { title: y[2], items: [dowEnt(sel.i), ent("まいしゅう " + y[0], "毎週" + y[1], "jeden " + y[2])], note: "曜日 (ようび) = Wochentag." };
+    } else if (sel.t === "every") {
+      const e = CAL_EVERY[sel.i];
+      if (sel.i === 0) calCells({ kind: "all" }).forEach(b => b.classList.add("soft"));
+      if (sel.i === 1) calCells({ kind: "dow", k: (now.getDay() + 6) % 7 }).forEach(b => b.dataset.d && b.classList.add("soft"));
+      if (sel.i === 2) calCells({ kind: "date", k: now.getDate() }).forEach(b => b.classList.add("soft"));
+      info = { title: e[2], items: [ent(...e)], note: "毎 (まい) = jede/r. Mit Wochentag: まいしゅう げつようび = jeden Montag." };
+    }
+    $("#calinfo").innerHTML = calInfoHTML(info);
+    $("#calinfo").querySelectorAll("[data-say]").forEach(b => b.onclick = () => say(info.items[+b.dataset.say].kana));
+    if (CAL.speak && info.items.length) say(info.items[0].kana);
+    CAL.speak = false;
+
+    const pickSel = s => { CAL.sel = s; CAL.speak = true; calendarView(); };
+    $app.querySelectorAll(".cal-day").forEach(b => b.onclick = () => {
+      const d = parseKey(b.dataset.d); CAL.y = d.getFullYear(); CAL.m = d.getMonth(); pickSel({ t: "day", k: b.dataset.d });
+    });
+    $app.querySelectorAll(".cal-wk").forEach(b => b.onclick = () => pickSel({ t: "week", k: b.dataset.wk }));
+    $app.querySelectorAll(".cal-dow").forEach(b => b.onclick = () => pickSel({ t: "dow", i: +b.dataset.dow }));
+    $app.querySelectorAll("[data-ev]").forEach(b => b.onclick = () => pickSel({ t: "every", i: +b.dataset.ev }));
+    $("#cy").onclick = () => pickSel({ t: "year" });
+    $("#cm").onclick = () => pickSel({ t: "month" });
+    const nav = dir => {
+      CAL.m += dir; if (CAL.m < 0) { CAL.m = 11; CAL.y--; } if (CAL.m > 11) { CAL.m = 0; CAL.y++; }
+      CAL.sel = CAL.sel.t === "year" ? CAL.sel : { t: "month" }; CAL.speak = true; calendarView();
+    };
+    $("#prev").onclick = () => nav(-1);
+    $("#next").onclick = () => nav(1);
+    if ($("#today")) $("#today").onclick = () => { CAL = null; calendarView(); };
+    $("#calmode [data-m]").onclick = calQuizStart;
+  }
+
+  // ---------- Kalender-Übung ----------
+  let CQ = null;
+  function calQuizStart() { CQ = { n: 0, total: 10, right: 0, last: "" }; calQuizNext(); }
+  function calQuizQuestion() {
+    const today = day0(new Date()), tw = monday(today), dow = (today.getDay() + 6) % 7;
+    let t; do { t = ["tapDay", "tapDay", "tapWeek", "tapDate", "tapDow", "mcDay", "mcWeek", "mcDate", "mcMonth", "mcYear"][rndi(0, 9)]; } while (t === CQ.last);
+    CQ.last = t;
+    const optsFrom = (type, off, n = 4) => {
+      const offs = [-2, -1, 0, 1, 2].filter(o => o !== off).sort(() => Math.random() - .5).slice(0, n - 1);
+      return [off, ...offs].sort(() => Math.random() - .5).map(o => relEnt(type, o));
+    };
+    if (t === "tapDay") { const off = rndi(-2, 2), e = relEnt("day", off); return { e, prompt: `Tippe auf:`, target: { kind: "day", k: dkey(addDays(today, off)) } }; }
+    if (t === "tapWeek") { const off = rndi(-2, 2), e = relEnt("week", off); return { e, prompt: `Tippe auf (週 oder einen Tag der Woche):`, target: { kind: "week", k: dkey(addDays(tw, off * 7)) } }; }
+    if (t === "tapDate") {
+      const d = addDays(tw, rndi(-14, 20)), n = d.getDate();
+      return { e: ent(Counters.HI[n], `${n}日`, `der ${n}.`), prompt: `Tippe auf das Datum:`, target: { kind: "date", k: n } };
+    }
+    if (t === "tapDow") { const i = rndi(0, 6); return { e: dowEnt(i), prompt: `Tippe auf den Wochentag:`, target: { kind: "dow", k: i } }; }
+    if (t === "mcDay") { const off = rndi(-2, 2); const opts = optsFrom("day", off); return { e: relEnt("day", off), prompt: "Wie sagt man zum markierten Tag?", mark: { kind: "day", k: dkey(addDays(today, off)) }, opts }; }
+    if (t === "mcWeek") { const off = rndi(-2, 2); const opts = optsFrom("week", off); return { e: relEnt("week", off), prompt: "Wie sagt man zur markierten Woche?", mark: { kind: "week", k: dkey(addDays(tw, off * 7)) }, opts }; }
+    if (t === "mcDate") {
+      const d = addDays(tw, rndi(-14, 20)), n = d.getDate(), H = Counters.HI;
+      const e = ent(H[n], `${n}日`, `der ${n}.`);
+      const wrong = [...new Set([Counters.numReading(n) + "にち", H[n === 31 ? 30 : n + 1], H[n === 1 ? 2 : n - 1], H[(n + 9) % 31 + 1]])].filter(x => x !== H[n]).slice(0, 3);
+      return { e, prompt: "Welches Datum ist markiert?", mark: { kind: "day", k: dkey(d) }, opts: [ent(H[n], "", ""), ...wrong.map(x => ent(x, "", ""))].sort(() => Math.random() - .5) };
+    }
+    const type = t === "mcMonth" ? "month" : "year", off = rndi(-1, 1);
+    return { e: relEnt(type, off), prompt: "Was ist rot markiert?", svg: Counters.calendarSVG(type, off), opts: optsFrom(type, off) };
+  }
+  function calQuizNext() {
+    if (CQ.n >= CQ.total) return calQuizEnd();
+    CQ.q = calQuizQuestion(); CQ.done = false;
+    calQuizRender();
+  }
+  function calQuizRender() {
+    const q = CQ.q, today = day0(new Date()), start = addDays(monday(today), -14);
+    current = { rerender: calQuizRender };
+    show("Kalender", `
+      <div class="seg" id="calmode"><button data-m="explore">Entdecken</button><button class="on">Üben</button></div>
+      <div class="stage-label"><span>Kalender-Übung</span><span>${CQ.n + 1}/${CQ.total}</span></div>
+      <div class="card">
+        <div class="prompt cal-q"><div class="sub">${esc(q.prompt)}</div>${q.opts ? "" : jp(q.e)}</div>
+        ${q.svg || `<div class="cal-head"><div class="cal-title"><span>${today.getFullYear()}年 ${today.getMonth() + 1}月</span></div></div>${calGridHTML(start, 5, today.getMonth())}`}
+        ${q.opts ? `<div class="options" style="margin-top:12px">${q.opts.map((o, i) => `<button class="option jp" data-i="${i}">${jp(o)}</button>`).join("")}</div>` : ""}
+        <div id="after"></div>
+      </div>`, { back: home });
+    $("#calmode [data-m]").onclick = () => calendarView();
+    if (q.mark) calCells(q.mark).forEach(b => b.classList.add(b.dataset.wk ? "sel" : "qmark"));
+    if (!q.opts) {
+      say(q.e.kana);
+      $app.querySelectorAll(".cal-grid button").forEach(b => b.onclick = () => {
+        if (CQ.done) return;
+        const ok = calCells(q.target).includes(b);
+        if (!ok) b.classList.add("bad");
+        calCells(q.target).forEach(x => x.classList.add("ok"));
+        calQuizFeedback(ok);
+      });
+    } else {
+      $app.querySelectorAll(".option").forEach(b => b.onclick = () => {
+        if (CQ.done) return;
+        const ok = q.opts[+b.dataset.i].kana === q.e.kana;
+        $app.querySelectorAll(".option").forEach((x, i) => { x.disabled = true; if (q.opts[i].kana === q.e.kana) x.classList.add("correct"); });
+        if (!ok) b.classList.add("wrong");
+        calQuizFeedback(ok);
+      });
+    }
+  }
+  function calQuizFeedback(ok) {
+    const q = CQ.q; CQ.done = true; if (ok) CQ.right++;
+    say(q.e.kana);
+    $("#after").innerHTML = `<div class="cal-line" style="margin-top:12px"><div class="cal-w"><b>${ok ? "✓ Richtig" : "✗ Leider falsch"}</b> ${jp(q.e)}<small>${esc(q.e.de)}</small></div><button class="speak-btn" id="sayq">🔊</button></div>
+      <button class="btn ${ok ? "good" : "primary"}" id="next">Weiter</button>`;
+    $("#sayq").onclick = () => say(q.e.kana);
+    $("#next").onclick = () => { CQ.n++; calQuizNext(); };
+  }
+  function calQuizEnd() {
+    current = null;
+    show("Kalender", `<div class="card center"><div class="big-emoji">📅</div><h2>Kalender-Übung fertig</h2>
+      <p>${CQ.right} von ${CQ.total} richtig</p>
+      <button class="btn primary" id="again">Nochmals üben</button><button class="btn" id="cal">Zum Kalender</button></div>`, { back: home });
+    $("#again").onclick = calQuizStart; $("#cal").onclick = () => calendarView();
   }
 
   // ---------- Wortliste ----------

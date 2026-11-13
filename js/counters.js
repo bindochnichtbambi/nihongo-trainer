@@ -253,7 +253,7 @@
 
   const CATEGORIES = [
     ...Object.entries(C).map(([k, c]) => ({ id: k, label: c.label, title: c.title, icon: c.items[0][0] })),
-    ...Object.entries(SPECIAL).map(([k, c]) => ({ id: k, label: c.label, title: c.title })),
+    ...Object.entries(SPECIAL).filter(([k]) => k !== "kal").map(([k, c]) => ({ id: k, label: c.label, title: c.title })),
   ];
-  window.Counters = { CATEGORIES, makeQuestion, numReading, seqLength };
+  window.Counters = { CATEGORIES, makeQuestion, numReading, seqLength, calendarSVG, HI, GATSU, YOUBI, MONTHS_DE };
 })();
