@@ -1,3 +1,6 @@
+/* ---------- Farben ----------
+   data-theme: "stamp" (Japan: rot/beige) | "classic"
+   data-mode:  "auto" (wie Handy) | "light" | "dark"            */
 :root {
   --bg: #faf7f2;
   --surface: #ffffff;
@@ -7,36 +10,64 @@
   --line: #e3dcd1;
   --accent: #c8102e;
   --accent-soft: #fbe3e6;
+  --on-accent: #ffffff;
   --good: #1e7a4c;
   --good-soft: #dff3e8;
   --bad: #b3261e;
   --bad-soft: #fbe2e0;
   --radius: 16px;
   --shadow: 0 1px 2px rgba(0,0,0,.05), 0 4px 14px rgba(0,0,0,.06);
+  --sans: "Barlow", "DIN Alternate", "D-DIN", "Bahnschrift", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --jp: "Noto Sans JP", "Hiragino Sans", "Yu Gothic", "Meiryo", system-ui, sans-serif;
+  --ink: #1d1916;
 }
+:root[data-theme="stamp"] {
+  --bg: #f3ece0;
+  --surface: #fbf7f0;
+  --surface-2: #ebe2d2;
+  --text: #2a2420;
+  --muted: #776b5e;
+  --line: #e0d5c3;
+  --accent: #c8372d;
+  --accent-soft: #f6e0da;
+  --on-accent: #fff8ef;
+  --good: #3d7650;
+  --good-soft: #e0ebdb;
+  --bad: #b6352b;
+  --bad-soft: #f5dcd6;
+  --radius: 12px;
+  --shadow: 0 1px 2px rgba(60,40,20,.06);
+  --tile-beige: #e8dcc6;
+}
+/* Dunkel – fest eingestellt */
+:root[data-mode="dark"] {
+  --bg: #15130f; --surface: #211e19; --surface-2: #2b2721; --text: #f2ede5; --muted: #a99f92; --line: #3a352d;
+  --accent: #ff5a6e; --accent-soft: #3d1d22; --on-accent: #fff; --good: #5ccf93; --good-soft: #17352a; --bad: #ff8a80; --bad-soft: #3e1d1b;
+  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 4px 14px rgba(0,0,0,.3);
+}
+:root[data-mode="dark"][data-theme="stamp"] {
+  --bg: #1b1916; --surface: #25221e; --surface-2: #2f2b26; --text: #f1e9dc; --muted: #ad9f8c; --line: #3e3730;
+  --accent: #d94a3f; --accent-soft: #432420; --on-accent: #fff6ec; --good: #84c296; --good-soft: #24372b; --bad: #f08b80; --bad-soft: #432420;
+  --shadow: none; --tile-beige: #3a332b;
+}
+/* Dunkel – automatisch wie das Handy */
 @media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #15130f;
-    --surface: #211e19;
-    --surface-2: #2b2721;
-    --text: #f2ede5;
-    --muted: #a99f92;
-    --line: #3a352d;
-    --accent: #ff5a6e;
-    --accent-soft: #3d1d22;
-    --good: #5ccf93;
-    --good-soft: #17352a;
-    --bad: #ff8a80;
-    --bad-soft: #3e1d1b;
+  :root:not([data-mode="light"]):not([data-mode="dark"]) {
+    --bg: #15130f; --surface: #211e19; --surface-2: #2b2721; --text: #f2ede5; --muted: #a99f92; --line: #3a352d;
+    --accent: #ff5a6e; --accent-soft: #3d1d22; --on-accent: #fff; --good: #5ccf93; --good-soft: #17352a; --bad: #ff8a80; --bad-soft: #3e1d1b;
     --shadow: 0 1px 2px rgba(0,0,0,.3), 0 4px 14px rgba(0,0,0,.3);
+  }
+  :root[data-theme="stamp"]:not([data-mode="light"]):not([data-mode="dark"]) {
+    --bg: #1b1916; --surface: #25221e; --surface-2: #2f2b26; --text: #f1e9dc; --muted: #ad9f8c; --line: #3e3730;
+    --accent: #d94a3f; --accent-soft: #432420; --on-accent: #fff6ec; --good: #84c296; --good-soft: #24372b; --bad: #f08b80; --bad-soft: #432420;
+    --shadow: none; --tile-beige: #3a332b;
   }
 }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body { margin: 0; }
 body {
   background: var(--bg); color: var(--text);
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-family: var(--sans);
   font-size: 16px; line-height: 1.45;
   min-height: 100dvh;
 }
@@ -232,106 +263,76 @@ table.tbl td:last-child { font-family: var(--jp); }
 .dots i { width: 8px; height: 8px; border-radius: 50%; background: var(--line); }
 .dots i.on { background: var(--accent); }
 
-/* Menü-Symbole: Emoji (klassisch) oder Holzschnitt-SVG (Briefmarke) */
-.ico .pic { display: none; width: 40px; height: 40px; }
+/* ---------- Startseite: Kacheln (2 nebeneinander) ---------- */
+.tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.tile {
+  border: 0; cursor: pointer; text-align: center; padding: 18px 10px 14px; border-radius: var(--radius);
+  display: flex; flex-direction: column; align-items: center; gap: 2px; min-height: 160px; justify-content: center;
+  background: var(--surface); color: var(--text); box-shadow: var(--shadow);
+}
+.tile b { font-size: 18px; font-weight: 600; margin-top: 6px; letter-spacing: .01em; }
+.tile small { font-size: 12.5px; opacity: .75; }
+.tile .ico { width: 76px; height: 76px; display: flex; align-items: center; justify-content: center; font-size: 46px; }
+.tile.red { background: var(--accent); color: var(--on-accent); --cut: var(--accent); }
+.tile.beige { background: var(--tile-beige, var(--surface-2)); --cut: var(--tile-beige, var(--surface-2)); }
+[data-theme="stamp"] .story-card:nth-child(4n+1), [data-theme="stamp"] .story-card:nth-child(4n+4) { --cut: var(--accent); }
+[data-theme="stamp"] .story-card:nth-child(4n+2), [data-theme="stamp"] .story-card:nth-child(4n+3) { --cut: var(--tile-beige); }
+.tile:active { transform: scale(.98); }
+.settings-btn { background: var(--surface); box-shadow: var(--shadow); color: var(--muted); }
+
+/* Menü-Symbole: Emoji (klassisch) oder Holzschnitt-SVG (Japan) */
+.ico .pic { display: none; width: 76px; height: 76px; }
 .ico .emo { font-style: normal; }
-
-/* =========================================================
-   Design „Briefmarke“ – Zinnoberrot, Papier, Holzschnitt
-   ========================================================= */
-:root[data-theme="stamp"] {
-  --bg: #ece2cf;
-  --surface: #f8f1e4;
-  --surface-2: #efe5d2;
-  --text: #2a2420;
-  --muted: #7b6e60;
-  --line: #d5c6ad;
-  --accent: #cf3a2e;
-  --accent-soft: #f5dcd3;
-  --good: #3d7650;
-  --good-soft: #dde9d8;
-  --bad: #b6352b;
-  --bad-soft: #f4d7d0;
-  --radius: 4px;
-  --shadow: none;
-  --serif: "Noto Serif JP", "Yu Mincho", "Hiragino Mincho ProN", serif;
-}
-@media (prefers-color-scheme: dark) {
-  :root[data-theme="stamp"] {
-    --bg: #1d1a17;
-    --surface: #2a2521;
-    --surface-2: #342e28;
-    --text: #f1e7d6;
-    --muted: #b2a48f;
-    --line: #4b4239;
-    --accent: #e4554a;
-    --accent-soft: #4a2622;
-    --good: #84c296;
-    --good-soft: #24372b;
-    --bad: #f08b80;
-    --bad-soft: #4a2622;
-  }
-}
-[data-theme="stamp"] body {
-  background-color: var(--bg);
-  background-image:
-    radial-gradient(circle at 88% 6%, color-mix(in srgb, var(--accent) 16%, transparent) 0 70px, transparent 71px),
-    radial-gradient(color-mix(in srgb, var(--text) 5%, transparent) 1px, transparent 1.2px);
-  background-size: 100% 100%, 5px 5px;
-  background-attachment: fixed, scroll;
-}
-[data-theme="stamp"] .topbar { background: var(--bg); border-bottom: 3px double var(--accent); }
-[data-theme="stamp"] .topbar h1, [data-theme="stamp"] h2, [data-theme="stamp"] .st-title { font-family: var(--serif); letter-spacing: .02em; }
-[data-theme="stamp"] h2 { display: flex; align-items: center; gap: 8px; }
-[data-theme="stamp"] h2::before { content: ""; width: 10px; height: 10px; background: var(--accent); transform: rotate(45deg); flex: none; }
-[data-theme="stamp"] .jp, [data-theme="stamp"] .big-num, [data-theme="stamp"] .stat b { font-family: var(--serif); }
-[data-theme="stamp"] .script-chip { background: var(--accent); color: #fff8ec; border-color: var(--accent); border-radius: 3px; font-family: var(--serif); }
-
-/* Briefmarken-Rand (gezackt) für Karten und Menüpunkte */
-[data-theme="stamp"] .card,
-[data-theme="stamp"] .menu-btn,
-[data-theme="stamp"] .story-card {
-  border: 7px solid transparent;
-  border-radius: 0;
-  background:
-    linear-gradient(var(--surface), var(--surface)) padding-box,
-    radial-gradient(circle, transparent 2.6px, var(--surface) 3px) -5px -5px / 10px 10px border-box;
-  filter: drop-shadow(0 1px 1.5px rgba(40, 25, 15, .28));
-  box-shadow: inset 0 0 0 1px var(--line);
-}
-[data-theme="stamp"] .menu-btn { padding: 12px 14px; margin-bottom: 12px; }
-[data-theme="stamp"] .stats-card .stats { margin-right: 52px; }
-[data-theme="stamp"] .ico .pic { width: 48px; height: 48px; }
-[data-theme="stamp"] .ico { width: 50px; height: 50px; flex: none; display: flex; align-items: center; justify-content: center; color: var(--text); }
 [data-theme="stamp"] .ico .emo { display: none; }
 [data-theme="stamp"] .ico .pic { display: block; }
-[data-theme="stamp"] .menu-btn > span:last-child { font-family: var(--serif); font-weight: 700; }
-[data-theme="stamp"] .menu-btn small { font-family: system-ui, sans-serif; }
 
-/* Poststempel auf der Statistik-Karte */
-[data-theme="stamp"] .stats-card { position: relative; }
-[data-theme="stamp"] .stats-card::after {
-  content: "日本語"; position: absolute; right: 6px; top: 4px; width: 58px; height: 58px; border-radius: 50%;
-  border: 2px solid var(--accent); color: var(--accent); opacity: .5; transform: rotate(-14deg);
-  display: flex; align-items: center; justify-content: center; font: 700 13px var(--serif);
-  box-shadow: inset 0 0 0 4px var(--surface), inset 0 0 0 5px var(--accent); pointer-events: none;
+/* ---------- Design „Japan“ (schlicht, rot/beige) ---------- */
+[data-theme="stamp"] .topbar { background: var(--bg); border-bottom: 2px solid var(--accent); }
+[data-theme="stamp"] .card { box-shadow: inset 0 0 0 1px var(--line); }
+[data-theme="stamp"] .script-chip { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+[data-theme="stamp"] .btn.primary { background: var(--accent); color: var(--on-accent); }
+[data-theme="stamp"] .seg button.on { background: var(--accent); color: var(--on-accent); box-shadow: none; }
+[data-theme="stamp"] .story-card:nth-child(4n+1), [data-theme="stamp"] .story-card:nth-child(4n+4) { background: var(--accent); color: var(--on-accent); }
+[data-theme="stamp"] .story-card:nth-child(4n+1) .muted, [data-theme="stamp"] .story-card:nth-child(4n+4) .muted { color: inherit; opacity: .8; }
+[data-theme="stamp"] .story-card:nth-child(4n+2), [data-theme="stamp"] .story-card:nth-child(4n+3) { background: var(--tile-beige); }
+.story-card .cover-pic { width: 84px; height: 84px; display: block; margin: 0 auto; }
+[data-theme="classic"] .story-card .cover-pic { display: none; }
+[data-theme="stamp"] .story-card .cover-emo { display: none; }
+h1, h2, .tile b, .btn, .stat b { font-family: var(--sans); }
+.stat b { font-weight: 600; }
+
+/* ---------- Schreiben: Schriftrolle & Pinsel ---------- */
+.scroll { position: relative; width: 100%; max-width: 340px; margin: 18px auto 20px; }
+.scroll::before, .scroll::after {
+  content: ""; position: absolute; left: -14px; right: -14px; height: 14px; border-radius: 7px; z-index: 2;
+  background: linear-gradient(#8e3b2c, #5b2017 60%, #3f150f);
+  box-shadow: 0 2px 3px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.25);
 }
-
-/* Knöpfe */
-[data-theme="stamp"] .btn { border-radius: 3px; }
-[data-theme="stamp"] .btn.primary { background: var(--accent); color: #fff8ec; font-family: var(--serif); letter-spacing: .05em; box-shadow: inset 0 0 0 2px color-mix(in srgb, #fff 25%, transparent); }
-[data-theme="stamp"] .btn.good { background: var(--good); }
-[data-theme="stamp"] .option, [data-theme="stamp"] .cat, [data-theme="stamp"] .char-cell { border-radius: 3px; background: var(--surface); }
-[data-theme="stamp"] .seg, [data-theme="stamp"] .seg button, [data-theme="stamp"] .answer-input,
-[data-theme="stamp"] .field input, [data-theme="stamp"] .field select { border-radius: 3px; }
-[data-theme="stamp"] .seg button.on { background: var(--accent); color: #fff8ec; box-shadow: none; }
-[data-theme="stamp"] .progress, [data-theme="stamp"] .progress > i { border-radius: 0; }
-[data-theme="stamp"] .mic { border-radius: 50%; box-shadow: inset 0 0 0 4px color-mix(in srgb, #fff 30%, transparent); }
-[data-theme="stamp"] .pad { border-radius: 2px; background-color: var(--surface); }
-[data-theme="stamp"] .bubble { border-radius: 3px; box-shadow: inset 0 0 0 1px var(--line); }
-[data-theme="stamp"] .bubble-row.right .bubble { background: var(--accent-soft); }
-[data-theme="stamp"] .avatar { background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); }
-[data-theme="stamp"] .story-card .cover { filter: grayscale(.2); }
+.scroll::before { top: -10px; }
+.scroll::after { bottom: -10px; }
+.scroll .knob { position: absolute; width: 10px; height: 22px; border-radius: 4px; background: #2b1a12; z-index: 3; }
+.scroll .knob.tl { left: -20px; top: -14px; } .scroll .knob.tr { right: -20px; top: -14px; }
+.scroll .knob.bl { left: -20px; bottom: -14px; } .scroll .knob.br { right: -20px; bottom: -14px; }
+.pad.parchment {
+  border-radius: 0;
+  background-color: #f2e6c9;
+  background-image:
+    radial-gradient(ellipse at 50% 50%, rgba(255,250,235,.7) 0%, rgba(255,250,235,0) 65%),
+    radial-gradient(ellipse at 50% 50%, rgba(0,0,0,0) 60%, rgba(120,80,30,.22) 100%),
+    repeating-linear-gradient(0deg, rgba(120,90,40,.035) 0 1px, transparent 1px 4px);
+  box-shadow: inset 0 0 0 1px rgba(120,80,30,.25);
+}
+.pad.parchment .grid line { stroke: rgba(200,55,45,.35); stroke-width: .5; stroke-dasharray: 2 2; }
+.pad.parchment .grid rect { fill: none; stroke: rgba(200,55,45,.45); stroke-width: .7; }
+.pad .done, .pad #live { filter: url(#ink); }
+.pad .guide .brush { fill: rgba(40,30,20,.13); }
+.pad .done .brush { fill: var(--ink); transition: fill .4s; }
+.pad .done .brush.just { fill: #3d6b4a; }
+.pad .live-brush { fill: rgba(29,25,22,.85); }
+.pad .live-brush.bad { fill: rgba(182,53,43,.55); }
+.pad .anim { fill: none; stroke: var(--ink); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
+.pad .start-dot { fill: #c8372d; }
+.pad .hint-path { stroke: #c8372d; }
 
 .toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom)); transform: translateX(-50%); background: var(--text); color: var(--bg); padding: 10px 16px; border-radius: 12px; font-size: 14px; z-index: 50; max-width: calc(100% - 32px); }
 .center { text-align: center; }

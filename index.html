@@ -10,11 +10,15 @@
   <link rel="apple-touch-icon" href="icons/icon-192.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@500;700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap">
   <link rel="stylesheet" href="css/style.css">
   <script>
-    // Design vor dem ersten Zeichnen setzen (kein Flackern)
-    try { var s = JSON.parse(localStorage.getItem("nihongo-trainer-v1") || "{}"); document.documentElement.dataset.theme = (s.settings && s.settings.theme) || "stamp"; } catch (e) { }
+    // Design und Hell/Dunkel vor dem ersten Zeichnen setzen (kein Flackern)
+    try {
+      var s = JSON.parse(localStorage.getItem("nihongo-trainer-v1") || "{}").settings || {};
+      document.documentElement.dataset.theme = s.theme || "stamp";
+      document.documentElement.dataset.mode = s.mode || "auto";
+    } catch (e) { }
   </script>
 </head>
 <body>
@@ -27,6 +31,10 @@
         <feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="2" seed="9" result="grain"/>
         <feColorMatrix in="grain" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -9 0 0 0 6.2" result="mask"/>
         <feComposite in="rough" in2="mask" operator="in"/>
+      </filter>
+      <filter id="ink" x="-5%" y="-5%" width="110%" height="110%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.09" numOctaves="2" seed="2" result="t"/>
+        <feDisplacementMap in="SourceGraphic" in2="t" scale="1.4" xChannelSelector="R" yChannelSelector="G"/>
       </filter>
     </defs>
     <symbol id="i-torii" viewBox="0 0 64 64"><g filter="url(#woodcut)" fill="currentColor">
@@ -48,7 +56,7 @@
     <symbol id="i-tea" viewBox="0 0 64 64"><g filter="url(#woodcut)" fill="currentColor">
       <path d="M8 30 H56 Q56 50 32 53 Q8 50 8 30 Z"/>
       <rect x="22" y="53" width="20" height="5" rx="1"/>
-      <path d="M12 35 Q32 40 52 35" style="stroke:var(--surface,#fff)" stroke-width="2" fill="none"/>
+      <path d="M12 35 Q32 40 52 35" style="stroke:var(--cut,var(--surface))" stroke-width="2" fill="none"/>
       <g fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round">
         <path d="M24 25 q-5 -5 0 -10 q5 -5 0 -10"/><path d="M34 25 q-5 -5 0 -10 q5 -5 0 -10"/><path d="M44 25 q-4 -4 0 -8"/></g>
     </g></symbol>
@@ -58,11 +66,50 @@
       <g fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M2 44 q5 -5 10 0 q4 4 8 0"/><path d="M44 46 q5 -5 10 0 q4 4 8 0"/></g>
       <rect x="0" y="58" width="64" height="4" opacity=".7"/>
     </g></symbol>
+    <!-- Pinsel (fude): Bambusgriff mit Knoten, Zwinge, Haarspitze, Aufhängeschlaufe, Tuschestrich -->
     <symbol id="i-brush" viewBox="0 0 64 64"><g filter="url(#woodcut)" fill="currentColor">
-      <path d="M45 3 L52 8 L31 37 L24 32 Z"/>
-      <path d="M24 32 L31 37 L28.5 41 L21.5 36 Z" opacity=".75"/>
-      <path d="M21.5 36 L28.5 41 Q25 50 13 53 Q16 44 21.5 36 Z"/>
-      <path d="M6 58 Q30 49 58 55 L58 59 Q30 54 6 62 Z"/>
+      <g transform="rotate(28 32 30) translate(0 -1)">
+        <ellipse cx="32" cy="3" rx="3.4" ry="2.6" fill="none" stroke="currentColor" stroke-width="2"/>
+        <rect x="27.5" y="5.2" width="9" height="3.6" rx="1.2"/>
+        <rect x="28" y="8.6" width="8" height="25" rx="2"/>
+        <g style="stroke:var(--cut,var(--surface))" stroke-width="1.3"><path d="M28 16.5h8M28 25h8"/></g>
+        <rect x="26.8" y="33.4" width="10.4" height="5.6" rx="1.4"/>
+        <path d="M27.4 39 C22.5 45 24.5 54 32 63 C39.5 54 41.5 45 36.6 39 Z"/>
+        <g style="stroke:var(--cut,var(--surface))" stroke-width=".9" fill="none" stroke-linecap="round"><path d="M29.5 42 Q29 51 32 59M34.5 42 Q35 51 32 59M32 41.5v14"/></g>
+      </g>
+      <path d="M11 61 Q16 56 25 57.5 Q42 60 60 52 Q55 61 35 62.8 Q19 64 11 61 Z"/>
+    </g></symbol>
+    <!-- Buch-Cover -->
+    <symbol id="i-cat" viewBox="0 0 64 64"><g filter="url(#woodcut)" fill="currentColor">
+      <path d="M14 13 L17 2 L24 9 Q28 8 32 9 L39 2 L42 13 Q46 20 43 27 Q40 33 28 33 Q16 33 13 27 Q10 20 14 13 Z"/>
+      <path d="M15 31 Q9 46 13 61 L42 61 Q47 46 40 31 Z"/>
+      <path d="M41 59 Q57 59 56 46 Q55 37 61 33" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+      <g style="fill:var(--cut,var(--surface))"><ellipse cx="22" cy="20" rx="2.2" ry="3"/><ellipse cx="34" cy="20" rx="2.2" ry="3"/><path d="M26.5 25 h3 l-1.5 2 z"/></g>
+      <g style="stroke:var(--cut,var(--surface))" stroke-width=".9"><path d="M17 26 L8 24M17 28 L8 29M39 26 L48 24M39 28 L48 29"/></g>
+    </g></symbol>
+    <symbol id="i-clock" viewBox="0 0 64 64"><g filter="url(#woodcut)" fill="currentColor">
+      <path d="M8 16 A9 9 0 0 1 22 6 Z"/><path d="M56 16 A9 9 0 0 0 42 6 Z"/>
+      <rect x="29" y="5" width="6" height="6" rx="1"/>
+      <path fill-rule="evenodd" d="M32 9 A24 24 0 1 1 31.99 9 Z M32 15 A18 18 0 1 0 32.01 15 Z"/>
+      <path d="M30.5 21 h3 v13 h-3z"/><path d="M31 32 L43 39 L41.5 41.5 L29.5 34.5 Z"/><circle cx="32" cy="33" r="2.6"/>
+      <g><rect x="31" y="16" width="2" height="3"/><rect x="31" y="47" width="2" height="3"/><rect x="15" y="32" width="3" height="2"/><rect x="46" y="32" width="3" height="2"/></g>
+      <path d="M15 54 L10 62 M49 54 L54 62" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/>
+    </g></symbol>
+    <symbol id="i-hanabi" viewBox="0 0 64 64"><g filter="url(#woodcut)" fill="currentColor">
+      <g stroke="currentColor" stroke-width="2.6" stroke-linecap="round">
+        <path d="M30 6v10M30 34v10M10 25h10M40 25h10M16 11l7 7M37 32l7 7M44 11l-7 7M23 32l-7 7"/>
+        <path d="M22 4l3 8M38 46l-3-8M6 33l8-3M54 17l-8 3M8 15l8 4M52 35l-8-4M40 4l-3 8M20 46l3-8"/>
+        <path d="M52 44v4M52 56v4M44 52h4M56 52h4M47 47l2 2M55 55l2 2M57 47l-2 2M49 55l-2 2"/>
+      </g>
+      <circle cx="30" cy="25" r="3"/><circle cx="52" cy="52" r="1.8"/>
+      <path d="M0 63 L8 58 L14 61 L22 55 L30 60 L38 56 L44 61 L52 58 L64 63 Z" opacity=".85"/>
+    </g></symbol>
+    <symbol id="i-tower" viewBox="0 0 64 64"><g filter="url(#woodcut)" fill="currentColor">
+      <path d="M31 1 h2 l1 9 h-4 z"/>
+      <path d="M29 10 h6 l3 18 h-12 z"/><rect x="24" y="27" width="16" height="4"/>
+      <path d="M26 31 h12 l5 16 h-22 z"/><rect x="18" y="46" width="28" height="4"/>
+      <path d="M21 50 h22 l9 13 h-7 l-6 -8 h-14 l-6 8 h-7 z"/>
+      <g style="stroke:var(--cut,var(--surface))" stroke-width=".9"><path d="M30 14 L34 20 M34 14 L30 20 M29 21 L35 27 M35 21 L29 27 M27 34 L37 44 M37 34 L27 44"/></g>
     </g></symbol>
     <symbol id="i-sakura" viewBox="0 0 64 64"><defs>
       <g id="i-bloom"><circle cx="0" cy="-4.2" r="3.4"/><circle cx="4" cy="-1.3" r="3.4"/><circle cx="2.5" cy="3.4" r="3.4"/><circle cx="-2.5" cy="3.4" r="3.4"/><circle cx="-4" cy="-1.3" r="3.4"/></g></defs>
@@ -72,12 +119,12 @@
       <path d="M40 26 Q36 18 38 11" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
       <use href="#i-bloom" transform="translate(52 12)"/><use href="#i-bloom" transform="translate(38 10) scale(.8)"/>
       <use href="#i-bloom" transform="translate(45 48)"/><use href="#i-bloom" transform="translate(20 42) scale(.85)"/>
-      <circle cx="52" cy="12" r="1.3" style="fill:var(--surface,#fff)"/><circle cx="45" cy="48" r="1.3" style="fill:var(--surface,#fff)"/>
+      <circle cx="52" cy="12" r="1.3" style="fill:var(--cut,var(--surface))"/><circle cx="45" cy="48" r="1.3" style="fill:var(--cut,var(--surface))"/>
     </g></symbol>
     <symbol id="i-fan" viewBox="0 0 64 64"><g filter="url(#woodcut)" fill="currentColor">
       <path d="M32 56 L4 28 A40 40 0 0 1 60 28 Z"/>
-      <g style="stroke:var(--surface,#fff)" stroke-width="1.6"><path d="M32 56 L11 20M32 56 L21 13M32 56 L32 10M32 56 L43 13M32 56 L53 20"/></g>
-      <path d="M32 56 L13 36 A27 27 0 0 1 51 36 Z" style="fill:var(--surface,#fff)" opacity=".25"/>
+      <g style="stroke:var(--cut,var(--surface))" stroke-width="1.6"><path d="M32 56 L11 20M32 56 L21 13M32 56 L32 10M32 56 L43 13M32 56 L53 20"/></g>
+      <path d="M32 56 L13 36 A27 27 0 0 1 51 36 Z" style="fill:var(--cut,var(--surface))" opacity=".25"/>
       <circle cx="32" cy="55" r="3.5"/>
     </g></symbol>
   </svg>

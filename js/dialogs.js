@@ -118,7 +118,7 @@ window.DIALOGS = [
 
 // Lesebücher: Seiten mit Bild (Emojis) und Sätzen, danach Fragen (Antwort 0 ist richtig)
 window.STORIES = [
-  { id: "s-tama", title: "ねこの タマ", de: "Tama, die Katze", lesson: "Lektion 1–8", cover: "🐱",
+  { id: "s-tama", title: "ねこ の タマ", de: "Tama, die Katze", lesson: "Lektion 1–8", cover: "🐱", icon: "cat",
     pages: [
       { pic: "🏠 🐱", lines: ["わたし=私=ich|の|いえ=家|に|ねこ=猫|が|います。", "なまえ=名前|は|タマ==Tama (Name)|です。"], de: "In meinem Haus gibt es eine Katze. Ihr Name ist Tama." },
       { pic: "☀️ 🛋️ 😴", lines: ["タマ|は|あさ=朝|ソファ|の|うえ=上|で|ねます。=寝ます。=schläft"], de: "Morgens schläft Tama auf dem Sofa." },
@@ -132,7 +132,7 @@ window.STORIES = [
       { q: "タマ|は|なに=何|が|だいすき=大好き|ですか。", de: "Was liebt Tama?", a: ["さかな", "にく", "やさい"] },
       { q: "よる、|タマ|は|どこ|に|いましたか。==war", de: "Wo war Tama am Abend?", a: ["はこ の なか", "ソファ の うえ", "にわ"] },
     ] },
-  { id: "s-ken", title: "ケンの いちにち", de: "Kens Tag", lesson: "Lektion 9–10", cover: "⏰",
+  { id: "s-ken", title: "ケン の いちにち", de: "Kens Tag", lesson: "Lektion 9–10", cover: "⏰", icon: "clock",
     pages: [
       { pic: "⏰ 🌅", lines: ["ケン==Ken (Name)|は|だいがくせい=大学生=Student|です。", "まいにち=毎日|しちじ=7時=7 Uhr|に|おきます。=起きます。=steht auf"], de: "Ken ist Student. Er steht jeden Tag um 7 Uhr auf." },
       { pic: "🍞 ☕", lines: ["あさごはん=朝ご飯|に|パン|を|たべます。=食べます。=isst", "コーヒー|も|のみます。=飲みます。=trinkt"], de: "Zum Frühstück isst er Brot. Er trinkt auch Kaffee." },
@@ -146,7 +146,7 @@ window.STORIES = [
       { q: "ごご=午後|は|どこ|で|べんきょうしますか。=勉強しますか。=lernt", de: "Wo lernt er am Nachmittag?", a: ["としょかん", "こうえん", "うち"] },
       { q: "ケン|は|なんじ=何時|ごろ|ねますか。=寝ますか。=schläft", de: "Gegen wie viel Uhr schläft Ken?", a: ["じゅうにじ", "じゅうじ", "しちじ"] },
     ] },
-  { id: "s-hanabi", title: "はなびたいかい", de: "Das Feuerwerksfest", lesson: "Lektion 11–12", cover: "🎆",
+  { id: "s-hanabi", title: "はなびたいかい", de: "Das Feuerwerksfest", lesson: "Lektion 11–12", cover: "🎆", icon: "hanabi",
     pages: [
       { pic: "📅 🎆", lines: ["はちがつ=8月=August|に|まち=町|で|はなびたいかい=花火大会|が|あります。"], de: "Im August gibt es in der Stadt ein Feuerwerksfest." },
       { pic: "👧 👩", lines: ["ユミ==Yumi (Name)|は|ともだち=友だち|の|リサ==Lisa (Name)|と|いきます。=行きます。=geht"], de: "Yumi geht mit ihrer Freundin Lisa hin." },
@@ -161,7 +161,7 @@ window.STORIES = [
       { q: "まつり=祭り|で|なに=何|を|たべますか。=食べますか。=essen", de: "Was essen sie auf dem Fest?", a: ["やきとり と かきごおり", "すし と てんぷら", "パン と ケーキ"] },
       { q: "はなび=花火|は|なんじ=何時|に|はじまりますか。=始まりますか。=beginnt", de: "Um wie viel Uhr beginnt das Feuerwerk?", a: ["はちじ", "くじ", "ろくじ"] },
     ] },
-  { id: "s-tokyo", title: "とうきょう りょこう", de: "Reise nach Tokio", lesson: "Reise", cover: "🗼",
+  { id: "s-tokyo", title: "とうきょう りょこう", de: "Reise nach Tokio", lesson: "Reise", cover: "🗼", icon: "tower",
     pages: [
       { pic: "✈️ 🗼", lines: ["わたし=私=ich|は|はじめて==zum ersten Mal|とうきょう=東京=Tokio|に|きました。=来ました。=bin gekommen"], de: "Ich bin zum ersten Mal nach Tokio gekommen." },
       { pic: "🏨 🚉", lines: ["ホテル|は|えき=駅|の|ちかく=近く|です。", "へや=部屋|は|せまい=狭い|です|が、==aber|きれい|です。"], de: "Das Hotel ist in der Nähe des Bahnhofs. Das Zimmer ist klein, aber sauber." },

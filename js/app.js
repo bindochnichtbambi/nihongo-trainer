@@ -9,7 +9,7 @@
   // ---------- Speicher ----------
   function defaults() {
     return {
-      settings: { script: "kana", furigana: true, newPerSession: 8, recallSec: 5, speak: true, write: true, phrases: true, ttsRate: 0.85, counterMode: "mc", theme: "stamp" },
+      settings: { script: "kana", furigana: true, newPerSession: 8, recallSec: 5, speak: true, write: true, phrases: true, ttsRate: 0.85, counterMode: "mc", theme: "stamp", mode: "auto" },
       groups: null, progress: {}, custom: [], counterCats: ["tsu", "nin", "hiki"], log: {},
     };
   }
@@ -88,6 +88,7 @@
   function applyTheme() {
     const t = DB.settings.theme || "stamp";
     document.documentElement.dataset.theme = t;
+    document.documentElement.dataset.mode = DB.settings.mode || "auto";
     const m = document.querySelector('meta[name="theme-color"]');
     if (m) m.content = getComputedStyle(document.documentElement).getPropertyValue("--bg").trim() || (t === "stamp" ? "#ece2cf" : "#c8102e");
   }
@@ -151,13 +152,17 @@
         <button class="btn primary" id="go">${due + learning + fresh ? "Vokabeln lernen" : "Alles erledigt 🎉"}</button>
         <p class="small muted center" style="margin:8px 0 0">${fresh} neue Wörter verfügbar · heute ${todayCount} Karten</p>
       </div>
-      <button class="btn menu-btn" id="m-groups"><span class="ico"><i class="emo">📚</i><svg class="pic"><use href="#i-torii"/></svg></span><span>Lektionen wählen<small>${DB.groups.length} von ${GROUPS.length} Gruppen aktiv</small></span></button>
-      <button class="btn menu-btn" id="m-counters"><span class="ico"><i class="emo">三</i><svg class="pic"><use href="#i-soroban"/></svg></span><span>Zählwörter üben<small>ひとつ, さんぼん, はっぴき, Datum, Uhrzeit, Preise …</small></span></button>
-      <button class="btn menu-btn" id="m-dialog"><span class="ico"><i class="emo">💬</i><svg class="pic"><use href="#i-tea"/></svg></span><span>Gespräche<small>Dialoge lesen, Lücken füllen, Rollenspiel mit Mikrofon</small></span></button>
-      <button class="btn menu-btn" id="m-story"><span class="ico"><i class="emo">📖</i><svg class="pic"><use href="#i-fuji"/></svg></span><span>Lesebücher<small>Kurze Bildergeschichten mit Fragen zum Text</small></span></button>
-      <button class="btn menu-btn" id="m-write"><span class="ico"><i class="emo">✍️</i><svg class="pic"><use href="#i-brush"/></svg></span><span>Schreiben üben<small>Kanji, Hiragana & Katakana mit dem Finger zeichnen</small></span></button>
-      <button class="btn menu-btn" id="m-list"><span class="ico"><i class="emo">🔎</i><svg class="pic"><use href="#i-sakura"/></svg></span><span>Wortliste<small>Suchen, eigene Wörter ergänzen</small></span></button>
-      <button class="btn menu-btn" id="m-settings"><span class="ico"><i class="emo">⚙️</i><svg class="pic"><use href="#i-fan"/></svg></span><span>Einstellungen<small>Schrift, Stufen, Sicherung</small></span></button>
+      <div class="tiles">${[
+        ["m-dialog", "tea", "💬", "Gespräche", "Dialoge & Rollenspiel"],
+        ["m-story", "fuji", "📖", "Lesebücher", "Geschichten & Fragen"],
+        ["m-write", "brush", "✍️", "Schreiben", "Kanji & Kana zeichnen"],
+        ["m-counters", "soroban", "三", "Zählwörter", "ひとつ, さんぼん …"],
+        ["m-list", "sakura", "🔎", "Wortliste", "Suchen & ergänzen"],
+        ["m-groups", "torii", "📚", "Lektionen", `${DB.groups.length} von ${GROUPS.length} aktiv`],
+      ].map(([id, ic, emo, t, sub], i) => `<button class="tile ${(Math.floor(i / 2) + i % 2) % 2 ? "beige" : "red"}" id="${id}">
+          <span class="ico"><i class="emo">${emo}</i><svg class="pic"><use href="#i-${ic}"/></svg></span>
+          <b>${t}</b><small>${sub}</small></button>`).join("")}</div>
+      <button class="btn settings-btn" id="m-settings">⚙️ Einstellungen</button>
     `);
     document.getElementById("go").onclick = () => startSession();
     document.getElementById("m-groups").onclick = groupsView;
@@ -554,7 +559,7 @@
     const seg = (key, opts) => `<div class="seg" data-key="${key}">${opts.map(([v, l]) => `<button data-v="${v}" class="${String(s[key]) === String(v) ? "on" : ""}">${l}</button>`).join("")}</div>`;
     show("Einstellungen", `
       <h2>Design</h2>
-      <div class="card">${seg("theme", [["stamp", "Briefmarke"], ["classic", "Klassisch"]])}<p class="small muted" style="margin-bottom:0">Briefmarke: Zinnoberrot, Papier und Holzschnitt-Symbole.</p></div>
+      <div class="card">${seg("theme", [["stamp", "Japan"], ["classic", "Klassisch"]])}<p class="small muted">Japan: Rot &amp; Beige mit Holzschnitt-Symbolen.</p><label class="field" style="margin:0"><span>Hell / Dunkel</span>${seg("mode", [["auto", "Wie Handy"], ["light", "Hell"], ["dark", "Dunkel"]])}</label></div>
       <h2>Schrift</h2>
       <div class="card">
         ${seg("script", [["romaji", "Romaji"], ["kana", "Kana"], ["kanji", "Kanji"]])}
@@ -654,6 +659,40 @@
       out.push([points[j][0] + (points[j + 1][0] - points[j][0]) * f, points[j][1] + (points[j + 1][1] - points[j][1]) * f]);
     }
     return { pts: out, len: L };
+  }
+  // Pinselstrich: Umriss mit wechselnder Breite (kräftiger Ansatz, voller Körper, auslaufende Spitze)
+  function brushOutline(pts, W = 4.9) {
+    const n = pts.length, f = p => p[0].toFixed(1) + "," + p[1].toFixed(1);
+    if (n < 2 || Math.hypot(pts[n - 1][0] - pts[0][0], pts[n - 1][1] - pts[0][1]) < 1.5) {
+      const [x, y] = pts[0], r = W * 0.6;
+      return `M${(x - r).toFixed(1)},${y.toFixed(1)}a${r},${r} 0 1,0 ${2 * r},0a${r},${r} 0 1,0 ${-2 * r},0Z`;
+    }
+    const L = [], R = [];
+    for (let i = 0; i < n; i++) {
+      const a = pts[Math.max(0, i - 2)], b = pts[Math.min(n - 1, i + 2)];
+      const dx = b[0] - a[0], dy = b[1] - a[1], len = Math.hypot(dx, dy) || 1;
+      const nx = -dy / len, ny = dx / len, t = i / (n - 1);
+      let w = W * (0.8 + 0.2 * Math.sin(Math.PI * Math.min(1, t * 1.15)));
+      if (t < 0.08) w *= 1.2 - t * 1.5;                       // Ansatz mit Druck
+      if (t > 0.7) w *= Math.max(0.28, 1 - (t - 0.7) / 0.3 * 0.72); // auslaufende Spitze
+      L.push([pts[i][0] + nx * w / 2, pts[i][1] + ny * w / 2]);
+      R.push([pts[i][0] - nx * w / 2, pts[i][1] - ny * w / 2]);
+    }
+    const r0 = (Math.hypot(L[0][0] - R[0][0], L[0][1] - R[0][1]) / 2).toFixed(1);
+    const rn = (Math.hypot(L[n - 1][0] - R[n - 1][0], L[n - 1][1] - R[n - 1][1]) / 2).toFixed(1);
+    return "M" + f(L[0]) + " L" + L.slice(1).map(f).join(" L") + ` A${rn},${rn} 0 0 1 ` + f(R[n - 1]) +
+      " L" + R.slice(0, -1).reverse().map(f).join(" L") + ` A${r0},${r0} 0 0 1 ` + f(L[0]) + "Z";
+  }
+  const brushCache = {};
+  function brushForD(d) {
+    if (brushCache[d]) return brushCache[d];
+    const len = sampleD(d, 2).len;
+    return (brushCache[d] = brushOutline(sampleD(d, Math.max(6, Math.round(len / 1.4))).pts));
+  }
+  function liveBrush(pts) {
+    if (pts.length < 2) return brushOutline(pts);
+    const len = resample(pts, 2).len;
+    return brushOutline(resample(pts, Math.max(2, Math.min(140, Math.round(len / 1.4)))).pts);
   }
   const meanDist = (a, b) => a.reduce((s, p, i) => s + Math.hypot(p[0] - b[i][0], p[1] - b[i][1]), 0) / a.length;
   // Vergleicht einen gezeichneten Strich mit einem Referenzstrich: "ok" | "reverse" | "no"
@@ -769,11 +808,11 @@
       <div class="stage-label"><span>${{ trace: "Nachzeichnen", help: "Mit Hilfe", free: "Aus dem Kopf" }[mode]}</span><span>${counter}</span></div>
       <div class="card">
         <div class="prompt" style="min-height:0;padding:4px 0 10px">${prompt}</div>
-        <div class="draw-wrap">
-          <svg id="pad" class="pad" viewBox="0 0 109 109">
-            <g class="grid"><line x1="54.5" y1="0" x2="54.5" y2="109"/><line x1="0" y1="54.5" x2="109" y2="54.5"/></g>
+        <div class="draw-wrap scroll"><i class="knob tl"></i><i class="knob tr"></i><i class="knob bl"></i><i class="knob br"></i>
+          <svg id="pad" class="pad parchment" viewBox="0 0 109 109">
+            <g class="grid"><rect x="6" y="6" width="97" height="97"/><line x1="54.5" y1="6" x2="54.5" y2="103"/><line x1="6" y1="54.5" x2="103" y2="54.5"/></g>
             <g id="guide" class="guide"></g><g id="hint" class="hintl"></g><g id="done" class="done"></g>
-            <polyline id="live" class="live" points=""/>
+            <path id="live" class="live-brush" d=""/>
           </svg>
           <div id="loading" class="pad-msg">Lade Strichdaten …</div>
         </div>
@@ -794,8 +833,8 @@
 
     function drawLayers() {
       guide.innerHTML = ""; doneL.innerHTML = ""; hintL.innerHTML = "";
-      if (mode === "trace" || finished) strokes.forEach(d => mk("path", { d }, guide));
-      strokes.slice(0, idx).forEach(d => mk("path", { d }, doneL));
+      if (mode === "trace" || finished) strokes.forEach(d => mk("path", { d: brushForD(d), class: "brush" }, guide));
+      strokes.slice(0, idx).forEach(d => mk("path", { d: brushForD(d), class: "brush" }, doneL));
       if (!finished && (mode === "trace" || mode === "help")) startDot();
     }
     function startDot() {
@@ -814,9 +853,10 @@
       if (!strokes || animating) return;
       animating = true; guide.innerHTML = ""; doneL.innerHTML = ""; hintL.innerHTML = "";
       for (const d of strokes) {
-        const p = mk("path", { d }, doneL); const L = p.getTotalLength();
+        const p = mk("path", { d, class: "anim" }, doneL); const L = p.getTotalLength();
         p.style.strokeDasharray = L; p.style.strokeDashoffset = L;
         await p.animate([{ strokeDashoffset: L }, { strokeDashoffset: 0 }], { duration: Math.max(300, L * 9), fill: "forwards" }).finished;
+        p.remove(); mk("path", { d: brushForD(d), class: "brush" }, doneL);
       }
       await new Promise(r => setTimeout(r, 600));
       animating = false; drawLayers();
@@ -839,11 +879,11 @@
     pad.addEventListener("pointerdown", e => {
       if (!strokes || finished || animating) return;
       e.preventDefault(); try { pad.setPointerCapture(e.pointerId); } catch (err) { } pts = [toSvg(e)];
-      live.setAttribute("points", pts.map(p => p.join(",")).join(" ")); live.classList.remove("bad");
+      live.setAttribute("d", liveBrush(pts)); live.classList.remove("bad");
     });
     pad.addEventListener("pointermove", e => {
       if (!pts) return; e.preventDefault();
-      pts.push(toSvg(e)); live.setAttribute("points", pts.map(p => p.join(",")).join(" "));
+      pts.push(toSvg(e)); live.setAttribute("d", liveBrush(pts));
     });
     const up = () => {
       if (!pts) return;
@@ -851,8 +891,8 @@
       const loose = mode === "free";
       const r = judgeStroke(user, strokes[idx], loose);
       if (r === "ok") {
-        live.setAttribute("points", ""); idx++; strokeErr = 0; hintL.innerHTML = "";
-        const p = mk("path", { d: strokes[idx - 1], class: "just" }, doneL);
+        live.setAttribute("d", ""); idx++; strokeErr = 0; hintL.innerHTML = "";
+        const p = mk("path", { d: brushForD(strokes[idx - 1]), class: "brush just" }, doneL);
         setTimeout(() => p.classList.remove("just"), 350);
         if (idx >= strokes.length) return complete();
         if (mode !== "free") startDot();
@@ -868,7 +908,7 @@
       }
       setStatus(msg, "bad-text");
       live.classList.add("bad");
-      setTimeout(() => { if (!pts) live.setAttribute("points", ""); }, 450);
+      setTimeout(() => { if (!pts) live.setAttribute("d", ""); }, 450);
       if (strokeErr >= 2) showHint();
     };
     pad.addEventListener("pointerup", up); pad.addEventListener("pointercancel", up);
@@ -1138,7 +1178,7 @@
     TOKS = [];
     const st = DB.story || {};
     show("Lesebücher", `<div class="story-grid">${window.STORIES.map(s => `<button class="story-card" data-s="${s.id}">
-        <div class="cover">${s.cover}</div><div class="jp st-title">${tokText({ kana: s.title, kanji: "" })}</div>
+        <svg class="cover-pic"><use href="#i-${s.icon}"/></svg><div class="cover cover-emo">${s.cover}</div><div class="jp st-title">${tokText({ kana: s.title, kanji: "" })}</div>
         <div class="small muted">${esc(s.de)}</div><div class="small muted">${esc(s.lesson)}${st[s.id] != null ? ` · ${st[s.id]}% ✓` : ""}</div></button>`).join("")}</div>
       <p class="small muted">Tippe ein Wort an, um es zu hören. Lange drücken zeigt die Übersetzung.</p>`, { back: home });
     $app.querySelectorAll("[data-s]").forEach(b => b.onclick = () => storyPage(window.STORIES.find(s => s.id === b.dataset.s), 0));
