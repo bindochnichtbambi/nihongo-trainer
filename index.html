@@ -1,16 +1,87 @@
 <!doctype html>
-<html lang="de">
+<html lang="de" data-theme="stamp">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#c8102e">
+  <meta name="theme-color" content="#efe6d6">
   <title>Nihongo Trainer</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@500;700&display=swap">
   <link rel="stylesheet" href="css/style.css">
+  <script>
+    // Design vor dem ersten Zeichnen setzen (kein Flackern)
+    try { var s = JSON.parse(localStorage.getItem("nihongo-trainer-v1") || "{}"); document.documentElement.dataset.theme = (s.settings && s.settings.theme) || "stamp"; } catch (e) { }
+  </script>
 </head>
 <body>
+  <!-- Eigene Symbole im Holzschnitt-Stil -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <filter id="woodcut" x="-10%" y="-10%" width="120%" height="120%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="4" result="warp"/>
+        <feDisplacementMap in="SourceGraphic" in2="warp" scale="2.2" xChannelSelector="R" yChannelSelector="G" result="rough"/>
+        <feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="2" seed="9" result="grain"/>
+        <feColorMatrix in="grain" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -9 0 0 0 6.2" result="mask"/>
+        <feComposite in="rough" in2="mask" operator="in"/>
+      </filter>
+    </defs>
+    <symbol id="i-torii" viewBox="0 0 64 64"><g filter="url(#woodcut)" fill="currentColor">
+      <path d="M3 13 Q32 6 61 13 L60 19 Q32 13 4 19 Z"/>
+      <rect x="9" y="26" width="46" height="5"/>
+      <rect x="29" y="18" width="6" height="9"/>
+      <path d="M15 18 L21 18 L22.5 60 L13.5 60 Z"/><path d="M43 18 L49 18 L50.5 60 L41.5 60 Z"/>
+      <path d="M2 61 Q32 57 62 61 L62 63 L2 63 Z" opacity=".6"/>
+    </g></symbol>
+    <symbol id="i-soroban" viewBox="0 0 64 64"><g filter="url(#woodcut)" fill="currentColor">
+      <path fill-rule="evenodd" d="M4 10h56v44H4z M9 15h46v34H9z"/>
+      <rect x="9" y="25" width="46" height="3"/>
+      <g stroke="currentColor" stroke-width="1.6"><path d="M16 15v34M25 15v34M34 15v34M43 15v34M51 15v34"/></g>
+      <g><ellipse cx="16" cy="19" rx="4" ry="2.8"/><ellipse cx="25" cy="22" rx="4" ry="2.8"/><ellipse cx="34" cy="19" rx="4" ry="2.8"/><ellipse cx="43" cy="19" rx="4" ry="2.8"/><ellipse cx="51" cy="22" rx="3.6" ry="2.8"/>
+        <ellipse cx="16" cy="32" rx="4" ry="2.8"/><ellipse cx="16" cy="38" rx="4" ry="2.8"/><ellipse cx="25" cy="40" rx="4" ry="2.8"/><ellipse cx="25" cy="46" rx="4" ry="2.8"/>
+        <ellipse cx="34" cy="32" rx="4" ry="2.8"/><ellipse cx="34" cy="38" rx="4" ry="2.8"/><ellipse cx="34" cy="44" rx="4" ry="2.8"/>
+        <ellipse cx="43" cy="46" rx="4" ry="2.8"/><ellipse cx="51" cy="32" rx="3.6" ry="2.8"/><ellipse cx="51" cy="46" rx="3.6" ry="2.8"/></g>
+    </g></symbol>
+    <symbol id="i-tea" viewBox="0 0 64 64"><g filter="url(#woodcut)" fill="currentColor">
+      <path d="M8 30 H56 Q56 50 32 53 Q8 50 8 30 Z"/>
+      <rect x="22" y="53" width="20" height="5" rx="1"/>
+      <path d="M12 35 Q32 40 52 35" style="stroke:var(--surface,#fff)" stroke-width="2" fill="none"/>
+      <g fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round">
+        <path d="M24 25 q-5 -5 0 -10 q5 -5 0 -10"/><path d="M34 25 q-5 -5 0 -10 q5 -5 0 -10"/><path d="M44 25 q-4 -4 0 -8"/></g>
+    </g></symbol>
+    <symbol id="i-fuji" viewBox="0 0 64 64"><g filter="url(#woodcut)" fill="currentColor">
+      <circle cx="49" cy="14" r="8"/>
+      <path fill-rule="evenodd" d="M2 56 L23 22 Q32 17 41 22 L62 56 Z M23 22 Q32 17 41 22 L46 31 L41 28 L37 33 L32 28 L27 33 L23 28 L18 31 Z"/>
+      <g fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M2 44 q5 -5 10 0 q4 4 8 0"/><path d="M44 46 q5 -5 10 0 q4 4 8 0"/></g>
+      <rect x="0" y="58" width="64" height="4" opacity=".7"/>
+    </g></symbol>
+    <symbol id="i-brush" viewBox="0 0 64 64"><g filter="url(#woodcut)" fill="currentColor">
+      <path d="M45 3 L52 8 L31 37 L24 32 Z"/>
+      <path d="M24 32 L31 37 L28.5 41 L21.5 36 Z" opacity=".75"/>
+      <path d="M21.5 36 L28.5 41 Q25 50 13 53 Q16 44 21.5 36 Z"/>
+      <path d="M6 58 Q30 49 58 55 L58 59 Q30 54 6 62 Z"/>
+    </g></symbol>
+    <symbol id="i-sakura" viewBox="0 0 64 64"><defs>
+      <g id="i-bloom"><circle cx="0" cy="-4.2" r="3.4"/><circle cx="4" cy="-1.3" r="3.4"/><circle cx="2.5" cy="3.4" r="3.4"/><circle cx="-2.5" cy="3.4" r="3.4"/><circle cx="-4" cy="-1.3" r="3.4"/></g></defs>
+      <g filter="url(#woodcut)" fill="currentColor">
+      <path d="M4 60 Q18 46 28 36 Q40 24 58 6" fill="none" stroke="currentColor" stroke-width="4.2" stroke-linecap="round"/>
+      <path d="M28 36 Q37 37 44 47" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+      <path d="M40 26 Q36 18 38 11" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+      <use href="#i-bloom" transform="translate(52 12)"/><use href="#i-bloom" transform="translate(38 10) scale(.8)"/>
+      <use href="#i-bloom" transform="translate(45 48)"/><use href="#i-bloom" transform="translate(20 42) scale(.85)"/>
+      <circle cx="52" cy="12" r="1.3" style="fill:var(--surface,#fff)"/><circle cx="45" cy="48" r="1.3" style="fill:var(--surface,#fff)"/>
+    </g></symbol>
+    <symbol id="i-fan" viewBox="0 0 64 64"><g filter="url(#woodcut)" fill="currentColor">
+      <path d="M32 56 L4 28 A40 40 0 0 1 60 28 Z"/>
+      <g style="stroke:var(--surface,#fff)" stroke-width="1.6"><path d="M32 56 L11 20M32 56 L21 13M32 56 L32 10M32 56 L43 13M32 56 L53 20"/></g>
+      <path d="M32 56 L13 36 A27 27 0 0 1 51 36 Z" style="fill:var(--surface,#fff)" opacity=".25"/>
+      <circle cx="32" cy="55" r="3.5"/>
+    </g></symbol>
+  </svg>
+
   <header class="topbar">
     <button id="backBtn" class="icon-btn" aria-label="Zurück" hidden>‹</button>
     <h1 id="title">日本語</h1>
@@ -23,6 +94,7 @@
   <script src="js/kana.js"></script>
   <script src="js/counters.js"></script>
   <script src="js/kanji.js"></script>
+  <script src="js/dialogs.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

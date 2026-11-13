@@ -9,7 +9,7 @@
   // ---------- Speicher ----------
   function defaults() {
     return {
-      settings: { script: "kana", furigana: true, newPerSession: 8, recallSec: 5, speak: true, write: true, phrases: true, ttsRate: 0.85, counterMode: "mc" },
+      settings: { script: "kana", furigana: true, newPerSession: 8, recallSec: 5, speak: true, write: true, phrases: true, ttsRate: 0.85, counterMode: "mc", theme: "stamp" },
       groups: null, progress: {}, custom: [], counterCats: ["tsu", "nin", "hiki"], log: {},
     };
   }
@@ -72,6 +72,8 @@
 
   function show(title, html, opts = {}) {
     if (cleanup) { cleanup(); cleanup = null; }
+    hideGloss(); playRun++;
+    try { speechSynthesis.cancel(); } catch (e) { }
     $title.textContent = title;
     $back.hidden = !opts.back;
     $back.onclick = opts.back || null;
@@ -83,6 +85,12 @@
     clearTimeout(toast._t); toast._t = setTimeout(() => (t.hidden = true), 2200);
   }
   function updateScriptBtn() { $script.textContent = SCRIPTS[DB.settings.script]; }
+  function applyTheme() {
+    const t = DB.settings.theme || "stamp";
+    document.documentElement.dataset.theme = t;
+    const m = document.querySelector('meta[name="theme-color"]');
+    if (m) m.content = getComputedStyle(document.documentElement).getPropertyValue("--bg").trim() || (t === "stamp" ? "#ece2cf" : "#c8102e");
+  }
   $script.onclick = () => {
     const order = ["romaji", "kana", "kanji"];
     DB.settings.script = order[(order.indexOf(DB.settings.script) + 1) % 3];
@@ -98,12 +106,17 @@
     jaVoice = vs.find(v => v.lang === "ja-JP" && /google/i.test(v.name)) || vs.find(v => v.lang && v.lang.startsWith("ja")) || null;
   }
   if ("speechSynthesis" in window) { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
+  // Liest japanischen Text vor; das Promise wird erfüllt, wenn das Vorlesen fertig ist
   function say(text) {
-    if (!("speechSynthesis" in window)) return toast("Sprachausgabe nicht verfügbar");
+    if (!("speechSynthesis" in window)) { toast("Sprachausgabe nicht verfügbar"); return Promise.resolve(); }
     speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text.replace(/～/g, "なになに"));
-    u.lang = "ja-JP"; u.rate = DB.settings.ttsRate; if (jaVoice) u.voice = jaVoice;
-    speechSynthesis.speak(u);
+    return new Promise(res => {
+      const u = new SpeechSynthesisUtterance(text.replace(/～/g, "なになに"));
+      u.lang = "ja-JP"; u.rate = DB.settings.ttsRate; if (jaVoice) u.voice = jaVoice;
+      u.onend = res; u.onerror = res;
+      setTimeout(res, 15000);
+      speechSynthesis.speak(u);
+    });
   }
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   function listen(onResult, onEnd) {
@@ -129,7 +142,7 @@
     const today = new Date().toISOString().slice(0, 10);
     const todayCount = DB.log[today] || 0;
     show("日本語 Trainer", `
-      <div class="card">
+      <div class="card stats-card">
         <div class="stats">
           <div class="stat"><b>${due}</b><span>fällig</span></div>
           <div class="stat"><b>${learning}</b><span>in Arbeit</span></div>
@@ -138,17 +151,21 @@
         <button class="btn primary" id="go">${due + learning + fresh ? "Vokabeln lernen" : "Alles erledigt 🎉"}</button>
         <p class="small muted center" style="margin:8px 0 0">${fresh} neue Wörter verfügbar · heute ${todayCount} Karten</p>
       </div>
-      <button class="btn menu-btn" id="m-groups"><span class="ico">📚</span><span>Lektionen wählen<small>${DB.groups.length} von ${GROUPS.length} Gruppen aktiv</small></span></button>
-      <button class="btn menu-btn" id="m-counters"><span class="ico">三</span><span>Zählwörter üben<small>ひとつ, さんぼん, はっぴき, Datum, Uhrzeit, Preise …</small></span></button>
-      <button class="btn menu-btn" id="m-write"><span class="ico">✍️</span><span>Schreiben üben<small>Kanji, Hiragana & Katakana mit dem Finger zeichnen</small></span></button>
-      <button class="btn menu-btn" id="m-list"><span class="ico">🔎</span><span>Wortliste<small>Suchen, eigene Wörter ergänzen</small></span></button>
-      <button class="btn menu-btn" id="m-settings"><span class="ico">⚙️</span><span>Einstellungen<small>Schrift, Stufen, Sicherung</small></span></button>
+      <button class="btn menu-btn" id="m-groups"><span class="ico"><i class="emo">📚</i><svg class="pic"><use href="#i-torii"/></svg></span><span>Lektionen wählen<small>${DB.groups.length} von ${GROUPS.length} Gruppen aktiv</small></span></button>
+      <button class="btn menu-btn" id="m-counters"><span class="ico"><i class="emo">三</i><svg class="pic"><use href="#i-soroban"/></svg></span><span>Zählwörter üben<small>ひとつ, さんぼん, はっぴき, Datum, Uhrzeit, Preise …</small></span></button>
+      <button class="btn menu-btn" id="m-dialog"><span class="ico"><i class="emo">💬</i><svg class="pic"><use href="#i-tea"/></svg></span><span>Gespräche<small>Dialoge lesen, Lücken füllen, Rollenspiel mit Mikrofon</small></span></button>
+      <button class="btn menu-btn" id="m-story"><span class="ico"><i class="emo">📖</i><svg class="pic"><use href="#i-fuji"/></svg></span><span>Lesebücher<small>Kurze Bildergeschichten mit Fragen zum Text</small></span></button>
+      <button class="btn menu-btn" id="m-write"><span class="ico"><i class="emo">✍️</i><svg class="pic"><use href="#i-brush"/></svg></span><span>Schreiben üben<small>Kanji, Hiragana & Katakana mit dem Finger zeichnen</small></span></button>
+      <button class="btn menu-btn" id="m-list"><span class="ico"><i class="emo">🔎</i><svg class="pic"><use href="#i-sakura"/></svg></span><span>Wortliste<small>Suchen, eigene Wörter ergänzen</small></span></button>
+      <button class="btn menu-btn" id="m-settings"><span class="ico"><i class="emo">⚙️</i><svg class="pic"><use href="#i-fan"/></svg></span><span>Einstellungen<small>Schrift, Stufen, Sicherung</small></span></button>
     `);
     document.getElementById("go").onclick = () => startSession();
     document.getElementById("m-groups").onclick = groupsView;
     document.getElementById("m-counters").onclick = countersView;
     document.getElementById("m-list").onclick = () => listView();
     document.getElementById("m-write").onclick = writeView;
+    document.getElementById("m-dialog").onclick = dialogList;
+    document.getElementById("m-story").onclick = storyList;
     document.getElementById("m-settings").onclick = settingsView;
   }
 
@@ -536,6 +553,8 @@
     const s = DB.settings;
     const seg = (key, opts) => `<div class="seg" data-key="${key}">${opts.map(([v, l]) => `<button data-v="${v}" class="${String(s[key]) === String(v) ? "on" : ""}">${l}</button>`).join("")}</div>`;
     show("Einstellungen", `
+      <h2>Design</h2>
+      <div class="card">${seg("theme", [["stamp", "Briefmarke"], ["classic", "Klassisch"]])}<p class="small muted" style="margin-bottom:0">Briefmarke: Zinnoberrot, Papier und Holzschnitt-Symbole.</p></div>
       <h2>Schrift</h2>
       <div class="card">
         ${seg("script", [["romaji", "Romaji"], ["kana", "Kana"], ["kanji", "Kanji"]])}
@@ -564,7 +583,7 @@
     $app.querySelectorAll(".seg[data-key]").forEach(sg => sg.querySelectorAll("button").forEach(b => b.onclick = e => {
       e.preventDefault();
       const k = sg.dataset.key, v = b.dataset.v;
-      s[k] = isNaN(+v) ? v : +v; save(); updateScriptBtn();
+      s[k] = isNaN(+v) ? v : +v; save(); updateScriptBtn(); applyTheme();
       sg.querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b));
     }));
     $app.querySelectorAll("[data-bool]").forEach(cb => cb.onchange = () => { s[cb.dataset.bool] = cb.checked; save(); });
@@ -868,8 +887,313 @@
     });
   }
 
+  // ---------- Texte mit antippbaren Wörtern ----------
+  // Kurz tippen = Wort vorlesen, lange drücken = Übersetzung
+  let playRun = 0;          // erhöht sich bei jedem Ansichtswechsel -> bricht laufendes Vorlesen ab
+  let TOKS = [];
+  let TOKDICT = null;
+  const PART = { "は": "wa", "へ": "e", "を": "o" };
+  const PART_SAY = { "は": "わ", "へ": "え", "を": "お" };
+  function parseTok(t) {
+    let gap = false; if (t.startsWith("_")) { gap = true; t = t.slice(1); }
+    const [kana, kanji = "", de = ""] = t.split("=");
+    return { kana, kanji, de, gap };
+  }
+  const parseLine = s => s.split("|").map(parseTok);
+  const core = s => s.replace(/[。、？！?!,.「」\s]/g, "");
+  function tokDict() {
+    if (TOKDICT) return TOKDICT;
+    TOKDICT = {};
+    for (const w of WORDS) { const k = Kana.stripJP(w.kana); if (!TOKDICT[k]) TOKDICT[k] = w.de; if (w.kanji && !TOKDICT[Kana.stripJP(w.kanji)]) TOKDICT[Kana.stripJP(w.kanji)] = w.de; }
+    for (const k in window.GLOSS) TOKDICT[Kana.stripJP(k)] = window.GLOSS[k];
+    const scan = s => parseLine(s).forEach(p => { const k = Kana.stripJP(p.kana); if (p.de && !TOKDICT[k]) TOKDICT[k] = p.de; });
+    window.DIALOGS.forEach(d => d.lines.forEach(l => scan(l[1])));
+    window.STORIES.forEach(s => { s.pages.forEach(p => p.lines.forEach(scan)); s.questions.forEach(q => scan(q.q)); });
+    return TOKDICT;
+  }
+  const tokDe = t => t.de || tokDict()[Kana.stripJP(t.kana)] || "";
+  function tokRomaji(t) { const c = core(t.kana); return PART[c] ? t.kana.replace(c, PART[c]) : Kana.kanaToRomaji(t.kana); }
+  function tokText(t) {
+    const sc = DB.settings.script;
+    if (sc === "romaji") return esc(tokRomaji(t));
+    if (sc === "kanji" && t.kanji && t.kanji !== t.kana) {
+      return DB.settings.furigana && Kana.hasKanji(t.kanji) ? `<ruby>${esc(t.kanji)}<rt>${esc(core(t.kana))}</rt></ruby>` : esc(t.kanji);
+    }
+    return esc(t.kana);
+  }
+  const tokSay = t => PART_SAY[core(t.kana)] || core(t.kanji || t.kana) || t.kana;
+  const lineSay = toks => toks.map(t => t.kanji || t.kana).join("");
+  const lineKana = toks => toks.map(t => t.kana).join("");
+  const lineKanji = toks => toks.map(t => t.kanji || t.kana).join("");
+  function tokHTML(t) { const i = TOKS.push(t) - 1; return `<span class="tok" data-t="${i}">${tokText(t)}</span>`; }
+  function lineHTML(toks) { return toks.map(tokHTML).join(DB.settings.script === "romaji" ? " " : ""); }
+
+  const $gloss = document.createElement("div"); $gloss.className = "gloss"; $gloss.hidden = true; document.body.appendChild($gloss);
+  function hideGloss() { $gloss.hidden = true; }
+  function showGloss(t, el) {
+    const de = tokDe(t);
+    $gloss.innerHTML = `<div class="g-jp jp">${esc(t.kanji && t.kanji !== t.kana ? t.kanji : t.kana)}</div>
+      ${t.kanji && t.kanji !== t.kana ? `<div class="jp small">${esc(core(t.kana))}</div>` : ""}
+      <div class="small muted">${esc(tokRomaji(t))}</div>
+      <div class="g-de">${esc(de || "(keine Übersetzung hinterlegt)")}</div>`;
+    $gloss.hidden = false;
+    const r = el.getBoundingClientRect(), g = $gloss.getBoundingClientRect();
+    let top = r.top - g.height - 8; if (top < 8) top = r.bottom + 8;
+    let left = Math.min(Math.max(8, r.left + r.width / 2 - g.width / 2), innerWidth - g.width - 8);
+    $gloss.style.top = top + "px"; $gloss.style.left = left + "px";
+    if (navigator.vibrate) try { navigator.vibrate(15); } catch (e) { }
+  }
+  let lp = null;
+  $app.addEventListener("pointerdown", e => {
+    const el = e.target.closest(".tok"); if (!el) { hideGloss(); return; }
+    const t = TOKS[+el.dataset.t]; if (!t) return;
+    hideGloss();
+    lp = { el, t, x: e.clientX, y: e.clientY, fired: false };
+    lp.timer = setTimeout(() => { if (lp) { lp.fired = true; showGloss(t, el); } }, 430);
+  });
+  $app.addEventListener("pointermove", e => { if (lp && Math.hypot(e.clientX - lp.x, e.clientY - lp.y) > 12) { clearTimeout(lp.timer); lp = null; } });
+  $app.addEventListener("pointerup", () => {
+    if (!lp) return; clearTimeout(lp.timer);
+    if (!lp.fired) { lp.el.classList.add("tapped"); const el = lp.el; setTimeout(() => el.classList.remove("tapped"), 300); say(tokSay(lp.t)); }
+    lp = null;
+  });
+  $app.addEventListener("pointercancel", () => { if (lp) clearTimeout(lp.timer); lp = null; });
+  $app.addEventListener("contextmenu", e => { if (e.target.closest(".tok")) e.preventDefault(); });
+  document.addEventListener("scroll", hideGloss, { passive: true });
+
+  async function playSeq(texts, onStep) {
+    const run = ++playRun;
+    for (let i = 0; i < texts.length; i++) {
+      if (run !== playRun) return false;
+      onStep && onStep(i);
+      await say(texts[i]);
+      await new Promise(r => setTimeout(r, 250));
+    }
+    if (run === playRun) onStep && onStep(-1);
+    return run === playRun;
+  }
+  function roleName(d, who) { return tokText({ kana: d.roles[who][0], kanji: "" }); }
+
+  // ---------- Gespräche ----------
+  function dialogList() {
+    current = { rerender: dialogList };
+    const st = DB.dlg || {};
+    const groups = [...new Set(window.DIALOGS.map(d => d.lesson))];
+    show("Gespräche", groups.map(g => `<h2>${esc(g)}</h2>` + window.DIALOGS.filter(d => d.lesson === g).map(d => {
+      const s = st[d.id];
+      return `<button class="btn menu-btn" data-d="${d.id}"><span class="ico">${d.emoji}</span><span>${esc(d.title)}<small>${d.lines.length} Sätze${s ? ` · Lücken: ${s.gap ?? "–"}% · Rollenspiel: ${s.role ?? "–"}%` : ""}</small></span>${s && s.gap === 100 ? "✅" : ""}</button>`;
+    }).join("")).join("") + `<p class="small muted">Tipp: Kurz auf ein Wort tippen = anhören. Lange drücken = Übersetzung.</p>`, { back: home });
+    $app.querySelectorAll("[data-d]").forEach(b => b.onclick = () => dialogView(window.DIALOGS.find(d => d.id === b.dataset.d), "read"));
+  }
+  function saveDlg(id, key, val) { DB.dlg = DB.dlg || {}; const s = DB.dlg[id] = DB.dlg[id] || {}; s[key] = Math.max(s[key] || 0, val); save(); }
+
+  function dialogView(d, mode, state = {}) {
+    current = { rerender: () => dialogView(d, mode, state) };
+    TOKS = [];
+    const lines = d.lines.map(([who, s, de]) => ({ who, toks: parseLine(s), de }));
+    const showDe = !!DB.showDe;
+    const tabs = `<div class="seg" id="dmode">${[["read", "Lesen"], ["gap", "Lücken"], ["role", "Rollenspiel"]].map(([m, l]) => `<button data-m="${m}" class="${m === mode ? "on" : ""}">${l}</button>`).join("")}</div>`;
+    const bubble = (l, i, inner) => `<div class="bubble-row ${l.who === "A" ? "left" : "right"}" data-line="${i}">
+        <div class="avatar" title="${esc(d.roles[l.who][0])}">${d.roles[l.who][1]}</div>
+        <div class="bubble"><div class="who">${roleName(d, l.who)}</div><div class="line jp">${inner}</div>
+        <div class="de-line" ${showDe ? "" : "hidden"}>${esc(l.de)}</div>
+        <button class="mini" data-say="${i}" aria-label="Vorlesen">🔊</button></div></div>`;
+    const deToggle = `<label class="de-toggle"><input type="checkbox" id="detog" ${showDe ? "checked" : ""}> Übersetzung zeigen</label>`;
+
+    if (mode === "read") {
+      show(d.title, `${tabs}<div class="dlg-head">${deToggle}<button class="speak-btn" id="playall">▶ Alles vorlesen</button></div>
+        <div class="chat">${lines.map((l, i) => bubble(l, i, lineHTML(l.toks))).join("")}</div>
+        <p class="small muted center">Kurz tippen = Wort anhören · lange drücken = Übersetzung</p>`, { back: dialogList });
+      $("#playall").onclick = () => playSeq(lines.map(l => lineSay(l.toks)), i => {
+        $app.querySelectorAll(".bubble-row").forEach(r => r.classList.toggle("speaking", +r.dataset.line === i));
+      });
+    } else if (mode === "gap") {
+      const gaps = []; // {line, idx, tok}
+      lines.forEach((l, li) => l.toks.forEach((t, ti) => { if (t.gap) gaps.push({ li, ti, t }); }));
+      state.fill = state.fill || {};
+      const html = lines.map((l, li) => bubble(l, li, l.toks.map((t, ti) => {
+        if (!t.gap) return tokHTML(t);
+        const gi = gaps.findIndex(g => g.li === li && g.ti === ti), f = state.fill[gi];
+        const cls = state.checked ? (f && core(f.kana) === core(t.kana) ? "right" : "wrong") : (f ? "filled" : "");
+        const txt = f ? tokText(f) : "＿＿";
+        const sol = state.checked && cls === "wrong" ? `<span class="sol">${tokText(t)}</span>` : "";
+        return `<button class="gap ${cls}" data-g="${gi}">${txt}</button>${sol}`;
+      }).join(DB.settings.script === "romaji" ? " " : ""))).join("");
+      const filled = Object.keys(state.fill).length;
+      show(d.title, `${tabs}<div class="dlg-head">${deToggle}<span class="small muted">${filled}/${gaps.length} ausgefüllt</span></div>
+        <div class="chat">${html}</div><div id="sheet"></div>
+        ${state.checked ? `<div class="feedback ${state.score === 100 ? "ok" : "no"}">${state.score}% richtig</div>
+          <div class="row"><button class="btn" id="again">Nochmal</button><button class="btn primary" id="toRole">Rollenspiel</button></div>`
+          : `<button class="btn primary" id="check" ${filled < gaps.length ? "disabled" : ""}>Prüfen</button>`}`, { back: dialogList });
+      if (!state.checked) {
+        $app.querySelectorAll(".gap").forEach(b => b.onclick = () => {
+          const gi = +b.dataset.g, g = gaps[gi];
+          const others = gaps.filter((_, k) => k !== gi).map(x => x.t);
+          const extra = shuffle(WORDS.filter(w => !w.p && w.g === (WORDS.find(x => core(Kana.stripJP(x.kana)) === Kana.stripJP(core(g.t.kana))) || {}).g)).slice(0, 3).map(w => ({ kana: w.kana, kanji: w.kanji }));
+          const opts = shuffle(uniqBy([g.t, ...shuffle(others).slice(0, 2), ...extra, ...shuffle(WORDS.filter(w => !w.p)).slice(0, 3)], x => core(x.kana)).slice(0, 4));
+          $app.querySelectorAll(".gap").forEach(x => x.classList.toggle("active", x === b));
+          $("#sheet").innerHTML = `<div class="card sheet"><div class="small muted">Welches Wort passt?</div><div class="options">${opts.map((o, i) => `<button class="option jp" data-o="${i}">${tokText(o)}</button>`).join("")}</div></div>`;
+          $("#sheet").scrollIntoView({ behavior: "smooth", block: "nearest" });
+          $app.querySelectorAll("[data-o]").forEach(ob => ob.onclick = () => { state.fill[gi] = opts[+ob.dataset.o]; dialogView(d, "gap", state); });
+        });
+        $("#check").onclick = () => {
+          const right = gaps.filter((g, gi) => state.fill[gi] && core(state.fill[gi].kana) === core(g.t.kana)).length;
+          state.checked = true; state.score = Math.round(100 * right / gaps.length);
+          saveDlg(d.id, "gap", state.score); dialogView(d, "gap", state);
+        };
+      } else {
+        $("#again").onclick = () => dialogView(d, "gap", {});
+        $("#toRole").onclick = () => dialogView(d, "role", {});
+      }
+    } else if (mode === "role") {
+      if (!state.me) {
+        show(d.title, `${tabs}<div class="card center"><p>Welche Rolle sprichst du?</p>
+          <div class="row">${["A", "B"].map(w => `<button class="btn" data-me="${w}"><span class="big-emoji" style="font-size:36px">${d.roles[w][1]}</span><br>${roleName(d, w)}</button>`).join("")}</div>
+          <p class="small muted">Die App spricht die andere Rolle. Du siehst deinen Satz auf Deutsch und sagst ihn auf Japanisch.${SR ? "" : "<br>Spracherkennung ist hier nicht verfügbar – du bewertest dich selbst."}</p></div>`, { back: dialogList });
+        $app.querySelectorAll("[data-me]").forEach(b => b.onclick = () => dialogView(d, "role", { me: b.dataset.me, i: 0, ok: 0, mine: 0 }));
+      } else {
+        roleplay(d, lines, state, tabs, bubble, deToggle);
+      }
+    }
+    $app.querySelectorAll("#dmode button").forEach(b => b.onclick = () => dialogView(d, b.dataset.m, {}));
+    const dt = $("#detog"); if (dt) dt.onchange = () => { DB.showDe = dt.checked; save(); $app.querySelectorAll(".de-line").forEach(x => x.hidden = !dt.checked); };
+    $app.querySelectorAll("[data-say]").forEach(b => b.onclick = () => say(lineSay(lines[+b.dataset.say].toks)));
+  }
+
+  function roleplay(d, lines, st, tabs, bubble, deToggle) {
+    const shown = lines.slice(0, st.i);
+    const done = st.i >= lines.length;
+    const cur = lines[st.i];
+    let curHTML = "";
+    if (!done && cur.who === st.me) {
+      curHTML = `<div class="bubble-row ${cur.who === "A" ? "left" : "right"} mine">
+        <div class="avatar">${d.roles[cur.who][1]}</div>
+        <div class="bubble"><div class="who">Du</div><div class="de-prompt">${esc(cur.de)}</div>
+        <div class="line jp" id="myline" ${st.reveal ? "" : "hidden"}>${lineHTML(cur.toks)}</div>
+        <button class="mini" id="peek">${st.reveal ? "" : "👁 Japanisch zeigen"}</button></div></div>`;
+    }
+    show(d.title, `${tabs}<div class="dlg-head">${deToggle}<span class="small muted">${Math.min(st.i, lines.length)}/${lines.length}</span></div>
+      <div class="chat">${shown.map((l, i) => bubble(l, i, lineHTML(l.toks))).join("")}${curHTML}</div>
+      <div id="rp-area"></div>`, { back: dialogList });
+    const area = $("#rp-area");
+    const scrollEnd = () => setTimeout(() => area.scrollIntoView({ behavior: "smooth", block: "end" }), 50);
+    const nextLine = () => { st.i++; st.reveal = false; dialogView(d, "role", st); };
+    if (done) {
+      const pct = st.mine ? Math.round(100 * st.ok / st.mine) : 100;
+      saveDlg(d.id, "role", pct);
+      area.innerHTML = `<div class="card center"><div class="big-emoji">${pct >= 80 ? "🎉" : "💪"}</div><h2>${st.ok} von ${st.mine} Sätzen gut gesprochen</h2>
+        <div class="row"><button class="btn" id="rp-again">Andere Rolle</button><button class="btn primary" id="rp-back">Fertig</button></div></div>`;
+      $("#rp-again").onclick = () => dialogView(d, "role", { me: st.me === "A" ? "B" : "A", i: 0, ok: 0, mine: 0 });
+      $("#rp-back").onclick = dialogList; scrollEnd(); return;
+    }
+    if (cur.who !== st.me) {
+      area.innerHTML = `<p class="center muted small">${roleName(d, cur.who)} spricht …</p>`;
+      const run = playRun;
+      const row = document.createElement("div"); row.innerHTML = bubble(cur, st.i, lineHTML(cur.toks));
+      $app.querySelector(".chat").appendChild(row.firstElementChild);
+      $app.querySelectorAll("[data-say]").forEach(b => b.onclick = () => say(lineSay(lines[+b.dataset.say].toks)));
+      scrollEnd();
+      say(lineSay(cur.toks)).then(() => setTimeout(() => { if (run === playRun) nextLine(); }, 500));
+      return;
+    }
+    // Eigene Zeile
+    const peek = $("#peek");
+    peek.onclick = () => { st.reveal = true; $("#myline").hidden = false; peek.remove(); };
+    if (st.reveal) peek.remove();
+    const target = { kana: lineKana(cur.toks), kanji: lineKanji(cur.toks) };
+    const finish = (ok, heard) => {
+      st.mine++; if (ok) st.ok++;
+      $("#myline").hidden = false; const p = $("#peek"); if (p) p.remove();
+      area.innerHTML = `<div class="feedback ${ok ? "ok" : "no"}">${ok ? "✓ Gut gesagt!" : "✗ Noch nicht ganz."}${heard ? `<div class="small">Verstanden: <span class="jp">${esc(heard)}</span></div>` : ""}</div>
+        <div class="row"><button class="btn" id="rp-hear">🔊 Anhören</button>${!ok && heard ? `<button class="btn" id="rp-override">War doch richtig</button>` : ""}</div>
+        <button class="btn primary" id="rp-next">Weiter</button>`;
+      $("#rp-hear").onclick = () => say(lineSay(cur.toks));
+      const ov = $("#rp-override"); if (ov) ov.onclick = () => { st.ok++; nextLine(); };
+      $("#rp-next").onclick = nextLine; scrollEnd();
+    };
+    if (SR) {
+      area.innerHTML = `<button class="mic" id="rp-mic">🎤</button><p class="center small muted" id="rp-msg">Tippe aufs Mikrofon und sprich deinen Satz</p>
+        <div class="row"><button class="btn" id="rp-skip">Überspringen</button></div>`;
+      let rec = null; const mic = $("#rp-mic");
+      mic.onclick = () => {
+        if (rec) { rec.stop(); return; }
+        mic.classList.add("listening"); $("#rp-msg").textContent = "Ich höre zu …";
+        rec = listen(alts => {
+          mic.classList.remove("listening"); rec = null;
+          finish(Kana.speechScore(alts, target.kana, target.kanji) >= 0.6, alts[0]);
+        }, err => { mic.classList.remove("listening"); rec = null; $("#rp-msg").textContent = err === "not-allowed" ? "Mikrofon nicht erlaubt" : "Nichts verstanden – nochmal"; });
+      };
+      cleanup = () => { try { rec && rec.abort(); } catch (e) { } };
+      $("#rp-skip").onclick = () => finish(false);
+    } else {
+      area.innerHTML = `<p class="center small muted">Sag den Satz laut, dann deck auf.</p><div class="row"><button class="btn bad" id="rp-no">Wusste ich nicht</button><button class="btn good" id="rp-yes">Konnte ich</button></div>`;
+      $("#rp-no").onclick = () => finish(false); $("#rp-yes").onclick = () => finish(true);
+    }
+    scrollEnd();
+  }
+
+  // ---------- Lesebücher ----------
+  function storyList() {
+    current = { rerender: storyList };
+    TOKS = [];
+    const st = DB.story || {};
+    show("Lesebücher", `<div class="story-grid">${window.STORIES.map(s => `<button class="story-card" data-s="${s.id}">
+        <div class="cover">${s.cover}</div><div class="jp st-title">${tokText({ kana: s.title, kanji: "" })}</div>
+        <div class="small muted">${esc(s.de)}</div><div class="small muted">${esc(s.lesson)}${st[s.id] != null ? ` · ${st[s.id]}% ✓` : ""}</div></button>`).join("")}</div>
+      <p class="small muted">Tippe ein Wort an, um es zu hören. Lange drücken zeigt die Übersetzung.</p>`, { back: home });
+    $app.querySelectorAll("[data-s]").forEach(b => b.onclick = () => storyPage(window.STORIES.find(s => s.id === b.dataset.s), 0));
+  }
+  function storyPage(s, p) {
+    current = { rerender: () => storyPage(s, p) };
+    TOKS = [];
+    const pg = s.pages[p], lines = pg.lines.map(parseLine);
+    const last = p === s.pages.length - 1;
+    show(s.de, `<div class="card story-page">
+        <div class="pic">${pg.pic}</div>
+        <div class="story-text jp">${lines.map(l => `<p>${lineHTML(l)}</p>`).join("")}</div>
+        <div class="de-line" ${DB.showDe ? "" : "hidden"}>${esc(pg.de)}</div>
+        <div class="tool-row"><button class="speak-btn" id="sp-read">🔊 Vorlesen</button><button class="speak-btn" id="sp-de">🇩🇪 Übersetzung</button></div>
+      </div>
+      <div class="dots">${s.pages.map((_, i) => `<i class="${i === p ? "on" : ""}"></i>`).join("")}</div>
+      <div class="row"><button class="btn" id="sp-prev" ${p === 0 ? "disabled" : ""}>‹ Zurück</button>
+      <button class="btn primary" id="sp-next">${last ? "Fragen zum Text" : "Weiter ›"}</button></div>`, { back: storyList });
+    $("#sp-read").onclick = () => playSeq(lines.map(lineSay), i => $app.querySelectorAll(".story-text p").forEach((x, k) => x.classList.toggle("speaking", k === i)));
+    $("#sp-de").onclick = () => { DB.showDe = !DB.showDe; save(); $(".de-line").hidden = !DB.showDe; };
+    $("#sp-prev").onclick = () => storyPage(s, p - 1);
+    $("#sp-next").onclick = () => last ? storyQuiz(s, 0, 0) : storyPage(s, p + 1);
+  }
+  function storyQuiz(s, qi, right) {
+    current = { rerender: () => storyQuiz(s, qi, right) };
+    TOKS = [];
+    if (qi >= s.questions.length) {
+      const pct = Math.round(100 * right / s.questions.length);
+      DB.story = DB.story || {}; DB.story[s.id] = Math.max(DB.story[s.id] || 0, pct); save(); logCard();
+      show(s.de, `<div class="card center"><div class="big-emoji">${pct === 100 ? "🏆" : pct >= 50 ? "📖" : "💪"}</div>
+        <h2>${right} von ${s.questions.length} Fragen richtig</h2>
+        <button class="btn primary" id="sq-again">Geschichte nochmal lesen</button><button class="btn" id="sq-list">Andere Geschichte</button></div>`, { back: storyList });
+      $("#sq-again").onclick = () => storyPage(s, 0); $("#sq-list").onclick = storyList; return;
+    }
+    const q = s.questions[qi], opts = shuffle(q.a.map((a, i) => ({ a, ok: i === 0 })));
+    const optText = a => DB.settings.script === "romaji" ? esc(Kana.kanaToRomaji(a, true)) : esc(a);
+    show(s.de, `<div class="progress"><i style="width:${Math.round(100 * qi / s.questions.length)}%"></i></div>
+      <div class="stage-label"><span>Textverständnis</span><span>${qi + 1}/${s.questions.length}</span></div>
+      <div class="card"><div class="story-text jp">${lineHTML(parseLine(q.q))}</div>
+      <div class="de-line" ${DB.showDe ? "" : "hidden"}>${esc(q.de)}</div>
+      <div class="tool-row" style="margin:6px 0 12px"><button class="speak-btn" id="sq-say">🔊</button><button class="speak-btn" id="sq-de">🇩🇪 Übersetzung</button></div>
+      <div class="options">${opts.map((o, i) => `<button class="option jp" data-o="${i}">${optText(o.a)}</button>`).join("")}</div><div id="area"></div></div>`, { back: storyList });
+    $("#sq-say").onclick = () => say(lineSay(parseLine(q.q)));
+    $("#sq-de").onclick = () => { DB.showDe = !DB.showDe; save(); $(".de-line").hidden = !DB.showDe; };
+    $app.querySelectorAll("[data-o]").forEach(b => b.onclick = () => {
+      const ok = opts[+b.dataset.o].ok;
+      $app.querySelectorAll("[data-o]").forEach((x, i) => { x.disabled = true; if (opts[i].ok) x.classList.add("correct"); });
+      if (!ok) b.classList.add("wrong");
+      $("#area").innerHTML = `<button class="btn primary" id="sq-next">Weiter</button>`;
+      $("#sq-next").onclick = () => storyQuiz(s, qi + 1, right + (ok ? 1 : 0));
+    });
+  }
+
   // ---------- Start ----------
-  buildWords(); save(); updateScriptBtn(); home();
+  buildWords(); save(); updateScriptBtn(); applyTheme(); home();
   if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
     navigator.serviceWorker.register("sw.js").catch(() => { });
   }

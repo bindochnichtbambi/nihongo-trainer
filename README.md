@@ -8,6 +8,9 @@ Läuft im Browser und lässt sich auf dem Handy als App installieren.
 - **Schrift-Umschalter**: Romaji / Kana / Kanji mit Furigana
 - **Zählwörter**: つ, 人, 匹, 本, 枚, 杯, 個, 冊, 台, Alter, Datum, Wochentage, Monate, Uhrzeit, Minuten, Zahlen, Preise
 - **Schreiben üben**: Hiragana, Katakana und A1-Kanji mit dem Finger zeichnen, mit Prüfung von Reihenfolge und Richtung
+- **Gespräche**: 9 Alltagsdialoge – Lesen & Hören, Lückentext, Rollenspiel mit Spracherkennung
+- **Lesebücher**: 4 Bildergeschichten mit Fragen zum Textverständnis
+- Wörter antippen = anhören, lange drücken = Übersetzung
 - **Eigene Wörter** ergänzen
 
 Der Lernfortschritt wird nur lokal im Browser gespeichert.

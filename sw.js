@@ -1,7 +1,7 @@
 // Offline-Cache. Bei Änderungen an der App VERSION erhöhen.
-const VERSION = "v2";
+const VERSION = "v4";
 const FILES = [
-  "./", "index.html", "css/style.css", "js/vocab.js", "js/kana.js", "js/counters.js", "js/kanji.js", "js/app.js",
+  "./", "index.html", "css/style.css", "js/vocab.js", "js/kana.js", "js/counters.js", "js/kanji.js", "js/dialogs.js", "js/app.js",
   "manifest.webmanifest", "icons/icon.svg", "icons/icon-192.png", "icons/icon-512.png",
 ];
 self.addEventListener("install", e => {

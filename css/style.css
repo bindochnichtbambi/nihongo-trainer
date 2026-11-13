@@ -185,6 +185,154 @@ table.tbl td:last-child { font-family: var(--jp); }
 .char-cell.seen { border-color: var(--accent); }
 .char-cell.good { border-color: var(--good); background: var(--good-soft); }
 
+/* Antippbare Wörter */
+.tok { border-radius: 4px; padding: 0 1px; margin: 0 1px; cursor: pointer; -webkit-touch-callout: none; user-select: none; -webkit-user-select: none; transition: background .2s; }
+.tok:hover { background: var(--surface-2); }
+.tok.tapped { background: var(--accent-soft); }
+.gloss { position: fixed; z-index: 60; max-width: 260px; background: var(--surface); color: var(--text); border: 1px solid var(--line); box-shadow: 0 8px 30px rgba(0,0,0,.25); border-radius: 14px; padding: 10px 14px; text-align: center; }
+.gloss .g-jp { font-size: 26px; font-weight: 700; }
+.gloss .g-de { margin-top: 4px; font-weight: 600; }
+
+/* Gespräche */
+.dlg-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin: 12px 0 6px; flex-wrap: wrap; }
+.de-toggle { display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--muted); }
+.de-toggle input { width: 18px; height: 18px; accent-color: var(--accent); }
+.chat { display: flex; flex-direction: column; gap: 10px; margin: 8px 0 12px; }
+.bubble-row { display: flex; align-items: flex-end; gap: 8px; }
+.bubble-row.right { flex-direction: row-reverse; }
+.avatar { font-size: 28px; width: 40px; height: 40px; flex: none; display: flex; align-items: center; justify-content: center; background: var(--surface-2); border-radius: 50%; }
+.bubble { position: relative; background: var(--surface); box-shadow: var(--shadow); border-radius: 16px; padding: 8px 12px 8px; max-width: 82%; }
+.bubble-row.left .bubble { border-bottom-left-radius: 4px; }
+.bubble-row.right .bubble { border-bottom-right-radius: 4px; background: var(--accent-soft); }
+.bubble-row.speaking .bubble { outline: 2px solid var(--accent); }
+.bubble-row.mine .bubble { outline: 2px dashed var(--accent); }
+.who { font-size: 11px; color: var(--muted); margin-bottom: 2px; font-family: var(--jp); }
+.line { font-size: 19px; line-height: 2; }
+.de-line { font-size: 14px; color: var(--muted); margin-top: 2px; }
+.de-prompt { font-size: 17px; font-weight: 600; }
+.mini { border: 0; background: none; cursor: pointer; font-size: 13px; padding: 2px 0; color: var(--muted); }
+.gap { border: 0; border-bottom: 2px solid var(--accent); background: var(--surface-2); border-radius: 6px 6px 0 0; padding: 0 8px; margin: 0 2px; font: inherit; font-family: var(--jp); color: var(--accent); cursor: pointer; min-width: 44px; line-height: 1.6; }
+.gap.filled { color: var(--text); }
+.gap.active { background: var(--accent-soft); }
+.gap.right { border-color: var(--good); background: var(--good-soft); color: var(--good); }
+.gap.wrong { border-color: var(--bad); background: var(--bad-soft); color: var(--bad); text-decoration: line-through; }
+.sol { color: var(--good); font-weight: 700; margin: 0 2px; }
+.sheet { position: sticky; bottom: 8px; z-index: 5; }
+
+/* Lesebücher */
+.story-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.story-card { border: 0; background: var(--surface); box-shadow: var(--shadow); border-radius: var(--radius); padding: 14px 10px; cursor: pointer; text-align: center; }
+.story-card .cover { font-size: 52px; }
+.st-title { font-weight: 700; font-size: 16px; margin-top: 4px; }
+.story-page .pic { font-size: 64px; text-align: center; letter-spacing: 6px; padding: 14px 0 6px; }
+.story-text { font-size: 21px; line-height: 2.1; }
+.story-text p { margin: 4px 0; border-radius: 8px; }
+.story-text p.speaking { background: var(--accent-soft); }
+.dots { display: flex; justify-content: center; gap: 6px; margin: 4px 0; }
+.dots i { width: 8px; height: 8px; border-radius: 50%; background: var(--line); }
+.dots i.on { background: var(--accent); }
+
+/* Menü-Symbole: Emoji (klassisch) oder Holzschnitt-SVG (Briefmarke) */
+.ico .pic { display: none; width: 40px; height: 40px; }
+.ico .emo { font-style: normal; }
+
+/* =========================================================
+   Design „Briefmarke“ – Zinnoberrot, Papier, Holzschnitt
+   ========================================================= */
+:root[data-theme="stamp"] {
+  --bg: #ece2cf;
+  --surface: #f8f1e4;
+  --surface-2: #efe5d2;
+  --text: #2a2420;
+  --muted: #7b6e60;
+  --line: #d5c6ad;
+  --accent: #cf3a2e;
+  --accent-soft: #f5dcd3;
+  --good: #3d7650;
+  --good-soft: #dde9d8;
+  --bad: #b6352b;
+  --bad-soft: #f4d7d0;
+  --radius: 4px;
+  --shadow: none;
+  --serif: "Noto Serif JP", "Yu Mincho", "Hiragino Mincho ProN", serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="stamp"] {
+    --bg: #1d1a17;
+    --surface: #2a2521;
+    --surface-2: #342e28;
+    --text: #f1e7d6;
+    --muted: #b2a48f;
+    --line: #4b4239;
+    --accent: #e4554a;
+    --accent-soft: #4a2622;
+    --good: #84c296;
+    --good-soft: #24372b;
+    --bad: #f08b80;
+    --bad-soft: #4a2622;
+  }
+}
+[data-theme="stamp"] body {
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(circle at 88% 6%, color-mix(in srgb, var(--accent) 16%, transparent) 0 70px, transparent 71px),
+    radial-gradient(color-mix(in srgb, var(--text) 5%, transparent) 1px, transparent 1.2px);
+  background-size: 100% 100%, 5px 5px;
+  background-attachment: fixed, scroll;
+}
+[data-theme="stamp"] .topbar { background: var(--bg); border-bottom: 3px double var(--accent); }
+[data-theme="stamp"] .topbar h1, [data-theme="stamp"] h2, [data-theme="stamp"] .st-title { font-family: var(--serif); letter-spacing: .02em; }
+[data-theme="stamp"] h2 { display: flex; align-items: center; gap: 8px; }
+[data-theme="stamp"] h2::before { content: ""; width: 10px; height: 10px; background: var(--accent); transform: rotate(45deg); flex: none; }
+[data-theme="stamp"] .jp, [data-theme="stamp"] .big-num, [data-theme="stamp"] .stat b { font-family: var(--serif); }
+[data-theme="stamp"] .script-chip { background: var(--accent); color: #fff8ec; border-color: var(--accent); border-radius: 3px; font-family: var(--serif); }
+
+/* Briefmarken-Rand (gezackt) für Karten und Menüpunkte */
+[data-theme="stamp"] .card,
+[data-theme="stamp"] .menu-btn,
+[data-theme="stamp"] .story-card {
+  border: 7px solid transparent;
+  border-radius: 0;
+  background:
+    linear-gradient(var(--surface), var(--surface)) padding-box,
+    radial-gradient(circle, transparent 2.6px, var(--surface) 3px) -5px -5px / 10px 10px border-box;
+  filter: drop-shadow(0 1px 1.5px rgba(40, 25, 15, .28));
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+[data-theme="stamp"] .menu-btn { padding: 12px 14px; margin-bottom: 12px; }
+[data-theme="stamp"] .stats-card .stats { margin-right: 52px; }
+[data-theme="stamp"] .ico .pic { width: 48px; height: 48px; }
+[data-theme="stamp"] .ico { width: 50px; height: 50px; flex: none; display: flex; align-items: center; justify-content: center; color: var(--text); }
+[data-theme="stamp"] .ico .emo { display: none; }
+[data-theme="stamp"] .ico .pic { display: block; }
+[data-theme="stamp"] .menu-btn > span:last-child { font-family: var(--serif); font-weight: 700; }
+[data-theme="stamp"] .menu-btn small { font-family: system-ui, sans-serif; }
+
+/* Poststempel auf der Statistik-Karte */
+[data-theme="stamp"] .stats-card { position: relative; }
+[data-theme="stamp"] .stats-card::after {
+  content: "日本語"; position: absolute; right: 6px; top: 4px; width: 58px; height: 58px; border-radius: 50%;
+  border: 2px solid var(--accent); color: var(--accent); opacity: .5; transform: rotate(-14deg);
+  display: flex; align-items: center; justify-content: center; font: 700 13px var(--serif);
+  box-shadow: inset 0 0 0 4px var(--surface), inset 0 0 0 5px var(--accent); pointer-events: none;
+}
+
+/* Knöpfe */
+[data-theme="stamp"] .btn { border-radius: 3px; }
+[data-theme="stamp"] .btn.primary { background: var(--accent); color: #fff8ec; font-family: var(--serif); letter-spacing: .05em; box-shadow: inset 0 0 0 2px color-mix(in srgb, #fff 25%, transparent); }
+[data-theme="stamp"] .btn.good { background: var(--good); }
+[data-theme="stamp"] .option, [data-theme="stamp"] .cat, [data-theme="stamp"] .char-cell { border-radius: 3px; background: var(--surface); }
+[data-theme="stamp"] .seg, [data-theme="stamp"] .seg button, [data-theme="stamp"] .answer-input,
+[data-theme="stamp"] .field input, [data-theme="stamp"] .field select { border-radius: 3px; }
+[data-theme="stamp"] .seg button.on { background: var(--accent); color: #fff8ec; box-shadow: none; }
+[data-theme="stamp"] .progress, [data-theme="stamp"] .progress > i { border-radius: 0; }
+[data-theme="stamp"] .mic { border-radius: 50%; box-shadow: inset 0 0 0 4px color-mix(in srgb, #fff 30%, transparent); }
+[data-theme="stamp"] .pad { border-radius: 2px; background-color: var(--surface); }
+[data-theme="stamp"] .bubble { border-radius: 3px; box-shadow: inset 0 0 0 1px var(--line); }
+[data-theme="stamp"] .bubble-row.right .bubble { background: var(--accent-soft); }
+[data-theme="stamp"] .avatar { background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); }
+[data-theme="stamp"] .story-card .cover { filter: grayscale(.2); }
+
 .toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom)); transform: translateX(-50%); background: var(--text); color: var(--bg); padding: 10px 16px; border-radius: 12px; font-size: 14px; z-index: 50; max-width: calc(100% - 32px); }
 .center { text-align: center; }
 .big-emoji { font-size: 56px; }

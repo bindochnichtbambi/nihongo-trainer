@@ -1,5 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="96" fill="#faf7f2"/>
-  <circle cx="256" cy="256" r="150" fill="#c8102e"/>
-  <text x="256" y="300" text-anchor="middle" font-family="Yu Gothic, Meiryo, sans-serif" font-size="150" font-weight="700" fill="#fff">日本</text>
+  <rect width="512" height="512" rx="96" fill="#ece2cf"/>
+  <circle cx="256" cy="212" r="120" fill="#cf3a2e"/>
+  <path d="M40 410 L210 215 L235 205 L256 200 L277 205 L302 215 L472 410 Z" fill="#2a2420"/>
+  <path d="M210 215 L235 205 L256 200 L277 205 L302 215 L330 250 L304 240 L286 262 L262 238 L240 264 L222 240 L184 252 Z" fill="#f8f1e4"/>
+  <rect y="420" width="512" height="14" fill="#2a2420"/>
 </svg>
