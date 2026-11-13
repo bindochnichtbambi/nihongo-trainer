@@ -9,7 +9,7 @@
   // ---------- Speicher ----------
   function defaults() {
     return {
-      settings: { script: "kana", furigana: true, newPerSession: 8, recallSec: 5, speak: true, write: true, phrases: true, ttsRate: 0.85, counterMode: "mc", theme: "stamp", mode: "auto" },
+      settings: { script: "kana", furigana: true, newPerSession: 8, recallSec: 5, speak: true, write: true, phrases: true, ttsRate: 0.85, counterMode: "mc", theme: "stamp", mode: "auto", decoAnim: true },
       groups: null, progress: {}, custom: [], counterCats: ["tsu", "nin", "hiki"], log: {},
     };
   }
@@ -84,6 +84,8 @@
     if (cleanup) { cleanup(); cleanup = null; }
     hideGloss(); playRun++;
     try { speechSynthesis.cancel(); } catch (e) { }
+    // Wolken & Blüten bewegen sich nur auf der Startseite (abschaltbar in den Einstellungen)
+    document.body.classList.toggle("on-home", title === "日本語 Trainer" && DB.settings.decoAnim !== false);
     $title.textContent = title;
     $back.hidden = !opts.back;
     $back.onclick = opts.back || null;
@@ -162,6 +164,8 @@
   }
 
   // ---------- Startseite ----------
+  // gut sichtbarer Hinweis-Kasten
+  const tipBox = html => `<div class="tip-box"><svg class="tip-ic"><use href="#i-bulb"/></svg><div><b class="tip-h">Tipp</b><br>${html}</div></div>`;
   // breite, halb so hohe Kachel (Lektionen, Einstellungen)
   const wideTile = (id, ic, emo, t, sub) => `<button class="tile wide beige" id="${id}">
       <span class="ico"><i class="emo">${emo}</i><svg class="pic"><use href="#${/^[a-z]-/.test(ic) ? ic : "i-" + ic}"/></svg></span>
@@ -182,8 +186,8 @@
           <div class="stat"><b>${learning}</b><span>in Arbeit</span></div>
           <div class="stat"><b>${learned}</b><span>gelernt</span></div>
         </div>
-        <button class="btn primary" id="go">${due + learning + fresh ? "Vokabeln lernen" : "Alles erledigt 🎉"}</button>
-        ${learned ? `<button class="btn" id="practice">Gelernte Wörter üben</button>` : ""}
+        <div class="row home-btns"><button class="btn primary" id="go">${due + learning + fresh ? "Vokabeln lernen" : "Alles erledigt 🎉"}</button>
+        ${learned ? `<button class="btn" id="practice">Gelernte üben</button>` : ""}</div>
         <p class="small muted center" style="margin:8px 0 0">${fresh} neue Wörter verfügbar · heute ${todayCount} Karten</p>
       </div>
       ${wideTile("m-groups", "torii", "📚", "Lektionen", `${DB.groups.length} von ${GROUPS.length} aktiv`)}
@@ -227,7 +231,7 @@
       <h2>Kurs (Marugoto A1)</h2><div class="card">${block("kurs")}</div>
       <h2>Zusatzwortschatz</h2><div class="card">${block("extra")}</div>
       <h2>Eigene</h2><div class="card">${block("custom")}</div>
-      <p class="small muted">Neue Wörter kommen in der Reihenfolge der Lektionen dran. Lektion 13–18 sind zu Beginn ausgeschaltet – einfach einschalten, sobald ihr sie im Kurs habt.</p>
+      ${tipBox(`Neue Wörter kommen in der Reihenfolge der Lektionen dran. Lektion 13–18 sind zu Beginn ausgeschaltet – einfach einschalten, sobald ihr sie im Kurs habt.`)}
     `, { back: home });
     $app.querySelectorAll("input[data-g]").forEach(cb => cb.onchange = () => {
       const id = cb.dataset.g;
@@ -559,7 +563,7 @@
         ${isNow ? "" : `<button class="btn" id="today" style="margin-top:8px">Zurück zu heute</button>`}
       </div>
       <div class="card" id="calinfo"></div>
-      <p class="small muted center">Tippe auf einen Tag, auf 週 (Woche), auf Monat oder Jahr oben, auf einen Wochentag oder auf 毎… (jede/r).</p>`, { back: home });
+      ${tipBox(`Tippe auf einen Tag, auf 週 (Woche), auf Monat oder Jahr oben, auf einen Wochentag oder auf 毎… (jede/r).`)}`, { back: home });
 
     // Auswahl markieren und Info zeigen
     let info;
@@ -788,7 +792,7 @@
         <button class="btn" data-play="${c.id}">▶ Alle vorlesen</button></div>`;
     }).join("");
     show("Liste der Reihe nach", `<div class="chip-row"><button class="chip ${sel.length > 1 ? "on" : ""}" data-only="">Auswahl</button>${chips}</div>
-      <p class="small muted">Tippe eine Zeile an, um sie zu hören.</p>${html}`, { back: countersView });
+      ${tipBox(`Tippe eine Zeile an, um sie zu hören.`)}${html}`, { back: countersView });
     $app.querySelectorAll("[data-only]").forEach(b => b.onclick = () => counterTables(b.dataset.only ? [b.dataset.only] : null));
     $app.querySelectorAll(".say-row").forEach(r => r.onclick = () => say(r.dataset.say));
     $app.querySelectorAll("[data-play]").forEach(b => b.onclick = () => {
@@ -878,7 +882,8 @@
     const seg = (key, opts) => `<div class="seg" data-key="${key}">${opts.map(([v, l]) => `<button data-v="${v}" class="${String(s[key]) === String(v) ? "on" : ""}">${l}</button>`).join("")}</div>`;
     show("Einstellungen", `
       <h2>Hell / Dunkel</h2>
-      <div class="card">${seg("mode", [["auto", "Wie Handy"], ["light", "Hell"], ["dark", "Dunkel"]])}</div>
+      <div class="card">${seg("mode", [["auto", "Wie Handy"], ["light", "Hell"], ["dark", "Dunkel"]])}
+        <label class="switch-row" style="margin-top:10px"><span>Hintergrund bewegt (Wolken &amp; Blüten auf der Startseite)</span><input type="checkbox" data-bool="decoAnim" ${s.decoAnim ? "checked" : ""}></label></div>
       <h2>Schrift</h2>
       <div class="card">
         ${seg("script", [["romaji", "Romaji"], ["kana", "Kana"], ["kanji", "Kanji"]])}
@@ -897,7 +902,7 @@
       </div>
       <h2>Sicherung</h2>
       <div class="card">
-        <p class="small muted" style="margin-top:0">Dein Fortschritt liegt nur auf diesem Gerät. Speichere ab und zu eine Sicherung.</p>
+        ${tipBox(`Dein Fortschritt liegt nur auf diesem Gerät. Speichere ab und zu eine Sicherung.`)}
         <button class="btn" id="exp">Sicherung herunterladen</button>
         <label class="btn" style="cursor:pointer">Sicherung laden<input type="file" id="imp" accept="application/json" hidden></label>
         <button class="btn bad" id="reset">Lernfortschritt zurücksetzen</button>
@@ -1052,12 +1057,12 @@
         <button data-m="help" class="${W.mode === "help" ? "on" : ""}">Mit Hilfe</button>
         <button data-m="free" class="${W.mode === "free" ? "on" : ""}">Aus dem Kopf</button>
       </div>
-      <p class="small muted" id="wmodeinfo"></p>
+      <div class="tip-box"><svg class="tip-ic"><use href="#i-bulb"/></svg><div><b class="tip-h">Tipp</b><br><span id="wmodeinfo"></span></div></div>
       <button class="btn primary" id="wstart">Üben (10 Zeichen)</button>
       <button class="btn" id="wgrid">Alle Zeichen ansehen</button>
       <h2>Zeichen</h2>
       <div class="card">${sets}</div>
-      <p class="small muted">Strichdaten: KanjiVG (CC BY-SA 3.0). Beim ersten Mal braucht jedes Zeichen Internet, danach geht es auch offline.</p>`, { back: home });
+      ${tipBox(`Beim ersten Mal braucht jedes Zeichen <b>Internet</b>, danach geht es auch offline.`)}<p class="small muted">Strichdaten: KanjiVG (CC BY-SA 3.0).</p>`, { back: home });
     const info = { trace: "Das Zeichen ist grau vorgezeichnet. Ideal zum Kennenlernen.", help: "Kein Vorbild – nur ein Punkt zeigt, wo der nächste Strich beginnt.", free: "Ganz aus dem Kopf. Nach zwei Fehlern gibt es einen Hinweis." };
     const setInfo = () => ($("#wmodeinfo").textContent = info[W.mode]); setInfo();
     $app.querySelectorAll("#wmode button").forEach(b => b.onclick = () => {
@@ -1083,7 +1088,7 @@
       const sc = charScore(ch.c), cls = sc >= 2 ? "good" : sc >= 0 ? "seen" : "";
       return `<button class="char-cell jp ${cls}" data-c="${esc(ch.c)}" data-s="${s.id}">${esc(ch.c)}<small>${esc(ch.r || ch.de)}</small></button>`;
     }).join("")}</div>`).join("") || `<p class="muted">Keine Gruppe gewählt.</p>`;
-    show("Alle Zeichen", `<p class="small muted" style="margin-top:0">Tippe ein Zeichen an, um es zu üben. Grün = sicher.</p>${html}`, { back: writeView });
+    show("Alle Zeichen", `${tipBox(`Tippe ein Zeichen an, um es zu üben. Grün = sicher.`)}${html}`, { back: writeView });
     $app.querySelectorAll(".char-cell").forEach(b => b.onclick = () => {
       const set = allSets().find(s => s.id === b.dataset.s), ch = set.chars.find(x => x.c === b.dataset.c);
       writeSession([{ ...ch, set }], writeGrid);
@@ -1346,7 +1351,7 @@
       return `<button class="tile small-tile ${(Math.floor(i / 2) + i % 2) % 2 ? "beige" : "red"}" data-d="${d.id}">
         <span class="ico"><i class="emo">${d.emoji}</i><svg class="pic"><use href="#${d.icon}"/></svg></span>
         <b>${esc(d.title)}</b><small>${esc(d.lesson)}${s && s.gap === 100 ? " · ✓" : ""}</small></button>`;
-    }).join("") + `</div><p class="small muted">Tipp: Kurz auf ein Wort tippen = anhören. Lange drücken = Übersetzung.</p>`, { back: home });
+    }).join("") + `</div>${tipBox("Kurz auf ein Wort <b>tippen</b> = anhören<br><b>Lange drücken</b> = Übersetzung")}`, { back: home });
     $app.querySelectorAll("[data-d]").forEach(b => b.onclick = () => dialogView(window.DIALOGS.find(d => d.id === b.dataset.d), "read"));
   }
   function saveDlg(id, key, val) { DB.dlg = DB.dlg || {}; const s = DB.dlg[id] = DB.dlg[id] || {}; s[key] = Math.max(s[key] || 0, val); save(); }
@@ -1367,7 +1372,7 @@
     if (mode === "read") {
       show(d.title, `${tabs}<div class="dlg-head">${deToggle}<button class="speak-btn" id="playall">▶ Alles vorlesen</button></div>
         <div class="chat">${lines.map((l, i) => bubble(l, i, lineHTML(l.toks))).join("")}</div>
-        <p class="small muted center">Kurz tippen = Wort anhören · lange drücken = Übersetzung</p>`, { back: dialogList });
+        ${tipBox(`Kurz tippen = Wort anhören · lange drücken = Übersetzung`)}`, { back: dialogList });
       $("#playall").onclick = () => playSeq(lines.map(l => lineSay(l.toks)), i => {
         $app.querySelectorAll(".bubble-row").forEach(r => r.classList.toggle("speaking", +r.dataset.line === i));
       });
@@ -1413,7 +1418,7 @@
       if (!state.me) {
         show(d.title, `${tabs}<div class="card center"><p>Welche Rolle sprichst du?</p>
           <div class="row">${["A", "B"].map(w => `<button class="btn" data-me="${w}"><span class="avatar big">${avHTML(d.roles[w][1])}</span><br>${roleName(d, w)}</button>`).join("")}</div>
-          <p class="small muted">Die App spricht die andere Rolle. Du siehst deinen Satz auf Deutsch und sagst ihn auf Japanisch.${SR ? "" : "<br>Spracherkennung ist hier nicht verfügbar – du bewertest dich selbst."}</p></div>`, { back: dialogList });
+          ${tipBox(`Die App spricht die andere Rolle. Du siehst deinen Satz auf Deutsch und sagst ihn auf Japanisch.${SR ? "" : "<br>Spracherkennung ist hier nicht verfügbar – du bewertest dich selbst."}`)}</div>`, { back: dialogList });
         $app.querySelectorAll("[data-me]").forEach(b => b.onclick = () => dialogView(d, "role", { me: b.dataset.me, i: 0, ok: 0, mine: 0 }));
       } else {
         roleplay(d, lines, state, tabs, bubble, deToggle);
@@ -1517,7 +1522,7 @@
     show("Lesebücher", `<div class="story-grid">${window.STORIES.map(s => `<button class="story-card" data-s="${s.id}">
         <svg class="cover-pic"><use href="#${s.icon}"/></svg><div class="cover cover-emo">${s.cover}</div><div class="jp st-title">${tokText({ kana: s.title, kanji: "" })}</div>
         <div class="small muted">${esc(s.de)}</div><div class="small muted">${esc(s.lesson)}${st[s.id] != null ? ` · ${st[s.id]}% ✓` : ""}</div></button>`).join("")}</div>
-      <p class="small muted">Tippe ein Wort an, um es zu hören. Lange drücken zeigt die Übersetzung.</p>
+      ${tipBox("Kurz auf ein Wort <b>tippen</b> = anhören<br><b>Lange drücken</b> = Übersetzung")}
       <button class="btn" id="tadoku">📚 Mehr Bücher zum Lesen &amp; Hören (Tadoku)</button>`, { back: home });
     $app.querySelectorAll("[data-s]").forEach(b => b.onclick = () => storyPage(window.STORIES.find(s => s.id === b.dataset.s), 0));
     $("#tadoku").onclick = () => tadokuView();
@@ -1534,8 +1539,8 @@
       <div class="card tadoku-list">${books.map(b => `<div class="td-row${done[b[2]] ? " done" : ""}">
           <a class="td-link jp" href="https://tadoku.org/japanese/book/${b[2]}/" target="_blank" rel="noopener">${esc(b[1])}</a>
           <button class="td-check" data-b="${b[2]}" aria-label="gelesen">${done[b[2]] ? "✓" : ""}</button></div>`).join("")}</div>
-      <p class="small muted">Die Bücher öffnen sich auf tadoku.org. Dort kannst du sie lesen und meist auch anhören (▶). Tippe danach auf den Kreis, um ein Buch als gelesen abzuhaken.<br>
-      Bücher: NPO 多言語多読, Lizenz CC BY-NC-ND 4.0. <a href="https://tadoku.org/japanese/free-books/" target="_blank" rel="noopener">Alle Bücher ansehen</a></p>`, { back: storyList });
+      ${tipBox(`Die Bücher öffnen sich auf tadoku.org. Dort kannst du sie lesen und meist auch <b>anhören</b> (▶). Tippe danach auf den <b>Kreis</b>, um ein Buch als gelesen abzuhaken.`)}
+      <p class="small muted">Bücher: NPO 多言語多読, Lizenz CC BY-NC-ND 4.0. <a href="https://tadoku.org/japanese/free-books/" target="_blank" rel="noopener">Alle Bücher ansehen</a></p>`, { back: storyList });
     $app.querySelectorAll("#tlv [data-l]").forEach(b => b.onclick = () => { DB.tadokuLv = b.dataset.l; save(); tadokuView(b.dataset.l); });
     $app.querySelectorAll(".td-check").forEach(b => b.onclick = () => {
       DB.tadoku = DB.tadoku || {}; const id = b.dataset.b;
@@ -1602,7 +1607,7 @@
     current = { rerender: grammarList };
     const done = DB.gram || {}, maxL = maxLesson();
     show("Grammatik", `
-      <p class="small muted">Kurze Erklärungen zu den wichtigsten A1-Punkten, mit Beispielen zum Anhören und einer kleinen Übung. Die Lektionsnummer zeigt, wann es ungefähr im Kurs drankommt.</p>
+      ${tipBox(`Kurze Erklärungen zu den wichtigsten A1-Punkten, mit Beispielen zum Anhören und einer kleinen Übung. Die Lektionsnummer zeigt, wann es ungefähr im Kurs drankommt.`)}
       <div class="card gram-list">${window.GRAMMAR.map(g => `<button class="gram-row${g.l > maxL ? " later" : ""}" data-g="${g.id}">
           <span class="gram-l">L${g.l}</span>
           <span class="gram-t"><b class="jp">${esc(g.title)}</b><small>${esc(g.sub)}</small></span>
@@ -1948,7 +1953,7 @@
     current = null;
     show("Satz-Puzzle", `<div class="card center"><div class="big-emoji">${P.right === P.round.length ? "🏆" : "🧩"}</div>
       <h2>${P.right} von ${P.round.length} Sätzen beim ersten Versuch</h2>
-      <p class="small muted">Es kommen Sätze bis Lektion ${P.maxL} – je mehr Lektionen du einschaltest, desto mehr Sätze.</p>
+      ${tipBox(`Es kommen Sätze bis Lektion ${P.maxL} – je mehr Lektionen du einschaltest, desto mehr Sätze.`)}
       <button class="btn primary" id="pz-again">Nochmal</button><button class="btn" id="pz-games">Zu den Spielen</button></div>`, { back: gamesView });
     $("#pz-again").onclick = puzzleStart; $("#pz-games").onclick = gamesView;
   }

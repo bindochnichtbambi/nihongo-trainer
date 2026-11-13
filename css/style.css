@@ -561,3 +561,44 @@ h1, h2, .tile b, .btn, .stat b { font-family: var(--sans); }
 .gap.filled { color: var(--good); font-weight: 700; border-color: var(--good); }
 /* Lektionen-Kachel im selben Rosa wie der Knopf „Gelernte Wörter üben“ */
 [data-theme="stamp"] #m-groups.tile { background: var(--surface-2); }
+/* Startseite: beide Lern-Knöpfe nebeneinander */
+.home-btns .btn { padding: 13px 8px; font-size: 15px; line-height: 1.2; }
+
+/* Bewegter Hintergrund auf der Startseite */
+@keyframes cloudA { 0%, 100% { translate: 0 0; } 50% { translate: -46px 5px; } }
+@keyframes cloudB { 0%, 100% { translate: 0 0; } 50% { translate: 56px -4px; } }
+@keyframes sway { 0%, 100% { rotate: -14deg; translate: 0 0; } 50% { rotate: 16deg; translate: 0 -5px; } }
+@keyframes petalFall {
+  0% { transform: translate(0, -30px) rotate(0deg); opacity: 0; }
+  5% { opacity: .95; }
+  25% { transform: translate(34px, 25vh) rotate(100deg); }
+  50% { transform: translate(-14px, 50vh) rotate(190deg); }
+  75% { transform: translate(38px, 75vh) rotate(280deg); }
+  95% { opacity: .95; }
+  100% { transform: translate(6px, 106vh) rotate(380deg); opacity: 0; }
+}
+.d-petal { position: absolute; top: 0; width: 15px; height: 13px; fill: var(--flower2); display: none; }
+.on-home .d-cloud.c1 { animation: cloudA 38s ease-in-out infinite; }
+.on-home .d-cloud.c2 { animation: cloudB 46s ease-in-out infinite; }
+.on-home .d-cloud.c3 { animation: cloudA 52s ease-in-out -14s infinite; }
+.on-home .d-flower { animation: sway 7s ease-in-out infinite; }
+.on-home .d-flower.f2 { animation-duration: 8.5s; animation-delay: -3s; }
+.on-home .d-flower.f3 { animation-duration: 6.5s; animation-delay: -1.5s; }
+.on-home .d-flower.f4 { animation-duration: 9s; animation-delay: -5s; }
+.on-home .d-flower.f5 { animation-duration: 7.5s; animation-delay: -2s; }
+.on-home .d-petal { display: block; animation: petalFall 19s linear infinite; }
+.on-home .d-petal.p1 { left: 18%; }
+.on-home .d-petal.p2 { left: 62%; animation-duration: 23s; animation-delay: -9s; }
+.on-home .d-petal.p3 { left: 86%; animation-duration: 17s; animation-delay: -13s; fill: var(--flower); }
+.on-home .d-petal.p4 { left: 40%; animation-duration: 21s; animation-delay: -4s; }
+@media (prefers-reduced-motion: reduce) {
+  .on-home .d-cloud, .on-home .d-flower { animation: none; }
+  .on-home .d-petal { display: none; }
+}
+
+/* Hinweis-Kasten (Tipps) */
+.tip-box { display: flex; gap: 12px; align-items: flex-start; margin: 14px 0 6px; padding: 12px 14px; border-radius: var(--radius);
+  background: var(--surface); box-shadow: var(--shadow); border-left: 5px solid var(--accent); font-size: 15px; line-height: 1.5; color: var(--text); position: relative; z-index: 1; }
+.tip-ic { font-size: 24px; line-height: 1; }
+.tip-h { color: var(--accent); }
+.tip-ic { width: 38px; height: 38px; flex: none; margin-top: -2px; }
