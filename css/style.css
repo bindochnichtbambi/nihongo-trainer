@@ -21,23 +21,29 @@
   --jp: "Noto Sans JP", "Hiragino Sans", "Yu Gothic", "Meiryo", system-ui, sans-serif;
   --ink: #1d1916;
 }
+/* Design „Japan“: Marineblau, Karminrot, Rosé, Weiß */
 :root[data-theme="stamp"] {
-  --bg: #f3ece0;
-  --surface: #fbf7f0;
-  --surface-2: #ebe2d2;
-  --text: #2a2420;
-  --muted: #776b5e;
-  --line: #e0d5c3;
-  --accent: #c8372d;
-  --accent-soft: #f6e0da;
-  --on-accent: #fff8ef;
-  --good: #3d7650;
-  --good-soft: #e0ebdb;
-  --bad: #b6352b;
-  --bad-soft: #f5dcd6;
-  --radius: 12px;
-  --shadow: 0 1px 2px rgba(60,40,20,.06);
-  --tile-beige: #e8dcc6;
+  --bg: #fbf8f6;
+  --surface: #ffffff;
+  --surface-2: #f4eeec;
+  --text: #253259;
+  --muted: #6f7590;
+  --line: #ebe3e0;
+  --accent: #d63a50;
+  --accent-soft: #fbe4e5;
+  --on-accent: #ffffff;
+  --good: #2f7a5b;
+  --good-soft: #e0f0e7;
+  --bad: #c9364a;
+  --bad-soft: #fbe1e2;
+  --radius: 16px;
+  --shadow: 0 1px 2px rgba(37,50,89,.06), 0 3px 10px rgba(37,50,89,.05);
+  --tile-a: #ffffff;
+  --tile-b: #e3ecf8;
+  /* Symbolfarben */
+  --a: #273560; --b: #d63a50; --c: #ffffff; --d: #f3c3bd;
+  /* Hintergrund */
+  --wave: #f2dcd6; --cloud: #c3cbe2; --flower: #d63a50; --flower2: #f0b4ab;
 }
 /* Dunkel – fest eingestellt */
 :root[data-mode="dark"] {
@@ -46,9 +52,11 @@
   --shadow: 0 1px 2px rgba(0,0,0,.3), 0 4px 14px rgba(0,0,0,.3);
 }
 :root[data-mode="dark"][data-theme="stamp"] {
-  --bg: #1b1916; --surface: #25221e; --surface-2: #2f2b26; --text: #f1e9dc; --muted: #ad9f8c; --line: #3e3730;
-  --accent: #d94a3f; --accent-soft: #432420; --on-accent: #fff6ec; --good: #84c296; --good-soft: #24372b; --bad: #f08b80; --bad-soft: #432420;
-  --shadow: none; --tile-beige: #3a332b;
+  --bg: #12151d; --surface: #1c202b; --surface-2: #252a37; --text: #f4efe7; --muted: #a9a49b; --line: #2f3442;
+  --accent: #e0485d; --accent-soft: #3a2026; --on-accent: #fff; --good: #6fcf9f; --good-soft: #1b3530; --bad: #f2899a; --bad-soft: #3a2026;
+  --shadow: none; --tile-a: #1c2233; --tile-b: #3a1f27;
+  --a: #f4efe7; --b: #e0485d; --c: #1c2233; --d: #f0b4ab;
+  --wave: #1a1e29; --cloud: #262f48; --flower: #e0485d; --flower2: #b9606a;
 }
 /* Dunkel – automatisch wie das Handy */
 @media (prefers-color-scheme: dark) {
@@ -58,9 +66,11 @@
     --shadow: 0 1px 2px rgba(0,0,0,.3), 0 4px 14px rgba(0,0,0,.3);
   }
   :root[data-theme="stamp"]:not([data-mode="light"]):not([data-mode="dark"]) {
-    --bg: #1b1916; --surface: #25221e; --surface-2: #2f2b26; --text: #f1e9dc; --muted: #ad9f8c; --line: #3e3730;
-    --accent: #d94a3f; --accent-soft: #432420; --on-accent: #fff6ec; --good: #84c296; --good-soft: #24372b; --bad: #f08b80; --bad-soft: #432420;
-    --shadow: none; --tile-beige: #3a332b;
+    --bg: #12151d; --surface: #1c202b; --surface-2: #252a37; --text: #f4efe7; --muted: #a9a49b; --line: #2f3442;
+    --accent: #e0485d; --accent-soft: #3a2026; --on-accent: #fff; --good: #6fcf9f; --good-soft: #1b3530; --bad: #f2899a; --bad-soft: #3a2026;
+    --shadow: none; --tile-a: #1c2233; --tile-b: #3a1f27;
+    --a: #f4efe7; --b: #e0485d; --c: #1c2233; --d: #f0b4ab;
+  --wave: #1a1e29; --cloud: #262f48; --flower: #e0485d; --flower2: #b9606a;
   }
 }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -187,6 +197,31 @@ ruby rt { font-size: .42em; color: var(--muted); font-weight: 400; }
 .cat small { color: var(--muted); font-size: 12px; }
 .cat.on { border-color: var(--accent); background: var(--accent-soft); }
 .emoji-row { font-size: 34px; line-height: 1.3; letter-spacing: 2px; word-break: break-all; }
+.av-svg { width: 100%; height: 100%; display: block; border-radius: 50%; }
+.avatar { overflow: hidden; --a: #273560; --b: #d63a50; --c: #ffffff; --d: #f3c3bd; }
+[data-theme="stamp"] .avatar { background: #fbeee9; box-shadow: inset 0 0 0 1px var(--line); }
+.avatar.big { width: 64px; height: 64px; margin: 0 auto 6px; display: block; border-radius: 50%; background: var(--surface-2); }
+.tile.small-tile { min-height: 130px; padding: 12px 8px; }
+.tile.small-tile .ico { width: 60px; height: 60px; }
+.tile.small-tile .pic { width: 60px; height: 60px; }
+.tile.small-tile b { font-size: 15px; }
+.cnt-grid { display: grid; grid-template-columns: repeat(5, 52px); justify-content: center; gap: 6px; margin-bottom: 6px; }
+.cnt-ic { width: 52px; height: 52px; display: block; }
+.cnt-head .cnt-ic { width: 72px; height: 72px; margin: 0 auto; }
+.cat-ic { width: 34px; height: 34px; display: block; margin-bottom: 2px; }
+.h-ic { width: 26px; height: 26px; flex: none; }
+.chip-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 4px; }
+.chip.on { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+.list-tbl td { vertical-align: middle; }
+.list-tbl .say-row { cursor: pointer; }
+.list-tbl .say-row.speaking td { background: var(--accent-soft); }
+.list-tbl .spk { width: 28px; text-align: right; color: var(--muted); }
+.row-pics { display: flex; flex-wrap: wrap; gap: 1px; margin-top: 3px; max-width: 150px; }
+.row-pics svg { width: 14px; height: 14px; }
+.cal-svg { width: 100%; max-width: 300px; display: block; margin: 0 auto; font-family: var(--sans); }
+.cal-legend { font-size: 12px; color: var(--muted); display: flex; gap: 6px; align-items: center; justify-content: center; margin-top: 6px; }
+.cal-legend .ring { width: 12px; height: 12px; border-radius: 50%; border: 2px solid #273560; display: inline-block; }
+.cal-legend .mark { width: 12px; height: 12px; border-radius: 50%; background: #d63a50; display: inline-block; margin-left: 8px; }
 .emoji-grid { display: grid; grid-template-columns: repeat(5, 44px); justify-content: center; gap: 6px 4px; font-size: 34px; line-height: 1.2; margin-bottom: 6px; }
 .big-num { font-family: var(--jp); font-size: 44px; font-weight: 700; }
 .big-num.small { font-size: 32px; }
@@ -259,6 +294,14 @@ table.tbl td:last-child { font-family: var(--jp); }
 .story-text { font-size: 21px; line-height: 2.1; }
 .story-text p { margin: 4px 0; border-radius: 8px; }
 .story-text p.speaking { background: var(--accent-soft); }
+/* Illustrationen (immer helle Bildfarben, auch im Dunkelmodus) */
+.scene { display: block; width: 100%; height: auto; border-radius: 12px; margin: 2px 0 10px;
+  --a: #273560; --b: #d63a50; --c: #ffffff; --d: #f3c3bd; --cloud: #ffffff; --bg: #fdeee9; }
+.scene .sky { fill: #fdeee9; } .scene .ground { fill: #f3d2ca; }
+.scene .sc-cloud { color: #ffffff; --cloud-line: #fdeee9; }
+.scene .wall { fill: #fbf1ea; } .scene .floor { fill: #ead3b0; } .scene .tatami { stroke: #cfae80; stroke-width: 1.2; fill: none; }
+.scene.night { --a: #f4efe7; --bg: #1f2a4d; }
+.scene.night .sky { fill: #1f2a4d; } .scene.night .ground { fill: #2b3762; }
 .dots { display: flex; justify-content: center; gap: 6px; margin: 4px 0; }
 .dots i { width: 8px; height: 8px; border-radius: 50%; background: var(--line); }
 .dots i.on { background: var(--accent); }
@@ -273,10 +316,11 @@ table.tbl td:last-child { font-family: var(--jp); }
 .tile b { font-size: 18px; font-weight: 600; margin-top: 6px; letter-spacing: .01em; }
 .tile small { font-size: 12.5px; opacity: .75; }
 .tile .ico { width: 76px; height: 76px; display: flex; align-items: center; justify-content: center; font-size: 46px; }
-.tile.red { background: var(--accent); color: var(--on-accent); --cut: var(--accent); }
-.tile.beige { background: var(--tile-beige, var(--surface-2)); --cut: var(--tile-beige, var(--surface-2)); }
-[data-theme="stamp"] .story-card:nth-child(4n+1), [data-theme="stamp"] .story-card:nth-child(4n+4) { --cut: var(--accent); }
-[data-theme="stamp"] .story-card:nth-child(4n+2), [data-theme="stamp"] .story-card:nth-child(4n+3) { --cut: var(--tile-beige); }
+.tile.red { background: var(--accent); color: var(--on-accent); }
+.tile.beige { background: var(--surface-2); }
+[data-theme="stamp"] .tile.red, [data-theme="stamp"] .story-card:nth-child(4n+1), [data-theme="stamp"] .story-card:nth-child(4n+4) { background: var(--tile-a); color: var(--text); box-shadow: var(--shadow), inset 0 0 0 1px var(--line); }
+[data-theme="stamp"] .tile.beige, [data-theme="stamp"] .story-card:nth-child(4n+2), [data-theme="stamp"] .story-card:nth-child(4n+3) { background: var(--tile-b); color: var(--text); box-shadow: none; }
+[data-theme="stamp"] .tile small { color: var(--muted); opacity: 1; }
 .tile:active { transform: scale(.98); }
 .settings-btn { background: var(--surface); box-shadow: var(--shadow); color: var(--muted); }
 
@@ -286,15 +330,41 @@ table.tbl td:last-child { font-family: var(--jp); }
 [data-theme="stamp"] .ico .emo { display: none; }
 [data-theme="stamp"] .ico .pic { display: block; }
 
-/* ---------- Design „Japan“ (schlicht, rot/beige) ---------- */
+/* ---------- Hintergrund „Japan“: Seigaiha-Wellen (Fächermuster), Wolken, Blüten ---------- */
+.deco { display: none; }
+[data-theme="stamp"] body {
+  --w: var(--wave);
+  --s: var(--bg);
+  background-color: var(--s);
+  background-image:
+    radial-gradient(circle at 100% 150%, var(--s) 24%, var(--w) 24%, var(--w) 28%, var(--s) 28%, var(--s) 36%, var(--w) 36%, var(--w) 40%, transparent 40%, transparent),
+    radial-gradient(circle at 0 150%, var(--s) 24%, var(--w) 24%, var(--w) 28%, var(--s) 28%, var(--s) 36%, var(--w) 36%, var(--w) 40%, transparent 40%, transparent),
+    radial-gradient(circle at 50% 100%, var(--w) 10%, var(--s) 10%, var(--s) 23%, var(--w) 23%, var(--w) 30%, var(--s) 30%, var(--s) 43%, var(--w) 43%, var(--w) 50%, var(--s) 50%, var(--s) 63%, var(--w) 63%, var(--w) 71%, transparent 71%, transparent),
+    radial-gradient(circle at 100% 50%, var(--w) 5%, var(--s) 5%, var(--s) 15%, var(--w) 15%, var(--w) 20%, var(--s) 20%, var(--s) 29%, var(--w) 29%, var(--w) 34%, var(--s) 34%, var(--s) 44%, var(--w) 44%, var(--w) 49%, transparent 49%, transparent),
+    radial-gradient(circle at 0 50%, var(--w) 5%, var(--s) 5%, var(--s) 15%, var(--w) 15%, var(--w) 20%, var(--s) 20%, var(--s) 29%, var(--w) 29%, var(--w) 34%, var(--s) 34%, var(--s) 44%, var(--w) 44%, var(--w) 49%, transparent 49%, transparent);
+  background-size: 36px 18px;
+  background-attachment: fixed;
+}
+[data-theme="stamp"] .deco { display: block; position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+[data-theme="stamp"] .topbar, [data-theme="stamp"] main, [data-theme="stamp"] .toast { position: relative; z-index: 1; }
+[data-theme="stamp"] .topbar { position: sticky; z-index: 10; }
+.d-cloud { position: absolute; width: 240px; height: 100px; color: var(--cloud); }
+.d-cloud.c1 { top: 64px; right: -70px; }
+.d-cloud.c2 { top: 44%; left: -90px; width: 220px; height: 92px; }
+.d-cloud.c3 { bottom: 30px; right: -50px; width: 200px; height: 84px; }
+.d-flower { position: absolute; width: 34px; height: 34px; color: var(--flower); }
+.d-flower.f2, .d-flower.f4 { color: var(--flower2); }
+.d-flower.f1 { top: 118px; left: 10px; } .d-flower.f2 { top: 33%; right: 8px; width: 28px; height: 28px; }
+.d-flower.f3 { top: 64%; left: 6px; width: 24px; height: 24px; } .d-flower.f4 { bottom: 110px; left: 12px; width: 40px; height: 40px; }
+.d-flower.f5 { bottom: 16%; right: 10px; width: 30px; height: 30px; }
+[data-theme="stamp"] .topbar { background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(6px); }
+
+/* ---------- Design „Japan“ (schlicht) ---------- */
 [data-theme="stamp"] .topbar { background: var(--bg); border-bottom: 2px solid var(--accent); }
 [data-theme="stamp"] .card { box-shadow: inset 0 0 0 1px var(--line); }
 [data-theme="stamp"] .script-chip { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
 [data-theme="stamp"] .btn.primary { background: var(--accent); color: var(--on-accent); }
 [data-theme="stamp"] .seg button.on { background: var(--accent); color: var(--on-accent); box-shadow: none; }
-[data-theme="stamp"] .story-card:nth-child(4n+1), [data-theme="stamp"] .story-card:nth-child(4n+4) { background: var(--accent); color: var(--on-accent); }
-[data-theme="stamp"] .story-card:nth-child(4n+1) .muted, [data-theme="stamp"] .story-card:nth-child(4n+4) .muted { color: inherit; opacity: .8; }
-[data-theme="stamp"] .story-card:nth-child(4n+2), [data-theme="stamp"] .story-card:nth-child(4n+3) { background: var(--tile-beige); }
 .story-card .cover-pic { width: 84px; height: 84px; display: block; margin: 0 auto; }
 [data-theme="classic"] .story-card .cover-pic { display: none; }
 [data-theme="stamp"] .story-card .cover-emo { display: none; }

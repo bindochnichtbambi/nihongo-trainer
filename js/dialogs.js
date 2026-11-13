@@ -11,12 +11,12 @@ window.GLOSS = {
   "さん": "Herr/Frau (Anrede)", "ください": "bitte (geben Sie)", "ええ": "ja", "でも": "aber",
   "そうですか": "Ach so.", "あのう": "Ähm …", "あ": "Ah!", "ありがとうございます": "Vielen Dank.", "ありがとう": "Danke.",
   "どうぞ": "bitte (anbieten)", "よろしく": "auf gute Zusammenarbeit (Gruß)", "けっこうです": "Nein, danke. / Nicht nötig.",
-  "いいですね": "Gute Idee! / Schön!", "かいしゃ": "Firma", "会社": "Firma", "たのしみ": "Vorfreude (ich freue mich)", "楽しみ": "Vorfreude (ich freue mich)", "います": "es gibt / sein (Lebewesen)", "あります": "es gibt (Dinge)",
+  "いいですね": "Gute Idee! / Schön!", "バナナ": "Banane", "うち": "Zuhause, zu Hause", "さんぽ": "Spaziergang", "散歩": "Spaziergang", "かいしゃ": "Firma", "会社": "Firma", "たのしみ": "Vorfreude (ich freue mich)", "楽しみ": "Vorfreude (ich freue mich)", "います": "es gibt / sein (Lebewesen)", "あります": "es gibt (Dinge)",
 };
 
 window.DIALOGS = [
-  { id: "d-kennen", title: "Erstes Kennenlernen", lesson: "Lektion 3–4", emoji: "🤝",
-    roles: { A: ["やまだ", "🧑"], B: ["アンナ", "👩"] },
+  { id: "d-kennen", title: "Erstes Kennenlernen", lesson: "Lektion 3–4", emoji: "🤝", icon: "s-bubble",
+    roles: { A: ["やまだ", "av-man"], B: ["アンナ", "av-woman"] },
     lines: [
       ["A", "はじめまして。|やまだ==Yamada (Name)|です。", "Freut mich. Ich bin Yamada."],
       ["B", "はじめまして。|アンナ==Anna (Name)|です。|どうぞ|よろしく。", "Freut mich. Ich bin Anna. Schön, Sie kennenzulernen."],
@@ -26,8 +26,8 @@ window.DIALOGS = [
       ["B", "_かいしゃいん=会社員|です。|やまださん==Herr Yamada|は？", "Ich bin Angestellte. Und Sie, Herr Yamada?"],
       ["A", "わたし=私=ich|は|_きょうし=教師|です。", "Ich bin Lehrer."],
     ] },
-  { id: "d-cafe", title: "Im Café", lesson: "Lektion 5–6", emoji: "☕",
-    roles: { A: ["てんいん", "🧑‍🍳"], B: ["おきゃくさん", "🙋"] },
+  { id: "d-cafe", title: "Im Café", lesson: "Lektion 5–6", emoji: "☕", icon: "s-coffee",
+    roles: { A: ["てんいん", "av-chef"], B: ["おきゃくさん", "av-man"] },
     lines: [
       ["A", "いらっしゃいませ。==Willkommen! (im Geschäft)", "Willkommen!"],
       ["B", "_コーヒー|を|ひとつ=一つ=eins (Stück)|おねがいします。=お願いします。=bitte", "Einen Kaffee, bitte."],
@@ -37,8 +37,8 @@ window.DIALOGS = [
       ["B", "カード==Karte|で|いいですか。==Ist … in Ordnung?", "Geht es mit Karte?"],
       ["A", "はい、|_だいじょうぶです。=大丈夫です。=kein Problem", "Ja, kein Problem."],
     ] },
-  { id: "d-essen", title: "Was isst du gern?", lesson: "Lektion 5–6", emoji: "🍣",
-    roles: { A: ["ケン", "🧑"], B: ["ユミ", "👧"] },
+  { id: "d-essen", title: "Was isst du gern?", lesson: "Lektion 5–6", emoji: "🍣", icon: "s-sushi",
+    roles: { A: ["ケン", "av-boy"], B: ["ユミ", "av-girl"] },
     lines: [
       ["A", "たべもの=食べ物|は|なに=何=was|が|すき=好き|ですか。", "Was isst du gern?"],
       ["B", "わたし=私=ich|は|_すし=寿司|が|すき=好き|です。", "Ich mag Sushi."],
@@ -47,8 +47,8 @@ window.DIALOGS = [
       ["A", "そうですか。|ぼく=僕=ich (männlich)|は|ラーメン|が|_だいすき=大好き|です。", "Ach so. Ich liebe Ramen."],
       ["B", "いいですね。==Wie schön! / Gut!", "Klingt gut!"],
     ] },
-  { id: "d-besuch", title: "Zu Besuch", lesson: "Lektion 7–8", emoji: "🏠",
-    roles: { A: ["サラ", "👩"], B: ["たなか", "🧓"] },
+  { id: "d-besuch", title: "Zu Besuch", lesson: "Lektion 7–8", emoji: "🏠", icon: "s-house",
+    roles: { A: ["サラ", "av-woman"], B: ["たなか", "av-oldman"] },
     lines: [
       ["A", "_ごめんください。", "Hallo, ist jemand da?"],
       ["B", "あ、|いらっしゃい。|どうぞ|_あがって=上がって=herein (kommen)|ください。", "Ah, willkommen! Komm bitte herein."],
@@ -59,8 +59,8 @@ window.DIALOGS = [
       ["A", "あのう、|トイレ|は|_どこ|ですか。", "Ähm, wo ist die Toilette?"],
       ["B", "トイレ|は|げんかん=玄関|の|_よこ=横|です。", "Die Toilette ist neben dem Eingang."],
     ] },
-  { id: "d-tag", title: "Mein Tagesablauf", lesson: "Lektion 9–10", emoji: "⏰",
-    roles: { A: ["リサ", "👩"], B: ["ケン", "🧑"] },
+  { id: "d-tag", title: "Mein Tagesablauf", lesson: "Lektion 9–10", emoji: "⏰", icon: "i-clock",
+    roles: { A: ["リサ", "av-woman"], B: ["ケン", "av-boy"] },
     lines: [
       ["A", "まいにち=毎日|なんじ=何時=um wie viel Uhr|に|おきますか。=起きますか。=stehst du auf?", "Um wie viel Uhr stehst du jeden Tag auf?"],
       ["B", "_ろくじ=6時=6 Uhr|に|おきます。=起きます。=stehe auf", "Ich stehe um 6 Uhr auf."],
@@ -71,8 +71,8 @@ window.DIALOGS = [
       ["A", "なんじ=何時|に|ねますか。=寝ますか。=schläfst du", "Wann gehst du schlafen?"],
       ["B", "じゅういちじ=11時=11 Uhr|_ごろ=頃=gegen (Uhrzeit)|ねます。=寝ます。=schlafe", "Gegen 11 Uhr."],
     ] },
-  { id: "d-hobby", title: "Hobbys", lesson: "Lektion 11–12", emoji: "🎬",
-    roles: { A: ["たなか", "🧑"], B: ["アンナ", "👩"] },
+  { id: "d-hobby", title: "Hobbys", lesson: "Lektion 11–12", emoji: "🎬", icon: "s-tv",
+    roles: { A: ["たなか", "av-man"], B: ["アンナ", "av-woman"] },
     lines: [
       ["A", "_しゅみ=趣味|は|なん=何|ですか。", "Was ist dein Hobby?"],
       ["B", "_えいが=映画|が|すき=好き|です。|よく==oft|みます。=見ます。=sehe", "Ich mag Filme. Ich schaue oft welche."],
@@ -82,8 +82,8 @@ window.DIALOGS = [
       ["B", "どんな|おんがく=音楽|ですか。", "Was für Musik?"],
       ["A", "_アニメ==Anime|の|うた=歌|です。", "Anime-Lieder."],
     ] },
-  { id: "d-hanabi", title: "Verabredung zum Feuerwerk", lesson: "Lektion 11–12", emoji: "🎆",
-    roles: { A: ["ユミ", "👧"], B: ["リサ", "👩"] },
+  { id: "d-hanabi", title: "Verabredung zum Feuerwerk", lesson: "Lektion 11–12", emoji: "🎆", icon: "i-hanabi",
+    roles: { A: ["ユミ", "av-girl"], B: ["リサ", "av-woman"] },
     lines: [
       ["A", "らいしゅう=来週|の|どようび=土曜日|に|_はなびたいかい=花火大会|が|あります。", "Nächsten Samstag gibt es ein Feuerwerksfest."],
       ["B", "そうですか。|_いつ|ですか。", "Ach ja? Wann genau?"],
@@ -92,8 +92,8 @@ window.DIALOGS = [
       ["A", "チケット|は|_むりょう=無料|です。", "Der Eintritt ist kostenlos."],
       ["B", "よかった。==Zum Glück! / Super.|_たのしみ=楽しみ|ですね。", "Super! Ich freue mich darauf."],
     ] },
-  { id: "d-weg", title: "Nach dem Weg fragen", lesson: "Reise", emoji: "🗺️",
-    roles: { A: ["りょこうしゃ", "🧳"], B: ["おまわりさん", "👮"] },
+  { id: "d-weg", title: "Nach dem Weg fragen", lesson: "Reise", emoji: "🗺️", icon: "s-map",
+    roles: { A: ["りょこうしゃ", "av-traveler"], B: ["おまわりさん", "av-police"] },
     lines: [
       ["A", "すみません、|_えき=駅|は|どこ|ですか。", "Entschuldigung, wo ist der Bahnhof?"],
       ["B", "えき=駅|ですか。|この==dieser|みち=道|を|_まっすぐ|いって=行って=gehen Sie|ください。", "Zum Bahnhof? Gehen Sie diese Straße geradeaus."],
@@ -103,8 +103,8 @@ window.DIALOGS = [
       ["B", "いいえ、|_ちかい=近い|ですよ。|ごふん=5分=5 Minuten|ぐらい==ungefähr|です。", "Nein, es ist nah. Etwa 5 Minuten."],
       ["A", "わかりました。=分かりました。=Verstanden.|ありがとうございます。", "Verstanden. Vielen Dank!"],
     ] },
-  { id: "d-bahnhof", title: "Fahrkarte kaufen", lesson: "Reise", emoji: "🚄",
-    roles: { A: ["りょこうしゃ", "🧳"], B: ["えきいん", "🧑‍✈️"] },
+  { id: "d-bahnhof", title: "Fahrkarte kaufen", lesson: "Reise", emoji: "🚄", icon: "s-train",
+    roles: { A: ["りょこうしゃ", "av-traveler"], B: ["えきいん", "av-staff"] },
     lines: [
       ["A", "すみません。|_きょうと=京都=Kyoto|まで|の|きっぷ=切符|を|ください。", "Entschuldigung, eine Fahrkarte nach Kyoto, bitte."],
       ["B", "_しんかんせん=新幹線|ですか。", "Mit dem Shinkansen?"],
@@ -118,7 +118,7 @@ window.DIALOGS = [
 
 // Lesebücher: Seiten mit Bild (Emojis) und Sätzen, danach Fragen (Antwort 0 ist richtig)
 window.STORIES = [
-  { id: "s-tama", title: "ねこ の タマ", de: "Tama, die Katze", lesson: "Lektion 1–8", cover: "🐱", icon: "cat",
+  { id: "s-tama", title: "ねこ の タマ", de: "Tama, die Katze", lesson: "Lektion 1–8", cover: "🐱", icon: "i-cat",
     pages: [
       { pic: "🏠 🐱", lines: ["わたし=私=ich|の|いえ=家|に|ねこ=猫|が|います。", "なまえ=名前|は|タマ==Tama (Name)|です。"], de: "In meinem Haus gibt es eine Katze. Ihr Name ist Tama." },
       { pic: "☀️ 🛋️ 😴", lines: ["タマ|は|あさ=朝|ソファ|の|うえ=上|で|ねます。=寝ます。=schläft"], de: "Morgens schläft Tama auf dem Sofa." },
@@ -132,7 +132,7 @@ window.STORIES = [
       { q: "タマ|は|なに=何|が|だいすき=大好き|ですか。", de: "Was liebt Tama?", a: ["さかな", "にく", "やさい"] },
       { q: "よる、|タマ|は|どこ|に|いましたか。==war", de: "Wo war Tama am Abend?", a: ["はこ の なか", "ソファ の うえ", "にわ"] },
     ] },
-  { id: "s-ken", title: "ケン の いちにち", de: "Kens Tag", lesson: "Lektion 9–10", cover: "⏰", icon: "clock",
+  { id: "s-ken", title: "ケン の いちにち", de: "Kens Tag", lesson: "Lektion 9–10", cover: "⏰", icon: "i-clock",
     pages: [
       { pic: "⏰ 🌅", lines: ["ケン==Ken (Name)|は|だいがくせい=大学生=Student|です。", "まいにち=毎日|しちじ=7時=7 Uhr|に|おきます。=起きます。=steht auf"], de: "Ken ist Student. Er steht jeden Tag um 7 Uhr auf." },
       { pic: "🍞 ☕", lines: ["あさごはん=朝ご飯|に|パン|を|たべます。=食べます。=isst", "コーヒー|も|のみます。=飲みます。=trinkt"], de: "Zum Frühstück isst er Brot. Er trinkt auch Kaffee." },
@@ -146,7 +146,7 @@ window.STORIES = [
       { q: "ごご=午後|は|どこ|で|べんきょうしますか。=勉強しますか。=lernt", de: "Wo lernt er am Nachmittag?", a: ["としょかん", "こうえん", "うち"] },
       { q: "ケン|は|なんじ=何時|ごろ|ねますか。=寝ますか。=schläft", de: "Gegen wie viel Uhr schläft Ken?", a: ["じゅうにじ", "じゅうじ", "しちじ"] },
     ] },
-  { id: "s-hanabi", title: "はなびたいかい", de: "Das Feuerwerksfest", lesson: "Lektion 11–12", cover: "🎆", icon: "hanabi",
+  { id: "s-hanabi", title: "はなびたいかい", de: "Das Feuerwerksfest", lesson: "Lektion 11–12", cover: "🎆", icon: "i-hanabi",
     pages: [
       { pic: "📅 🎆", lines: ["はちがつ=8月=August|に|まち=町|で|はなびたいかい=花火大会|が|あります。"], de: "Im August gibt es in der Stadt ein Feuerwerksfest." },
       { pic: "👧 👩", lines: ["ユミ==Yumi (Name)|は|ともだち=友だち|の|リサ==Lisa (Name)|と|いきます。=行きます。=geht"], de: "Yumi geht mit ihrer Freundin Lisa hin." },
@@ -161,7 +161,7 @@ window.STORIES = [
       { q: "まつり=祭り|で|なに=何|を|たべますか。=食べますか。=essen", de: "Was essen sie auf dem Fest?", a: ["やきとり と かきごおり", "すし と てんぷら", "パン と ケーキ"] },
       { q: "はなび=花火|は|なんじ=何時|に|はじまりますか。=始まりますか。=beginnt", de: "Um wie viel Uhr beginnt das Feuerwerk?", a: ["はちじ", "くじ", "ろくじ"] },
     ] },
-  { id: "s-tokyo", title: "とうきょう りょこう", de: "Reise nach Tokio", lesson: "Reise", cover: "🗼", icon: "tower",
+  { id: "s-tokyo", title: "とうきょう りょこう", de: "Reise nach Tokio", lesson: "Reise", cover: "🗼", icon: "i-tower",
     pages: [
       { pic: "✈️ 🗼", lines: ["わたし=私=ich|は|はじめて==zum ersten Mal|とうきょう=東京=Tokio|に|きました。=来ました。=bin gekommen"], de: "Ich bin zum ersten Mal nach Tokio gekommen." },
       { pic: "🏨 🚉", lines: ["ホテル|は|えき=駅|の|ちかく=近く|です。", "へや=部屋|は|せまい=狭い|です|が、==aber|きれい|です。"], de: "Das Hotel ist in der Nähe des Bahnhofs. Das Zimmer ist klein, aber sauber." },
@@ -176,3 +176,127 @@ window.STORIES = [
       { q: "よる=夜|なに=何|を|たべましたか。=食べましたか。=hast gegessen", de: "Was hast du abends gegessen?", a: ["すし", "ラーメン", "カレー"] },
     ] },
 ];
+
+// Illustrationen der Lesebücher: pro Seite Hintergrund + Motive [symbol, x, y, breite, höhe?]
+// Bühne 200 × 120, Boden ab y = 96. Symbole liegen in index.html (s-… und i-…).
+window.SCENES = {
+  "s-tama": [
+    { bg: "day", items: [["s-sun", 12, 8, 30], ["s-house", 52, 26, 74], ["i-cat", 130, 56, 40]] },
+    { bg: "room", items: [["s-shoji", 14, 12, 46], ["s-sun", 156, 8, 26], ["s-sofa", 62, 38, 84], ["s-catsleep", 80, 54, 52, 32], ["s-zzz", 132, 34, 22]] },
+    { bg: "room", items: [["s-fish", 82, 40, 66], ["i-cat", 28, 52, 46]] },
+    { bg: "night", items: [["s-moon", 146, 6, 36], ["s-sofa", 40, 40, 76], ["s-question", 124, 46, 36]] },
+    { bg: "room", items: [["s-catpeek", 78, 32, 44, 28], ["s-box", 68, 38, 64], ["s-heart", 140, 26, 20], ["s-heart", 152, 46, 14]] },
+  ],
+  "s-ken": [
+    { bg: "dawn", items: [["s-sun", 120, 50, 64], ["i-clock", 30, 44, 52]] },
+    { bg: "room", items: [["s-bread", 36, 40, 60], ["s-coffee", 108, 40, 56]] },
+    { bg: "day", items: [["s-school", 22, 22, 86], ["s-books", 124, 52, 48], ["s-tree", 160, 46, 40]] },
+    { bg: "day", items: [["s-tree", 112, 24, 76], ["s-runner", 34, 36, 62], ["s-tree", 168, 54, 30]] },
+    { bg: "night", items: [["s-moon", 150, 6, 32], ["s-tv", 28, 40, 62], ["i-tea", 104, 46, 56]] },
+  ],
+  "s-hanabi": [
+    { bg: "day", items: [["s-calendar", 30, 30, 62], ["i-hanabi", 112, 22, 64]] },
+    { bg: "day", items: [["s-girl", 46, 34, 62], ["s-woman", 100, 34, 62]] },
+    { bg: "dawn", items: [["s-yukata", 44, 34, 62], ["s-yukata", 98, 34, 62]] },
+    { bg: "night", items: [["s-yakitori", 34, 40, 56], ["s-kakigori", 108, 40, 58]] },
+    { bg: "night", items: [["i-hanabi", 16, 4, 76], ["i-hanabi", 104, 0, 86], ["i-hanabi", 74, 44, 40]] },
+    { bg: "day", items: [["s-girl", 36, 40, 58], ["s-woman", 108, 40, 58], ["s-bubble", 74, 2, 52, 39]] },
+  ],
+  "s-tokyo": [
+    { bg: "day", items: [["s-plane", 14, 6, 72], ["i-tower", 118, 14, 80]] },
+    { bg: "day", items: [["s-hotel", 22, 18, 78], ["s-train", 96, 58, 96, 48]] },
+    { bg: "day", items: [["s-train", 8, 46, 104, 52], ["s-map", 126, 34, 60]] },
+    { bg: "day", items: [["i-torii", 26, 24, 72], ["s-camera", 120, 46, 50]] },
+    { bg: "room", items: [["s-sushi", 34, 38, 76], ["s-girl", 122, 40, 56]] },
+  ],
+};
+
+// ---------- Weitere Lesebücher ----------
+window.STORIES.push(
+  { id: "s-super", title: "スーパー で かいもの", de: "Einkaufen im Supermarkt", lesson: "Lektion 5–6", cover: "🛒", icon: "s-bag",
+    pages: [
+      { lines: ["きょう=今日|は|やすみ=休み|です。", "わたし=私=ich|は|スーパー==Supermarkt|に|いきます。=行きます。=gehe"], de: "Heute habe ich frei. Ich gehe in den Supermarkt." },
+      { lines: ["りんご|を|みっつ=三つ=drei (Stück)|かいます。=買います。=kaufe", "バナナ|も|いっぽん=一本=eine (lange Sache)|かいます。=買います。=kaufe"], de: "Ich kaufe drei Äpfel. Ich kaufe auch eine Banane." },
+      { lines: ["ぎゅうにゅう=牛乳|と|パン|も|かいます。=買います。=kaufe", "パン|は|とても==sehr|やすい=安い|です。"], de: "Ich kaufe auch Milch und Brot. Das Brot ist sehr billig." },
+      { lines: ["ぜんぶ==alles zusammen|で|はっぴゃくえん=800円=800 Yen|です。", "カード==Karte|で|はらいます。=払います。=bezahle"], de: "Alles zusammen kostet 800 Yen. Ich bezahle mit Karte." },
+      { lines: ["うち|で|りんご|を|たべます。=食べます。=esse", "おいしい|です！"], de: "Zu Hause esse ich einen Apfel. Lecker!" },
+    ],
+    questions: [
+      { q: "りんご|を|いくつ==wie viele|かいますか。=買いますか。=kaufst du", de: "Wie viele Äpfel kaufe ich?", a: ["みっつ", "ふたつ", "よっつ"] },
+      { q: "パン|は|どう==wie|ですか。", de: "Wie ist das Brot?", a: ["やすい です", "たかい です", "まずい です"] },
+      { q: "ぜんぶ==alles zusammen|で|いくら|ですか。", de: "Wie viel kostet alles zusammen?", a: ["はっぴゃくえん", "ろっぴゃくえん", "さんびゃくえん"] },
+      { q: "なに=何|で|はらいますか。=払いますか。=bezahlst du", de: "Womit bezahle ich?", a: ["カード", "げんきん", "スマホ"] },
+    ] },
+  { id: "s-kazoku", title: "わたし の かぞく", de: "Meine Familie", lesson: "Lektion 3–4", cover: "👪", icon: "s-family",
+    pages: [
+      { lines: ["わたし=私=ich|の|かぞく=家族|は|よにん=4人=vier Personen|です。"], de: "Meine Familie hat vier Personen." },
+      { lines: ["ちち=父|は|かいしゃいん=会社員|です。", "まいにち=毎日|でんしゃ=電車|で|かいしゃ=会社=Firma|に|いきます。=行きます。=fährt"], de: "Mein Vater ist Angestellter. Er fährt jeden Tag mit dem Zug zur Firma." },
+      { lines: ["はは=母|は|せんせい=先生|です。", "がっこう=学校|で|えいご=英語=Englisch|を|おしえます。=教えます。=unterrichtet"], de: "Meine Mutter ist Lehrerin. Sie unterrichtet Englisch an der Schule." },
+      { lines: ["いもうと=妹|は|じゅうにさい=12歳=12 Jahre alt|です。", "いぬ=犬|が|だいすき=大好き|です。"], de: "Meine jüngere Schwester ist 12. Sie liebt Hunde." },
+      { lines: ["にちようび=日曜日|は|みんな==alle|で|ごはん|を|たべます。=食べます。=essen"], de: "Am Sonntag essen alle zusammen." },
+    ],
+    questions: [
+      { q: "かぞく=家族|は|なんにん=何人=wie viele Personen|ですか。", de: "Wie viele Personen hat die Familie?", a: ["よにん", "さんにん", "ごにん"] },
+      { q: "おとうさん=お父さん|の|しごと=仕事=Beruf|は|なんですか。=何ですか。=was ist", de: "Was ist der Beruf des Vaters?", a: ["かいしゃいん", "せんせい", "エンジニア"] },
+      { q: "いもうと=妹|は|なんさい=何歳=wie alt|ですか。", de: "Wie alt ist die jüngere Schwester?", a: ["じゅうにさい", "じゅっさい", "はたち"] },
+      { q: "にちようび=日曜日|に|なに=何|を|しますか。==macht man", de: "Was macht die Familie am Sonntag?", a: ["みんな で ごはん を たべます", "えいが を みます", "かいもの に いきます"] },
+    ] },
+  { id: "s-ame", title: "あめ の ひ", de: "Ein Regentag", lesson: "Lektion 9–12", cover: "☔", icon: "c-umbrella",
+    pages: [
+      { lines: ["きょう=今日|は|あめ=雨=Regen|です。", "そと=外=draußen|は|さむい=寒い|です。"], de: "Heute regnet es. Draußen ist es kalt." },
+      { lines: ["わたし=私=ich|は|うち|に|います。==bin"], de: "Ich bin zu Hause." },
+      { lines: ["おちゃ=お茶|を|のみます。=飲みます。=trinke", "そして==und dann|マンガ|を|よみます。=読みます。=lese"], de: "Ich trinke Tee. Und dann lese ich Manga." },
+      { lines: ["ねこ=猫|も|うち|で|ねて います。=寝ています。=schläft gerade"], de: "Die Katze schläft auch zu Hause." },
+      { lines: ["ごご=午後|は|あめ=雨|が|やみました。=止みました。=hat aufgehört", "さんぽ=散歩|に|いきます。=行きます。=gehe"], de: "Am Nachmittag hört der Regen auf. Ich gehe spazieren." },
+    ],
+    questions: [
+      { q: "きょう=今日|の|てんき=天気=Wetter|は|どうですか。==wie ist", de: "Wie ist das Wetter heute?", a: ["あめ", "はれ", "ゆき"] },
+      { q: "うち|で|なに=何|を|のみますか。=飲みますか。=trinkst du", de: "Was trinke ich zu Hause?", a: ["おちゃ", "コーヒー", "ジュース"] },
+      { q: "なに=何|を|よみますか。=読みますか。=liest du", de: "Was lese ich?", a: ["マンガ", "しんぶん", "しょうせつ"] },
+      { q: "ごご=午後|は|なに=何|を|しますか。==machst du", de: "Was mache ich am Nachmittag?", a: ["さんぽ", "かいもの", "べんきょう"] },
+    ] },
+  { id: "s-onsen", title: "おんせん りょこう", de: "Ausflug ins Onsen", lesson: "Reise", cover: "♨️", icon: "s-onsen",
+    pages: [
+      { lines: ["しゅうまつ=週末=Wochenende|に|おんせん=温泉=heiße Quelle|に|いきました。=行きました。=bin gefahren"], de: "Am Wochenende bin ich zu einer heißen Quelle gefahren." },
+      { lines: ["でんしゃ=電車|から==aus, von|ふじさん=富士山=Berg Fuji|が|みえました。=見えました。=war zu sehen"], de: "Vom Zug aus konnte man den Fuji sehen." },
+      { lines: ["おんせん=温泉|は|とても==sehr|あつかった=熱かった=war heiß|です。", "でも、|きもち よかった=気持ちよかった=war angenehm|です。"], de: "Das Onsen war sehr heiß. Aber es war angenehm." },
+      { lines: ["ばんごはん=晩ご飯|に|さかな=魚|と|ごはん|を|たべました。=食べました。=habe gegessen"], de: "Zum Abendessen habe ich Fisch und Reis gegessen." },
+      { lines: ["よる=夜|は|ふとん=布団=Futon|で|ねました。=寝ました。=habe geschlafen"], de: "Nachts habe ich auf einem Futon geschlafen." },
+    ],
+    questions: [
+      { q: "いつ|おんせん=温泉|に|いきましたか。=行きましたか。=bist gefahren", de: "Wann bin ich ins Onsen gefahren?", a: ["しゅうまつ", "らいしゅう", "きのう"] },
+      { q: "でんしゃ=電車|から==aus, von|なに=何|が|みえましたか。=見えましたか。=war zu sehen", de: "Was sah man vom Zug aus?", a: ["ふじさん", "うみ", "とうきょうタワー"] },
+      { q: "おんせん=温泉|は|どうでしたか。==wie war", de: "Wie war das Onsen?", a: ["あつかった", "さむかった", "つめたかった"] },
+      { q: "よる=夜|は|どこ|で|ねましたか。=寝ましたか。=hast geschlafen", de: "Wo habe ich nachts geschlafen?", a: ["ふとん", "ベッド", "ソファ"] },
+    ] },
+);
+Object.assign(window.SCENES, {
+  "s-super": [
+    { bg: "day", items: [["s-shop", 28, 24, 74], ["s-woman", 118, 40, 56]] },
+    { bg: "room", items: [["c-apple", 26, 54, 32], ["c-apple", 54, 54, 32], ["c-apple", 82, 54, 32], ["c-banana", 128, 44, 46]] },
+    { bg: "room", items: [["s-milk", 42, 36, 60], ["s-bread", 106, 42, 58]] },
+    { bg: "room", items: [["c-yen", 38, 40, 58], ["s-girl", 120, 40, 56]] },
+    { bg: "room", items: [["s-bag", 28, 40, 58], ["c-apple", 104, 56, 36], ["s-heart", 150, 40, 20]] },
+  ],
+  "s-kazoku": [
+    { bg: "room", items: [["s-family", 40, 22, 120, 80]] },
+    { bg: "day", items: [["s-hotel", 122, 18, 76], ["s-train", 6, 56, 104, 52]] },
+    { bg: "day", items: [["s-school", 22, 22, 86], ["s-woman", 122, 40, 56]] },
+    { bg: "day", items: [["s-girl", 50, 36, 60], ["c-dog", 112, 52, 46]] },
+    { bg: "room", items: [["s-family", 8, 34, 96, 64], ["c-rice", 122, 50, 46]] },
+  ],
+  "s-ame": [
+    { bg: "rain", items: [["s-rain", 20, 2, 62], ["s-rain", 112, 8, 58], ["c-umbrella", 76, 50, 46]] },
+    { bg: "room", items: [["s-window", 24, 14, 58], ["s-girl", 114, 38, 56]] },
+    { bg: "room", items: [["c-greentea", 40, 46, 48], ["c-manga", 108, 42, 50]] },
+    { bg: "room", items: [["s-tv", 22, 40, 58], ["s-catsleep", 106, 64, 62, 39]] },
+    { bg: "day", items: [["s-sun", 152, 6, 34], ["s-girl", 40, 38, 56], ["s-tree", 108, 24, 72]] },
+  ],
+  "s-onsen": [
+    { bg: "day", items: [["s-train", 6, 48, 106, 53], ["i-torii", 130, 32, 58]] },
+    { bg: "day", items: [["i-fuji", 62, 10, 92], ["s-train", 4, 64, 80, 40]] },
+    { bg: "day", items: [["s-onsen", 56, 28, 90]] },
+    { bg: "room", items: [["s-yukata", 22, 36, 60], ["c-fish", 96, 54, 44], ["c-rice", 144, 50, 42]] },
+    { bg: "night", items: [["s-moon", 152, 6, 32], ["s-futon", 40, 56, 112, 70]] },
+  ],
+});

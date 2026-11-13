@@ -159,10 +159,10 @@
         ["m-counters", "soroban", "三", "Zählwörter", "ひとつ, さんぼん …"],
         ["m-list", "sakura", "🔎", "Wortliste", "Suchen & ergänzen"],
         ["m-groups", "torii", "📚", "Lektionen", `${DB.groups.length} von ${GROUPS.length} aktiv`],
+        ["m-settings", "fan", "⚙️", "Einstellungen", "Design, Schrift, Sicherung"],
       ].map(([id, ic, emo, t, sub], i) => `<button class="tile ${(Math.floor(i / 2) + i % 2) % 2 ? "beige" : "red"}" id="${id}">
           <span class="ico"><i class="emo">${emo}</i><svg class="pic"><use href="#i-${ic}"/></svg></span>
           <b>${t}</b><small>${sub}</small></button>`).join("")}</div>
-      <button class="btn settings-btn" id="m-settings">⚙️ Einstellungen</button>
     `);
     document.getElementById("go").onclick = () => startSession();
     document.getElementById("m-groups").onclick = groupsView;
@@ -455,11 +455,17 @@
     const cats = Counters.CATEGORIES;
     show("Zählwörter", `
       <p class="muted small" style="margin-top:0">Wähle, was du üben willst:</p>
-      <div class="cat-grid">${cats.map(c => `<button class="cat ${DB.counterCats.includes(c.id) ? "on" : ""}" data-c="${c.id}"><b>${c.label}</b><small>${esc(c.title)}</small></button>`).join("")}</div>
+      <div class="cat-grid">${cats.map(c => `<button class="cat ${DB.counterCats.includes(c.id) ? "on" : ""}" data-c="${c.id}">${c.icon ? `<svg class="cat-ic"><use href="#${c.icon}"/></svg>` : ""}<b>${c.label}</b><small>${esc(c.title)}</small></button>`).join("")}</div>
+      <h2>Reihenfolge</h2>
+      <div class="seg" id="order"><button data-o="rand" class="${DB.settings.counterOrder !== "seq" ? "on" : ""}">Zufällig (10 Fragen)</button><button data-o="seq" class="${DB.settings.counterOrder === "seq" ? "on" : ""}">Der Reihe nach</button></div>
       <h2>Antwortmodus</h2>
       <div class="seg" id="mode"><button data-m="mc" class="${DB.settings.counterMode === "mc" ? "on" : ""}">Auswählen</button><button data-m="type" class="${DB.settings.counterMode === "type" ? "on" : ""}">Tippen</button><button data-m="speak" class="${DB.settings.counterMode === "speak" ? "on" : ""}">Sprechen</button></div>
-      <button class="btn primary" id="start">Üben (10 Fragen)</button>
-      <button class="btn" id="tables">Tabellen ansehen</button>`, { back: home });
+      <button class="btn primary" id="start">Üben</button>
+      <button class="btn" id="tables">📋 Liste: alle der Reihe nach</button>`, { back: home });
+    $app.querySelectorAll("#order button").forEach(b => b.onclick = () => {
+      DB.settings.counterOrder = b.dataset.o; save();
+      $app.querySelectorAll("#order button").forEach(x => x.classList.toggle("on", x === b));
+    });
     $app.querySelectorAll(".cat").forEach(b => b.onclick = () => {
       const id = b.dataset.c;
       DB.counterCats = DB.counterCats.includes(id) ? DB.counterCats.filter(x => x !== id) : [...DB.counterCats, id];
@@ -470,27 +476,48 @@
       $app.querySelectorAll("#mode button").forEach(x => x.classList.toggle("on", x === b));
     });
     $("#start").onclick = () => { if (!DB.counterCats.length) return toast("Bitte mindestens eine Kategorie wählen"); counterRound(); };
-    $("#tables").onclick = counterTables;
+    $("#tables").onclick = () => counterTables();
   }
-  function counterTables() {
-    current = { rerender: counterTables };
-    const html = Counters.CATEGORIES.map(c => {
+  // Liste: alle Formen der Reihe nach (antippen = anhören)
+  function counterTables(only) {
+    current = { rerender: () => counterTables(only) };
+    const sel = only || (DB.counterCats.length ? DB.counterCats : Counters.CATEGORIES.map(c => c.id));
+    const chips = Counters.CATEGORIES.map(c => `<button class="chip ${sel.length === 1 && sel[0] === c.id ? "on" : ""}" data-only="${c.id}">${c.label}</button>`).join("");
+    const html = Counters.CATEGORIES.filter(c => sel.includes(c.id)).map(c => {
       const q = Counters.makeQuestion(c.id);
-      return `<h2>${c.label} – ${esc(c.title)}</h2><div class="card"><p class="small muted" style="margin-top:0">${esc(q.info)}</p><table class="tbl">${q.table.map(r => `<tr><td>${esc(r[0])}</td><td>${esc(readingText(r[1].split(" / ")[0]) + (r[1].includes(" / ") ? " / " + r[1].split(" / ").slice(1).map(x => readingText(x)).join(" / ") : ""))}</td></tr>`).join("")}</table></div>`;
+      const rows = q.table.map(r => {
+        const first = r[1].split(" / ")[0];
+        const reading = r[1].split(" / ").map(x => readingText(x)).join(" / ");
+        const pics = r[2] && c.icon ? `<span class="row-pics">${Array(r[2]).fill(`<svg><use href="#${c.icon}"/></svg>`).join("")}</span>` : "";
+        return `<tr class="say-row" data-say="${esc(first)}"><td><b>${esc(r[0])}</b>${pics}</td><td>${esc(reading)}</td><td class="spk">🔊</td></tr>`;
+      }).join("");
+      return `<h2>${q.icon ? `<svg class="h-ic"><use href="#${q.icon}"/></svg>` : ""}${c.label} – ${esc(c.title)}</h2>
+        <div class="card"><p class="small muted" style="margin-top:0">${esc(q.info)}</p><table class="tbl list-tbl">${rows}</table>
+        <button class="btn" data-play="${c.id}">▶ Alle vorlesen</button></div>`;
     }).join("");
-    show("Zählwort-Tabellen", html, { back: countersView });
+    show("Liste der Reihe nach", `<div class="chip-row"><button class="chip ${sel.length > 1 ? "on" : ""}" data-only="">Auswahl</button>${chips}</div>
+      <p class="small muted">Tippe eine Zeile an, um sie zu hören.</p>${html}`, { back: countersView });
+    $app.querySelectorAll("[data-only]").forEach(b => b.onclick = () => counterTables(b.dataset.only ? [b.dataset.only] : null));
+    $app.querySelectorAll(".say-row").forEach(r => r.onclick = () => say(r.dataset.say));
+    $app.querySelectorAll("[data-play]").forEach(b => b.onclick = () => {
+      const rows = [...b.closest(".card").querySelectorAll(".say-row")];
+      playSeq(rows.map(r => r.dataset.say), i => rows.forEach((r, j) => r.classList.toggle("speaking", j === i)));
+    });
   }
   function counterRound() {
-    const R = { n: 0, total: 10, right: 0 };
+    const seq = DB.settings.counterOrder === "seq";
+    const list = seq ? DB.counterCats.flatMap(c => Array.from({ length: Counters.seqLength(c) }, (_, k) => [c, k])) : null;
+    const R = { n: 0, total: seq ? list.length : 10, right: 0 };
     const nextQ = () => {
       if (R.n >= R.total) {
         current = null;
-        show("Zählwörter", `<div class="card center"><div class="big-emoji">${R.right >= 8 ? "🏆" : "💪"}</div><h2>${R.right} von ${R.total} richtig</h2>
+        show("Zählwörter", `<div class="card center"><div class="big-emoji">${R.right >= R.total * 0.8 ? "🏆" : "💪"}</div><h2>${R.right} von ${R.total} richtig</h2>
           <button class="btn primary" id="again">Nochmal</button><button class="btn" id="back">Zurück</button></div>`, { back: countersView });
         $("#again").onclick = counterRound; $("#back").onclick = countersView; return;
       }
       R.n++;
-      const q = Counters.makeQuestion(DB.counterCats[Math.floor(Math.random() * DB.counterCats.length)]);
+      const q = seq ? Counters.makeQuestion(list[R.n - 1][0], list[R.n - 1][1])
+        : Counters.makeQuestion(DB.counterCats[Math.floor(Math.random() * DB.counterCats.length)]);
       renderQ(q);
     };
     const renderQ = q => {
@@ -511,7 +538,7 @@
         const all = q.answers.map(a => readingText(a)).join(" / ");
         $("#area").innerHTML = `<div class="feedback ${ok ? "ok" : "no"}">${ok ? "✓ Richtig!" : "✗ Richtig wäre:"} <div class="jp">${esc(all)}</div>
           ${heard ? `<div class="small">Verstanden: ${esc(heard)}</div>` : ""}</div>
-          <p class="small muted">${esc(q.info)}</p>
+          ${q.note ? `<p class="center" style="margin:8px 0 0"><b>${esc(q.note)}</b></p>` : ""}<p class="small muted">${esc(q.info)}</p>
           <div class="center"><button class="speak-btn" id="say">🔊 Anhören</button></div>
           <button class="btn primary" id="next">Weiter</button>`;
         say(q.answers[0]);
@@ -559,7 +586,7 @@
     const seg = (key, opts) => `<div class="seg" data-key="${key}">${opts.map(([v, l]) => `<button data-v="${v}" class="${String(s[key]) === String(v) ? "on" : ""}">${l}</button>`).join("")}</div>`;
     show("Einstellungen", `
       <h2>Design</h2>
-      <div class="card">${seg("theme", [["stamp", "Japan"], ["classic", "Klassisch"]])}<p class="small muted">Japan: Rot &amp; Beige mit Holzschnitt-Symbolen.</p><label class="field" style="margin:0"><span>Hell / Dunkel</span>${seg("mode", [["auto", "Wie Handy"], ["light", "Hell"], ["dark", "Dunkel"]])}</label></div>
+      <div class="card">${seg("theme", [["stamp", "Japan"], ["classic", "Klassisch"]])}<p class="small muted">Japan: Marineblau, Rot &amp; Rosé mit eigenen Symbolen.</p><label class="field" style="margin:0"><span>Hell / Dunkel</span>${seg("mode", [["auto", "Wie Handy"], ["light", "Hell"], ["dark", "Dunkel"]])}</label></div>
       <h2>Schrift</h2>
       <div class="card">
         ${seg("script", [["romaji", "Romaji"], ["kana", "Kana"], ["kanji", "Kanji"]])}
@@ -1012,6 +1039,8 @@
     if (run === playRun) onStep && onStep(-1);
     return run === playRun;
   }
+  // Avatar: gezeichnet (av-…) oder Emoji
+  function avHTML(v) { return String(v).startsWith("av-") ? `<svg class="av-svg"><use href="#${v}"/></svg>` : esc(v); }
   function roleName(d, who) { return tokText({ kana: d.roles[who][0], kanji: "" }); }
 
   // ---------- Gespräche ----------
@@ -1019,10 +1048,13 @@
     current = { rerender: dialogList };
     const st = DB.dlg || {};
     const groups = [...new Set(window.DIALOGS.map(d => d.lesson))];
-    show("Gespräche", groups.map(g => `<h2>${esc(g)}</h2>` + window.DIALOGS.filter(d => d.lesson === g).map(d => {
+    void groups;
+    show("Gespräche", `<div class="tiles">` + window.DIALOGS.map((d, i) => {
       const s = st[d.id];
-      return `<button class="btn menu-btn" data-d="${d.id}"><span class="ico">${d.emoji}</span><span>${esc(d.title)}<small>${d.lines.length} Sätze${s ? ` · Lücken: ${s.gap ?? "–"}% · Rollenspiel: ${s.role ?? "–"}%` : ""}</small></span>${s && s.gap === 100 ? "✅" : ""}</button>`;
-    }).join("")).join("") + `<p class="small muted">Tipp: Kurz auf ein Wort tippen = anhören. Lange drücken = Übersetzung.</p>`, { back: home });
+      return `<button class="tile small-tile ${(Math.floor(i / 2) + i % 2) % 2 ? "beige" : "red"}" data-d="${d.id}">
+        <span class="ico"><i class="emo">${d.emoji}</i><svg class="pic"><use href="#${d.icon}"/></svg></span>
+        <b>${esc(d.title)}</b><small>${esc(d.lesson)}${s && s.gap === 100 ? " · ✓" : ""}</small></button>`;
+    }).join("") + `</div><p class="small muted">Tipp: Kurz auf ein Wort tippen = anhören. Lange drücken = Übersetzung.</p>`, { back: home });
     $app.querySelectorAll("[data-d]").forEach(b => b.onclick = () => dialogView(window.DIALOGS.find(d => d.id === b.dataset.d), "read"));
   }
   function saveDlg(id, key, val) { DB.dlg = DB.dlg || {}; const s = DB.dlg[id] = DB.dlg[id] || {}; s[key] = Math.max(s[key] || 0, val); save(); }
@@ -1034,7 +1066,7 @@
     const showDe = !!DB.showDe;
     const tabs = `<div class="seg" id="dmode">${[["read", "Lesen"], ["gap", "Lücken"], ["role", "Rollenspiel"]].map(([m, l]) => `<button data-m="${m}" class="${m === mode ? "on" : ""}">${l}</button>`).join("")}</div>`;
     const bubble = (l, i, inner) => `<div class="bubble-row ${l.who === "A" ? "left" : "right"}" data-line="${i}">
-        <div class="avatar" title="${esc(d.roles[l.who][0])}">${d.roles[l.who][1]}</div>
+        <div class="avatar" title="${esc(d.roles[l.who][0])}">${avHTML(d.roles[l.who][1])}</div>
         <div class="bubble"><div class="who">${roleName(d, l.who)}</div><div class="line jp">${inner}</div>
         <div class="de-line" ${showDe ? "" : "hidden"}>${esc(l.de)}</div>
         <button class="mini" data-say="${i}" aria-label="Vorlesen">🔊</button></div></div>`;
@@ -1088,7 +1120,7 @@
     } else if (mode === "role") {
       if (!state.me) {
         show(d.title, `${tabs}<div class="card center"><p>Welche Rolle sprichst du?</p>
-          <div class="row">${["A", "B"].map(w => `<button class="btn" data-me="${w}"><span class="big-emoji" style="font-size:36px">${d.roles[w][1]}</span><br>${roleName(d, w)}</button>`).join("")}</div>
+          <div class="row">${["A", "B"].map(w => `<button class="btn" data-me="${w}"><span class="avatar big">${avHTML(d.roles[w][1])}</span><br>${roleName(d, w)}</button>`).join("")}</div>
           <p class="small muted">Die App spricht die andere Rolle. Du siehst deinen Satz auf Deutsch und sagst ihn auf Japanisch.${SR ? "" : "<br>Spracherkennung ist hier nicht verfügbar – du bewertest dich selbst."}</p></div>`, { back: dialogList });
         $app.querySelectorAll("[data-me]").forEach(b => b.onclick = () => dialogView(d, "role", { me: b.dataset.me, i: 0, ok: 0, mine: 0 }));
       } else {
@@ -1107,7 +1139,7 @@
     let curHTML = "";
     if (!done && cur.who === st.me) {
       curHTML = `<div class="bubble-row ${cur.who === "A" ? "left" : "right"} mine">
-        <div class="avatar">${d.roles[cur.who][1]}</div>
+        <div class="avatar">${avHTML(d.roles[cur.who][1])}</div>
         <div class="bubble"><div class="who">Du</div><div class="de-prompt">${esc(cur.de)}</div>
         <div class="line jp" id="myline" ${st.reveal ? "" : "hidden"}>${lineHTML(cur.toks)}</div>
         <button class="mini" id="peek">${st.reveal ? "" : "👁 Japanisch zeigen"}</button></div></div>`;
@@ -1173,12 +1205,25 @@
   }
 
   // ---------- Lesebücher ----------
+  // Zeichnet eine Illustration aus Hintergrund + Motiven (siehe SCENES in dialogs.js)
+  function sceneHTML(sc) {
+    if (!sc) return "";
+    const bgs = {
+      day: `<rect width="200" height="120" class="sky"/><use href="#i-cloud" x="8" y="10" width="54" height="22" class="sc-cloud"/><use href="#i-cloud" x="150" y="30" width="40" height="17" class="sc-cloud"/><rect y="96" width="200" height="24" class="ground"/>`,
+      dawn: `<defs><linearGradient id="dawnG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fbd2c8"/><stop offset="1" stop-color="#fff3ec"/></linearGradient></defs><rect width="200" height="120" fill="url(#dawnG)"/><rect y="96" width="200" height="24" class="ground"/>`,
+      night: `<rect width="200" height="120" class="sky"/>${[[20, 14], [60, 8], [96, 22], [130, 12], [176, 40], [40, 40], [110, 44]].map(([x, y]) => `<use href="#s-star" x="${x}" y="${y}" width="6" height="6"/>`).join("")}<rect y="96" width="200" height="24" class="ground"/>`,
+      rain: `<rect width="200" height="120" fill="#dfe4ef"/><g stroke="#9fb0d4" stroke-width="1.6" stroke-linecap="round">${Array.from({ length: 26 }, (_, i) => `<path d="M${(i * 37) % 200} ${(i * 23) % 90} l-3 9"/>`).join("")}</g><rect y="96" width="200" height="24" fill="#c9d1e3"/>`,
+      room: `<rect width="200" height="120" class="wall"/><rect y="94" width="200" height="26" class="floor"/><path d="M0 94 H200 M50 94 L40 120 M100 94 V120 M150 94 L160 120" class="tatami"/>`,
+    };
+    const items = sc.items.map(([id, x, y, w, h]) => `<use href="#${id}" x="${x}" y="${y}" width="${w}" height="${h || w}"/>`).join("");
+    return `<svg class="scene ${sc.bg}" viewBox="0 0 200 120" role="img" aria-hidden="true">${bgs[sc.bg] || ""}${items}</svg>`;
+  }
   function storyList() {
     current = { rerender: storyList };
     TOKS = [];
     const st = DB.story || {};
     show("Lesebücher", `<div class="story-grid">${window.STORIES.map(s => `<button class="story-card" data-s="${s.id}">
-        <svg class="cover-pic"><use href="#i-${s.icon}"/></svg><div class="cover cover-emo">${s.cover}</div><div class="jp st-title">${tokText({ kana: s.title, kanji: "" })}</div>
+        <svg class="cover-pic"><use href="#${s.icon}"/></svg><div class="cover cover-emo">${s.cover}</div><div class="jp st-title">${tokText({ kana: s.title, kanji: "" })}</div>
         <div class="small muted">${esc(s.de)}</div><div class="small muted">${esc(s.lesson)}${st[s.id] != null ? ` · ${st[s.id]}% ✓` : ""}</div></button>`).join("")}</div>
       <p class="small muted">Tippe ein Wort an, um es zu hören. Lange drücken zeigt die Übersetzung.</p>`, { back: home });
     $app.querySelectorAll("[data-s]").forEach(b => b.onclick = () => storyPage(window.STORIES.find(s => s.id === b.dataset.s), 0));
@@ -1189,7 +1234,7 @@
     const pg = s.pages[p], lines = pg.lines.map(parseLine);
     const last = p === s.pages.length - 1;
     show(s.de, `<div class="card story-page">
-        <div class="pic">${pg.pic}</div>
+        ${sceneHTML((window.SCENES[s.id] || [])[p]) || `<div class="pic">${pg.pic}</div>`}
         <div class="story-text jp">${lines.map(l => `<p>${lineHTML(l)}</p>`).join("")}</div>
         <div class="de-line" ${DB.showDe ? "" : "hidden"}>${esc(pg.de)}</div>
         <div class="tool-row"><button class="speak-btn" id="sp-read">🔊 Vorlesen</button><button class="speak-btn" id="sp-de">🇩🇪 Übersetzung</button></div>

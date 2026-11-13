@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#efe6d6">
+  <meta name="theme-color" content="#fbf8f6">
   <title>Nihongo Trainer</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
@@ -22,112 +22,425 @@
   </script>
 </head>
 <body>
-  <!-- Eigene Symbole im Holzschnitt-Stil -->
+  <!-- Eigene Symbole: flacher Stil in Marineblau (--a), Rot (--b), Weiß (--c), Rosé (--d) -->
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
     <defs>
-      <filter id="woodcut" x="-10%" y="-10%" width="120%" height="120%">
-        <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="4" result="warp"/>
-        <feDisplacementMap in="SourceGraphic" in2="warp" scale="2.2" xChannelSelector="R" yChannelSelector="G" result="rough"/>
-        <feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="2" seed="9" result="grain"/>
-        <feColorMatrix in="grain" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -9 0 0 0 6.2" result="mask"/>
-        <feComposite in="rough" in2="mask" operator="in"/>
-      </filter>
       <filter id="ink" x="-5%" y="-5%" width="110%" height="110%">
         <feTurbulence type="fractalNoise" baseFrequency="0.09" numOctaves="2" seed="2" result="t"/>
         <feDisplacementMap in="SourceGraphic" in2="t" scale="1.4" xChannelSelector="R" yChannelSelector="G"/>
       </filter>
     </defs>
-    <symbol id="i-torii" viewBox="0 0 64 64"><g filter="url(#woodcut)" fill="currentColor">
-      <path d="M3 13 Q32 6 61 13 L60 19 Q32 13 4 19 Z"/>
-      <rect x="9" y="26" width="46" height="5"/>
-      <rect x="29" y="18" width="6" height="9"/>
-      <path d="M15 18 L21 18 L22.5 60 L13.5 60 Z"/><path d="M43 18 L49 18 L50.5 60 L41.5 60 Z"/>
-      <path d="M2 61 Q32 57 62 61 L62 63 L2 63 Z" opacity=".6"/>
-    </g></symbol>
-    <symbol id="i-soroban" viewBox="0 0 64 64"><g filter="url(#woodcut)" fill="currentColor">
-      <path fill-rule="evenodd" d="M4 10h56v44H4z M9 15h46v34H9z"/>
-      <rect x="9" y="25" width="46" height="3"/>
-      <g stroke="currentColor" stroke-width="1.6"><path d="M16 15v34M25 15v34M34 15v34M43 15v34M51 15v34"/></g>
-      <g><ellipse cx="16" cy="19" rx="4" ry="2.8"/><ellipse cx="25" cy="22" rx="4" ry="2.8"/><ellipse cx="34" cy="19" rx="4" ry="2.8"/><ellipse cx="43" cy="19" rx="4" ry="2.8"/><ellipse cx="51" cy="22" rx="3.6" ry="2.8"/>
-        <ellipse cx="16" cy="32" rx="4" ry="2.8"/><ellipse cx="16" cy="38" rx="4" ry="2.8"/><ellipse cx="25" cy="40" rx="4" ry="2.8"/><ellipse cx="25" cy="46" rx="4" ry="2.8"/>
-        <ellipse cx="34" cy="32" rx="4" ry="2.8"/><ellipse cx="34" cy="38" rx="4" ry="2.8"/><ellipse cx="34" cy="44" rx="4" ry="2.8"/>
-        <ellipse cx="43" cy="46" rx="4" ry="2.8"/><ellipse cx="51" cy="32" rx="3.6" ry="2.8"/><ellipse cx="51" cy="46" rx="3.6" ry="2.8"/></g>
-    </g></symbol>
-    <symbol id="i-tea" viewBox="0 0 64 64"><g filter="url(#woodcut)" fill="currentColor">
-      <path d="M8 30 H56 Q56 50 32 53 Q8 50 8 30 Z"/>
-      <rect x="22" y="53" width="20" height="5" rx="1"/>
-      <path d="M12 35 Q32 40 52 35" style="stroke:var(--cut,var(--surface))" stroke-width="2" fill="none"/>
-      <g fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round">
-        <path d="M24 25 q-5 -5 0 -10 q5 -5 0 -10"/><path d="M34 25 q-5 -5 0 -10 q5 -5 0 -10"/><path d="M44 25 q-4 -4 0 -8"/></g>
-    </g></symbol>
-    <symbol id="i-fuji" viewBox="0 0 64 64"><g filter="url(#woodcut)" fill="currentColor">
-      <circle cx="49" cy="14" r="8"/>
-      <path fill-rule="evenodd" d="M2 56 L23 22 Q32 17 41 22 L62 56 Z M23 22 Q32 17 41 22 L46 31 L41 28 L37 33 L32 28 L27 33 L23 28 L18 31 Z"/>
-      <g fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M2 44 q5 -5 10 0 q4 4 8 0"/><path d="M44 46 q5 -5 10 0 q4 4 8 0"/></g>
-      <rect x="0" y="58" width="64" height="4" opacity=".7"/>
-    </g></symbol>
-    <!-- Pinsel (fude): Bambusgriff mit Knoten, Zwinge, Haarspitze, Aufhängeschlaufe, Tuschestrich -->
-    <symbol id="i-brush" viewBox="0 0 64 64"><g filter="url(#woodcut)" fill="currentColor">
+
+    <!-- Torii -->
+    <symbol id="i-torii" viewBox="0 0 64 64">
+      <g style="fill:var(--b)"><rect x="9" y="17" width="46" height="4.5"/><rect x="11" y="28" width="42" height="4"/>
+        <rect x="29.5" y="21" width="5" height="7"/><rect x="15" y="21" width="6" height="37"/><rect x="43" y="21" width="6" height="37"/></g>
+      <path style="fill:var(--a)" d="M2 11 Q32 4 62 11 L61 17.5 Q32 11.5 3 17.5 Z"/>
+      <g style="fill:var(--a)"><rect x="13" y="56" width="10" height="6" rx="1.2"/><rect x="41" y="56" width="10" height="6" rx="1.2"/></g>
+    </symbol>
+
+    <!-- Soroban (Abakus) -->
+    <symbol id="i-soroban" viewBox="0 0 64 64">
+      <path style="fill:var(--a)" fill-rule="evenodd" d="M4 11h56v42H4z M9 16h46v32H9z"/>
+      <rect style="fill:var(--a)" x="9" y="25" width="46" height="3"/>
+      <g style="stroke:var(--a)" stroke-width="1.6"><path d="M16 16v32M24.5 16v32M33 16v32M41.5 16v32M50 16v32"/></g>
+      <g style="fill:var(--b)"><ellipse cx="16" cy="20.5" rx="4" ry="2.6"/><ellipse cx="24.5" cy="20.5" rx="4" ry="2.6"/><ellipse cx="41.5" cy="20.5" rx="4" ry="2.6"/>
+        <ellipse cx="16" cy="32" rx="4" ry="2.6"/><ellipse cx="24.5" cy="32" rx="4" ry="2.6"/><ellipse cx="24.5" cy="37.5" rx="4" ry="2.6"/>
+        <ellipse cx="33" cy="32" rx="4" ry="2.6"/><ellipse cx="50" cy="32" rx="4" ry="2.6"/><ellipse cx="50" cy="37.5" rx="4" ry="2.6"/><ellipse cx="50" cy="43" rx="4" ry="2.6"/></g>
+      <g style="fill:var(--d)"><ellipse cx="33" cy="20.5" rx="4" ry="2.6"/><ellipse cx="50" cy="20.5" rx="4" ry="2.6"/>
+        <ellipse cx="16" cy="43.5" rx="4" ry="2.6"/><ellipse cx="33" cy="43.5" rx="4" ry="2.6"/><ellipse cx="41.5" cy="43.5" rx="4" ry="2.6"/></g>
+      <g style="fill:var(--a)"><rect x="6" y="53" width="5" height="4" rx="1"/><rect x="53" y="53" width="5" height="4" rx="1"/></g>
+    </symbol>
+
+    <!-- Nudelschale mit Stäbchen (Gespräche) -->
+    <symbol id="i-tea" viewBox="0 0 64 64">
+      <g style="stroke:var(--a)" stroke-width="2.6" stroke-linecap="round"><path d="M33 30 L53 5"/><path d="M38 30 L58 8"/></g>
+      <path style="fill:none;stroke:var(--a)" stroke-width="2.4" stroke-linecap="round" d="M14 30 q3-5 6 0 q3-5 6 0 q3-5 6 0 q3-5 6 0 q3-5 6 0 q3-5 6 0"/>
+      <path style="fill:var(--b)" d="M7 31 H57 Q56 52 32 55 Q8 52 7 31 Z"/>
+      <path style="fill:var(--a)" d="M7 31 H57 L56.6 35.5 H7.4 Z"/>
+      <circle style="fill:var(--c)" cx="32" cy="45" r="4.5"/><circle style="fill:var(--b)" cx="32" cy="45" r="2"/>
+      <rect style="fill:var(--a)" x="22" y="54" width="20" height="4.5" rx="1"/>
+      <g style="fill:none;stroke:var(--d)" stroke-width="2.2" stroke-linecap="round"><path d="M18 22 q-3-4 0-8"/><path d="M25 22 q-3-4 0-8"/></g>
+    </symbol>
+
+    <!-- Fuji -->
+    <symbol id="i-fuji" viewBox="0 0 64 64">
+      <circle style="fill:var(--b)" cx="47" cy="15" r="9"/>
+      <path style="fill:var(--a)" d="M1 55 L23 22 Q32 16 41 22 L63 55 Z"/>
+      <path style="fill:var(--c)" d="M23 22 Q32 16 41 22 L46.5 30 L41 27.5 L36.5 33 L32 28 L27.5 33 L23 27.5 L17.5 30 Z"/>
+      <path style="fill:none;stroke:var(--d)" stroke-width="2.4" stroke-linecap="round" d="M4 61 q5-4 10 0 q5 4 10 0 M40 61 q5-4 10 0 q5 4 10 0"/>
+    </symbol>
+
+    <!-- Pinsel (fude) -->
+    <symbol id="i-brush" viewBox="0 0 64 64">
+      <path style="fill:var(--b)" d="M11 61 Q16 56 25 57.5 Q42 60 60 52 Q55 61 35 62.8 Q19 64 11 61 Z"/>
       <g transform="rotate(28 32 30) translate(0 -1)">
-        <ellipse cx="32" cy="3" rx="3.4" ry="2.6" fill="none" stroke="currentColor" stroke-width="2"/>
-        <rect x="27.5" y="5.2" width="9" height="3.6" rx="1.2"/>
-        <rect x="28" y="8.6" width="8" height="25" rx="2"/>
-        <g style="stroke:var(--cut,var(--surface))" stroke-width="1.3"><path d="M28 16.5h8M28 25h8"/></g>
-        <rect x="26.8" y="33.4" width="10.4" height="5.6" rx="1.4"/>
-        <path d="M27.4 39 C22.5 45 24.5 54 32 63 C39.5 54 41.5 45 36.6 39 Z"/>
-        <g style="stroke:var(--cut,var(--surface))" stroke-width=".9" fill="none" stroke-linecap="round"><path d="M29.5 42 Q29 51 32 59M34.5 42 Q35 51 32 59M32 41.5v14"/></g>
+        <ellipse style="fill:none;stroke:var(--a)" cx="32" cy="3" rx="3.4" ry="2.6" stroke-width="2"/>
+        <rect style="fill:var(--b)" x="27.5" y="5.2" width="9" height="3.6" rx="1.2"/>
+        <rect style="fill:var(--a)" x="28" y="8.6" width="8" height="25" rx="2"/>
+        <g style="fill:var(--b)"><rect x="28" y="16" width="8" height="1.8"/><rect x="28" y="24.5" width="8" height="1.8"/></g>
+        <rect style="fill:var(--b)" x="26.8" y="33.4" width="10.4" height="5.6" rx="1.4"/>
+        <path style="fill:var(--a)" d="M27.4 39 C22.5 45 24.5 54 32 63 C39.5 54 41.5 45 36.6 39 Z"/>
+        <path style="fill:none;stroke:var(--c)" stroke-width=".9" stroke-linecap="round" d="M29.5 42 Q29 51 32 59M34.5 42 Q35 51 32 59"/>
       </g>
-      <path d="M11 61 Q16 56 25 57.5 Q42 60 60 52 Q55 61 35 62.8 Q19 64 11 61 Z"/>
-    </g></symbol>
-    <!-- Buch-Cover -->
-    <symbol id="i-cat" viewBox="0 0 64 64"><g filter="url(#woodcut)" fill="currentColor">
-      <path d="M14 13 L17 2 L24 9 Q28 8 32 9 L39 2 L42 13 Q46 20 43 27 Q40 33 28 33 Q16 33 13 27 Q10 20 14 13 Z"/>
-      <path d="M15 31 Q9 46 13 61 L42 61 Q47 46 40 31 Z"/>
-      <path d="M41 59 Q57 59 56 46 Q55 37 61 33" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
-      <g style="fill:var(--cut,var(--surface))"><ellipse cx="22" cy="20" rx="2.2" ry="3"/><ellipse cx="34" cy="20" rx="2.2" ry="3"/><path d="M26.5 25 h3 l-1.5 2 z"/></g>
-      <g style="stroke:var(--cut,var(--surface))" stroke-width=".9"><path d="M17 26 L8 24M17 28 L8 29M39 26 L48 24M39 28 L48 29"/></g>
-    </g></symbol>
-    <symbol id="i-clock" viewBox="0 0 64 64"><g filter="url(#woodcut)" fill="currentColor">
-      <path d="M8 16 A9 9 0 0 1 22 6 Z"/><path d="M56 16 A9 9 0 0 0 42 6 Z"/>
-      <rect x="29" y="5" width="6" height="6" rx="1"/>
-      <path fill-rule="evenodd" d="M32 9 A24 24 0 1 1 31.99 9 Z M32 15 A18 18 0 1 0 32.01 15 Z"/>
-      <path d="M30.5 21 h3 v13 h-3z"/><path d="M31 32 L43 39 L41.5 41.5 L29.5 34.5 Z"/><circle cx="32" cy="33" r="2.6"/>
-      <g><rect x="31" y="16" width="2" height="3"/><rect x="31" y="47" width="2" height="3"/><rect x="15" y="32" width="3" height="2"/><rect x="46" y="32" width="3" height="2"/></g>
-      <path d="M15 54 L10 62 M49 54 L54 62" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/>
-    </g></symbol>
-    <symbol id="i-hanabi" viewBox="0 0 64 64"><g filter="url(#woodcut)" fill="currentColor">
-      <g stroke="currentColor" stroke-width="2.6" stroke-linecap="round">
-        <path d="M30 6v10M30 34v10M10 25h10M40 25h10M16 11l7 7M37 32l7 7M44 11l-7 7M23 32l-7 7"/>
-        <path d="M22 4l3 8M38 46l-3-8M6 33l8-3M54 17l-8 3M8 15l8 4M52 35l-8-4M40 4l-3 8M20 46l3-8"/>
-        <path d="M52 44v4M52 56v4M44 52h4M56 52h4M47 47l2 2M55 55l2 2M57 47l-2 2M49 55l-2 2"/>
+    </symbol>
+
+    <!-- Kirschzweig -->
+    <symbol id="i-sakura" viewBox="0 0 64 64">
+      <defs><g id="i-bloom"><path id="i-petal" d="M0 1 C-4.4 -0.6 -6.4 -5.4 -4 -8.4 Q-2 -9.8 0 -6.4 Q2 -9.8 4 -8.4 C6.4 -5.4 4.4 -0.6 0 1Z"/><use href="#i-petal" transform="rotate(72)"/><use href="#i-petal" transform="rotate(144)"/><use href="#i-petal" transform="rotate(216)"/><use href="#i-petal" transform="rotate(288)"/></g></defs>
+      <g style="fill:none;stroke:var(--a)" stroke-linecap="round"><path stroke-width="4" d="M4 60 Q18 46 28 36 Q40 24 58 6"/><path stroke-width="2.8" d="M28 36 Q37 37 44 47"/><path stroke-width="2.2" d="M40 26 Q36 18 38 11"/></g>
+      <g style="fill:var(--b)"><use href="#i-bloom" transform="translate(52 12)"/><use href="#i-bloom" transform="translate(45 48)"/><use href="#i-bloom" transform="translate(20 42) scale(.85)"/></g>
+      <g style="fill:var(--d)"><use href="#i-bloom" transform="translate(37 10) scale(.8)"/><circle cx="12" cy="52" r="2.6"/><circle cx="56" cy="30" r="2.4"/></g>
+      <g style="fill:var(--c)"><circle cx="52" cy="12" r="1.5"/><circle cx="45" cy="48" r="1.5"/><circle cx="20" cy="42" r="1.3"/></g>
+    </symbol>
+
+    <!-- Fächer -->
+    <symbol id="i-fan" viewBox="0 0 64 64">
+      <path style="fill:var(--b)" d="M32 55 L4 27 A40 40 0 0 1 60 27 Z"/>
+      <g style="stroke:var(--c)" stroke-width="2.2"><path d="M32 55 L9 21M32 55 L16 15M32 55 L24 11.5M32 55 L32 10M32 55 L40 11.5M32 55 L48 15M32 55 L55 21"/></g>
+      <path style="fill:var(--a)" d="M32 55 L20 43 A17 17 0 0 1 44 43 Z"/>
+      <circle style="fill:var(--d)" cx="32" cy="54" r="2.6"/>
+      <path style="fill:none;stroke:var(--a)" stroke-width="2" d="M32 57 q-4 4 -2 7"/>
+    </symbol>
+
+    <!-- Hintergrund-Deko: Glückswolke mit Spirale -->
+    <symbol id="i-cloud" viewBox="0 0 140 58">
+      <g style="fill:currentColor">
+        <circle cx="30" cy="30" r="13"/><circle cx="52" cy="21" r="16"/><circle cx="77" cy="22" r="14"/><circle cx="99" cy="30" r="12"/>
+        <rect x="30" y="26" width="69" height="15"/>
+        <rect x="6" y="37" width="126" height="7" rx="3.5"/>
+        <rect x="34" y="48" width="80" height="5" rx="2.5"/>
       </g>
-      <circle cx="30" cy="25" r="3"/><circle cx="52" cy="52" r="1.8"/>
-      <path d="M0 63 L8 58 L14 61 L22 55 L30 60 L38 56 L44 61 L52 58 L64 63 Z" opacity=".85"/>
-    </g></symbol>
-    <symbol id="i-tower" viewBox="0 0 64 64"><g filter="url(#woodcut)" fill="currentColor">
-      <path d="M31 1 h2 l1 9 h-4 z"/>
-      <path d="M29 10 h6 l3 18 h-12 z"/><rect x="24" y="27" width="16" height="4"/>
-      <path d="M26 31 h12 l5 16 h-22 z"/><rect x="18" y="46" width="28" height="4"/>
-      <path d="M21 50 h22 l9 13 h-7 l-6 -8 h-14 l-6 8 h-7 z"/>
-      <g style="stroke:var(--cut,var(--surface))" stroke-width=".9"><path d="M30 14 L34 20 M34 14 L30 20 M29 21 L35 27 M35 21 L29 27 M27 34 L37 44 M37 34 L27 44"/></g>
-    </g></symbol>
-    <symbol id="i-sakura" viewBox="0 0 64 64"><defs>
-      <g id="i-bloom"><circle cx="0" cy="-4.2" r="3.4"/><circle cx="4" cy="-1.3" r="3.4"/><circle cx="2.5" cy="3.4" r="3.4"/><circle cx="-2.5" cy="3.4" r="3.4"/><circle cx="-4" cy="-1.3" r="3.4"/></g></defs>
-      <g filter="url(#woodcut)" fill="currentColor">
-      <path d="M4 60 Q18 46 28 36 Q40 24 58 6" fill="none" stroke="currentColor" stroke-width="4.2" stroke-linecap="round"/>
-      <path d="M28 36 Q37 37 44 47" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
-      <path d="M40 26 Q36 18 38 11" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
-      <use href="#i-bloom" transform="translate(52 12)"/><use href="#i-bloom" transform="translate(38 10) scale(.8)"/>
-      <use href="#i-bloom" transform="translate(45 48)"/><use href="#i-bloom" transform="translate(20 42) scale(.85)"/>
-      <circle cx="52" cy="12" r="1.3" style="fill:var(--cut,var(--surface))"/><circle cx="45" cy="48" r="1.3" style="fill:var(--cut,var(--surface))"/>
-    </g></symbol>
-    <symbol id="i-fan" viewBox="0 0 64 64"><g filter="url(#woodcut)" fill="currentColor">
-      <path d="M32 56 L4 28 A40 40 0 0 1 60 28 Z"/>
-      <g style="stroke:var(--cut,var(--surface))" stroke-width="1.6"><path d="M32 56 L11 20M32 56 L21 13M32 56 L32 10M32 56 L43 13M32 56 L53 20"/></g>
-      <path d="M32 56 L13 36 A27 27 0 0 1 51 36 Z" style="fill:var(--cut,var(--surface))" opacity=".25"/>
-      <circle cx="32" cy="55" r="3.5"/>
-    </g></symbol>
+      <g fill="none" style="stroke:var(--cloud-line,var(--bg))" stroke-width="1.9" stroke-linecap="round">
+        <path d="M21 30 A9 9 0 0 1 39 30 A6.5 6.5 0 0 1 26 30 A4.5 4.5 0 0 1 35 30 A2.5 2.5 0 0 1 30 30"/>
+        <path d="M107 30 A8 8 0 0 0 91 30 A6 6 0 0 0 103 30 A4 4 0 0 0 95 30 A2 2 0 0 0 99 30"/>
+        <path d="M41 30 A12 12 0 0 1 64 21"/><path d="M68 26 A10 10 0 0 1 88 25"/>
+        <path d="M18 40.5 H120"/><path d="M42 50.5 H104"/>
+      </g>
+    </symbol>
+    <!-- Hintergrund-Deko: Blüte -->
+    <symbol id="i-flower" viewBox="0 0 20 20">
+      <g style="fill:currentColor" transform="translate(10 10) scale(1.15)"><use href="#i-bloom"/></g>
+      <g style="fill:var(--bg)"><circle cx="10" cy="10" r="1.7"/>
+        <g transform="translate(10 10)"><circle cx="0" cy="-3.3" r=".75"/><circle cx="3.1" cy="-1" r=".75"/><circle cx="1.9" cy="2.7" r=".75"/><circle cx="-1.9" cy="2.7" r=".75"/><circle cx="-3.1" cy="-1" r=".75"/></g></g>
+    </symbol>
+
+    <!-- ===== Motive für die Lesebuch-Szenen ===== -->
+    <symbol id="s-house" viewBox="0 0 64 64">
+      <rect style="fill:var(--d)" x="10" y="31" width="44" height="26"/>
+      <path style="fill:var(--b)" d="M1 32 L13 18 H51 L63 32 Z"/>
+      <rect style="fill:var(--a)" x="11" y="14" width="42" height="4.5" rx="1.5"/>
+      <rect style="fill:var(--a)" x="28" y="39" width="10" height="18"/>
+      <rect style="fill:var(--c)" x="15" y="37" width="9" height="9"/><rect style="fill:var(--c)" x="42" y="37" width="8" height="9"/>
+      <path style="stroke:var(--a)" stroke-width="1.4" d="M19.5 37v9M15 41.5h9M46 37v9M42 41.5h8"/>
+      <rect style="fill:var(--a)" x="5" y="57" width="54" height="3" rx="1.5"/>
+    </symbol>
+    <symbol id="s-sun" viewBox="0 0 64 64"><circle style="fill:var(--b)" cx="32" cy="32" r="18"/>
+      <g style="stroke:var(--d)" stroke-width="3" stroke-linecap="round"><path d="M32 4v6M32 54v6M4 32h6M54 32h6M12 12l4 4M48 48l4 4M52 12l-4 4M16 48l-4 4"/></g></symbol>
+    <symbol id="s-moon" viewBox="0 0 64 64"><path style="fill:#f5e6b8" d="M38 8 A25 25 0 1 0 56 46 A20 20 0 1 1 38 8 Z"/></symbol>
+    <symbol id="s-star" viewBox="0 0 10 10"><path style="fill:#f5e6b8" d="M5 0 L6.2 3.8 L10 5 L6.2 6.2 L5 10 L3.8 6.2 L0 5 L3.8 3.8Z"/></symbol>
+    <symbol id="s-sofa" viewBox="0 0 64 64">
+      <rect style="fill:var(--b)" x="9" y="20" width="46" height="18" rx="5"/>
+      <rect style="fill:var(--d)" x="14" y="24" width="14" height="10" rx="3"/>
+      <rect style="fill:var(--d)" x="6" y="36" width="52" height="12" rx="3"/><rect style="fill:var(--a)" x="6" y="45" width="52" height="3"/>
+      <rect style="fill:var(--b)" x="2" y="28" width="10" height="22" rx="4"/><rect style="fill:var(--b)" x="52" y="28" width="10" height="22" rx="4"/>
+      <g style="fill:var(--a)"><rect x="8" y="50" width="4" height="6"/><rect x="52" y="50" width="4" height="6"/></g>
+    </symbol>
+    <symbol id="s-catsleep" viewBox="0 0 64 40">
+      <path style="fill:var(--a)" d="M8 34 Q4 20 18 16 Q30 12 42 18 Q50 22 50 34 Z"/>
+      <path style="fill:var(--a)" d="M40 34 Q42 22 52 22 L54 14 L58 20 L62 16 L62 26 Q64 34 56 34 Z"/>
+      <path style="fill:none;stroke:var(--a)" stroke-width="4" stroke-linecap="round" d="M10 34 Q2 34 4 26"/>
+      <path style="fill:none;stroke:var(--c)" stroke-width="1.4" stroke-linecap="round" d="M52 27 q2 1.5 4 0"/>
+      <path style="fill:var(--b)" d="M44 23 Q50 25 56 23 L56 25.5 Q50 27.5 44 25.5Z"/>
+    </symbol>
+    <symbol id="s-zzz" viewBox="0 0 40 40"><g style="fill:none;stroke:var(--a)" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"><path d="M4 24h9l-9 10h9"/><path d="M18 12h7l-7 8h7"/><path d="M30 2h6l-6 7h6"/></g></symbol>
+    <symbol id="s-fish" viewBox="0 0 64 64">
+      <ellipse style="fill:var(--c);stroke:var(--a)" stroke-width="2" cx="32" cy="44" rx="28" ry="7"/>
+      <path style="fill:var(--b)" d="M10 30 Q24 16 42 26 L54 18 L52 32 L54 46 L42 38 Q24 48 10 34 Z"/>
+      <path style="fill:var(--d)" d="M24 24 Q30 18 36 24 Z"/>
+      <circle style="fill:var(--c)" cx="17" cy="30" r="2.6"/><circle style="fill:var(--a)" cx="17.4" cy="30" r="1.2"/>
+      <path style="fill:none;stroke:var(--c)" stroke-width="1.4" d="M26 28 q3 4 0 8M32 28 q3 4 0 8"/>
+    </symbol>
+    <symbol id="s-question" viewBox="0 0 40 40"><path style="fill:none;stroke:var(--b)" stroke-width="5" stroke-linecap="round" d="M11 12 Q11 4 20 4 Q29 4 29 12 Q29 18 20 21 L20 27"/><circle style="fill:var(--b)" cx="20" cy="35" r="3.2"/></symbol>
+    <symbol id="s-box" viewBox="0 0 64 64">
+      <path style="fill:var(--b)" d="M8 26 L2 14 L28 18 L31 26 Z"/><path style="fill:var(--b)" d="M56 26 L62 14 L36 18 L33 26 Z"/>
+      <path style="fill:var(--d)" d="M8 26 H56 L52 60 H12 Z"/>
+      <path style="fill:none;stroke:var(--a)" stroke-width="2" d="M8 26 H56 M20 38 H44"/>
+    </symbol>
+    <symbol id="s-catpeek" viewBox="0 0 64 40">
+      <path style="fill:var(--a)" d="M14 40 Q10 28 16 20 L14 4 L26 14 Q32 12 38 14 L50 4 L48 20 Q54 28 50 40 Z"/>
+      <g style="fill:var(--c)"><ellipse cx="25" cy="26" rx="3.4" ry="4.2"/><ellipse cx="39" cy="26" rx="3.4" ry="4.2"/></g>
+      <g style="fill:var(--a)"><ellipse cx="25.5" cy="27" rx="1.5" ry="2.6"/><ellipse cx="39.5" cy="27" rx="1.5" ry="2.6"/></g>
+      <path style="fill:var(--d)" d="M30.5 32 h3 l-1.5 2 z"/><g style="fill:var(--d)"><path d="M17 9 L23 14 L17 16Z"/><path d="M47 9 L41 14 L47 16Z"/></g>
+    </symbol>
+    <symbol id="s-heart" viewBox="0 0 40 40"><path style="fill:var(--b)" d="M20 36 C4 24 2 14 8 8 C13 3 18 6 20 10 C22 6 27 3 32 8 C38 14 36 24 20 36Z"/></symbol>
+    <symbol id="s-bread" viewBox="0 0 64 64">
+      <ellipse style="fill:var(--c);stroke:var(--a)" stroke-width="2" cx="32" cy="52" rx="28" ry="6"/>
+      <path style="fill:#e9b97a" d="M8 48 Q6 24 20 22 Q32 16 44 22 Q58 24 56 48 Z"/>
+      <path style="fill:none;stroke:#b5733a" stroke-width="2.4" stroke-linecap="round" d="M20 30 l6 8M30 28 l6 8M40 30 l6 8"/>
+    </symbol>
+    <symbol id="s-coffee" viewBox="0 0 64 64">
+      <path style="fill:none;stroke:var(--d)" stroke-width="2.6" stroke-linecap="round" d="M24 18 q-4 -5 0 -10 M34 18 q-4 -5 0 -10"/>
+      <path style="fill:none;stroke:var(--b)" stroke-width="4" d="M46 30 q10 0 10 8 q0 8 -12 8"/>
+      <path style="fill:var(--b)" d="M12 24 H48 L44 54 H16 Z"/>
+      <rect style="fill:var(--c)" x="14" y="30" width="32" height="4"/>
+      <ellipse style="fill:var(--a)" cx="30" cy="56" rx="24" ry="4"/>
+    </symbol>
+    <symbol id="s-school" viewBox="0 0 64 64">
+      <rect style="fill:var(--d)" x="4" y="26" width="56" height="32"/>
+      <rect style="fill:var(--c)" x="22" y="12" width="20" height="46"/>
+      <path style="fill:var(--b)" d="M18 14 L32 4 L46 14 Z"/>
+      <circle style="fill:var(--a)" cx="32" cy="22" r="5"/><path style="stroke:var(--c)" stroke-width="1.4" d="M32 22v-3M32 22h2.5"/>
+      <g style="fill:var(--a)"><rect x="8" y="32" width="8" height="7"/><rect x="48" y="32" width="8" height="7"/><rect x="8" y="44" width="8" height="7"/><rect x="48" y="44" width="8" height="7"/><rect x="27" y="44" width="10" height="14"/></g>
+      <rect style="fill:var(--a)" x="2" y="58" width="60" height="3" rx="1.5"/>
+    </symbol>
+    <symbol id="s-books" viewBox="0 0 64 64">
+      <rect style="fill:var(--a)" x="8" y="44" width="48" height="10" rx="2"/><rect style="fill:var(--c)" x="12" y="47" width="42" height="4"/>
+      <rect style="fill:var(--b)" x="12" y="32" width="42" height="11" rx="2"/><rect style="fill:var(--c)" x="12" y="35" width="38" height="4"/>
+      <rect style="fill:var(--d)" x="10" y="21" width="40" height="10" rx="2"/><rect style="fill:var(--c)" x="14" y="24" width="36" height="4"/>
+      <path style="fill:var(--b)" d="M40 10 h7 v13 l-3.5 -3 l-3.5 3 z"/>
+    </symbol>
+    <symbol id="s-tree" viewBox="0 0 64 64">
+      <rect style="fill:var(--a)" x="29" y="34" width="6" height="26" rx="2"/>
+      <g style="fill:var(--d)"><circle cx="32" cy="20" r="14"/><circle cx="20" cy="28" r="11"/><circle cx="44" cy="28" r="11"/></g>
+      <g style="fill:var(--b)"><circle cx="24" cy="18" r="2.4"/><circle cx="38" cy="14" r="2.2"/><circle cx="44" cy="30" r="2.4"/><circle cx="18" cy="31" r="2"/><circle cx="32" cy="28" r="2"/></g>
+    </symbol>
+    <symbol id="s-runner" viewBox="0 0 64 64">
+      <circle style="fill:var(--skin,#f6d6c4)" cx="38" cy="11" r="6.5"/><path style="fill:var(--a)" d="M31.5 10 Q32 3 38 3 Q45 3 44.5 10 Z"/>
+      <g style="fill:none;stroke:var(--a)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M31 38 L22 46 L14 44"/><path d="M33 38 L40 48 L36 60"/></g>
+      <g style="fill:none;stroke:var(--skin,#f6d6c4)" stroke-width="4" stroke-linecap="round"><path d="M28 24 L20 30"/><path d="M38 24 L46 28"/></g>
+      <path style="fill:var(--b)" d="M28 19 Q34 16 39 20 L36 40 L28 40 Z"/>
+    </symbol>
+    <symbol id="s-tv" viewBox="0 0 64 64">
+      <path style="fill:none;stroke:var(--a)" stroke-width="2" stroke-linecap="round" d="M32 14 L22 4 M32 14 L42 4"/>
+      <rect style="fill:var(--a)" x="4" y="14" width="56" height="38" rx="5"/>
+      <rect style="fill:var(--c)" x="9" y="19" width="40" height="28" rx="2"/>
+      <circle style="fill:var(--b)" cx="29" cy="33" r="7"/><circle style="fill:var(--d)" cx="54.5" cy="24" r="2"/><circle style="fill:var(--d)" cx="54.5" cy="31" r="2"/>
+      <g style="fill:var(--a)"><rect x="14" y="52" width="5" height="6"/><rect x="45" y="52" width="5" height="6"/></g>
+    </symbol>
+    <symbol id="s-calendar" viewBox="0 0 64 64">
+      <rect style="fill:var(--c);stroke:var(--a)" stroke-width="2.4" x="7" y="10" width="50" height="48" rx="4"/>
+      <path style="fill:var(--b)" d="M7 14 a4 4 0 0 1 4 -4 h42 a4 4 0 0 1 4 4 v10 H7 Z"/>
+      <g style="fill:var(--a)"><rect x="17" y="5" width="4" height="10" rx="2"/><rect x="43" y="5" width="4" height="10" rx="2"/></g>
+      <g style="fill:var(--d)"><rect x="13" y="30" width="6" height="5"/><rect x="23" y="30" width="6" height="5"/><rect x="33" y="30" width="6" height="5"/><rect x="43" y="30" width="6" height="5"/>
+        <rect x="13" y="39" width="6" height="5"/><rect x="23" y="39" width="6" height="5"/><rect x="43" y="39" width="6" height="5"/><rect x="13" y="48" width="6" height="5"/><rect x="23" y="48" width="6" height="5"/></g>
+      <circle style="fill:none;stroke:var(--b)" stroke-width="2.4" cx="36" cy="41.5" r="5.5"/><rect style="fill:var(--a)" x="33" y="39" width="6" height="5"/>
+    </symbol>
+    <symbol id="s-girl" viewBox="0 0 64 64">
+      <path style="fill:var(--b)" d="M32 26 L50 56 H14 Z"/>
+      <g style="fill:none;stroke:var(--skin,#f6d6c4)" stroke-width="4" stroke-linecap="round"><path d="M27 32 L20 42"/><path d="M37 32 L44 42"/></g>
+      <g style="fill:var(--a)"><rect x="24" y="56" width="5" height="7" rx="1"/><rect x="35" y="56" width="5" height="7" rx="1"/></g>
+      <circle style="fill:var(--a)" cx="32" cy="15" r="11"/>
+      <circle style="fill:var(--skin,#f6d6c4)" cx="32" cy="17" r="8"/>
+      <path style="fill:var(--a)" d="M23 14 Q32 4 41 14 Q36 10 32 13 Q28 10 23 14Z"/>
+      <g style="fill:var(--a)"><circle cx="29" cy="18" r="1"/><circle cx="35" cy="18" r="1"/></g>
+      <path style="fill:none;stroke:var(--b)" stroke-width="1.2" stroke-linecap="round" d="M30 21.5 q2 1.6 4 0"/>
+      <circle style="fill:var(--d)" cx="40" cy="8" r="3"/>
+    </symbol>
+    <symbol id="s-woman" viewBox="0 0 64 64">
+      <path style="fill:var(--a)" d="M32 26 L48 56 H16 Z"/>
+      <rect style="fill:var(--d)" x="24" y="38" width="16" height="3"/>
+      <g style="fill:none;stroke:var(--skin,#f6d6c4)" stroke-width="4" stroke-linecap="round"><path d="M27 32 L21 42"/><path d="M37 32 L43 42"/></g>
+      <g style="fill:var(--a)"><rect x="24" y="56" width="5" height="7" rx="1"/><rect x="35" y="56" width="5" height="7" rx="1"/></g>
+      <circle style="fill:var(--a)" cx="32" cy="5" r="4.5"/>
+      <circle style="fill:var(--a)" cx="32" cy="16" r="10"/>
+      <circle style="fill:var(--skin,#f6d6c4)" cx="32" cy="18" r="7.6"/>
+      <path style="fill:var(--a)" d="M24 16 Q32 6 40 16 Q34 11 24 16Z"/>
+      <g style="fill:var(--a)"><circle cx="29" cy="19" r="1"/><circle cx="35" cy="19" r="1"/></g>
+      <path style="fill:none;stroke:var(--b)" stroke-width="1.2" stroke-linecap="round" d="M30 22.5 q2 1.6 4 0"/>
+    </symbol>
+    <symbol id="s-yukata" viewBox="0 0 64 64">
+      <path style="fill:var(--d)" d="M22 26 H42 L46 62 H18 Z"/>
+      <path style="fill:var(--d)" d="M22 26 L8 40 L14 46 L23 36 Z"/><path style="fill:var(--d)" d="M42 26 L56 40 L50 46 L41 36 Z"/>
+      <g style="fill:var(--b)"><circle cx="27" cy="50" r="2"/><circle cx="37" cy="44" r="2"/><circle cx="34" cy="57" r="2"/><circle cx="14" cy="41" r="1.6"/><circle cx="50" cy="41" r="1.6"/></g>
+      <rect style="fill:var(--a)" x="20" y="35" width="24" height="6"/>
+      <path style="fill:var(--c)" d="M28 26 L32 34 L36 26 Z"/>
+      <circle style="fill:var(--a)" cx="32" cy="4.5" r="4.5"/>
+      <circle style="fill:var(--a)" cx="32" cy="15" r="10"/>
+      <circle style="fill:var(--skin,#f6d6c4)" cx="32" cy="17" r="7.6"/>
+      <path style="fill:var(--a)" d="M24 15 Q32 5 40 15 Q34 10 24 15Z"/>
+      <g style="fill:var(--a)"><circle cx="29" cy="18" r="1"/><circle cx="35" cy="18" r="1"/></g>
+      <path style="fill:none;stroke:var(--b)" stroke-width="1.2" stroke-linecap="round" d="M30 21.5 q2 1.6 4 0"/>
+      <use href="#i-bloom" transform="translate(39 6) scale(.42)" style="fill:var(--b)"/>
+    </symbol>
+    <symbol id="s-yakitori" viewBox="0 0 64 64">
+      <path style="stroke:#c99a5b" stroke-width="3" stroke-linecap="round" d="M8 58 L56 10"/>
+      <g style="fill:#a84a2c"><rect x="-7" y="-6" width="14" height="12" rx="5" transform="translate(42 22) rotate(-45)"/><rect x="-7" y="-6" width="14" height="12" rx="5" transform="translate(32 32) rotate(-45)"/><rect x="-7" y="-6" width="14" height="12" rx="5" transform="translate(22 42) rotate(-45)"/></g>
+      <g style="fill:var(--c)" opacity=".7"><circle cx="40" cy="19" r="1.6"/><circle cx="30" cy="29" r="1.6"/><circle cx="20" cy="39" r="1.6"/></g>
+    </symbol>
+    <symbol id="s-kakigori" viewBox="0 0 64 64">
+      <path style="fill:var(--c)" d="M12 34 Q12 10 32 10 Q52 10 52 34 Z"/>
+      <path style="fill:var(--b)" d="M18 22 Q22 12 32 12 Q44 12 48 26 Q40 22 34 26 Q26 20 18 22Z"/>
+      <path style="fill:var(--d)" d="M12 34 Q20 28 26 32 Q34 26 40 32 Q46 28 52 34 Z"/>
+      <path style="fill:var(--a)" d="M10 34 H54 L46 52 H18 Z"/>
+      <rect style="fill:var(--a)" x="22" y="52" width="20" height="5" rx="1"/>
+      <path style="stroke:var(--b)" stroke-width="2.4" stroke-linecap="round" d="M46 8 L38 24"/>
+    </symbol>
+    <symbol id="s-plane" viewBox="0 0 64 64">
+      <path style="fill:var(--b)" d="M30 30 L16 52 L24 52 L42 32 Z"/><path style="fill:var(--b)" d="M30 28 L20 10 L27 10 L40 26 Z"/>
+      <path style="fill:var(--a)" d="M4 32 Q4 26 12 26 H52 Q62 28 62 30 Q62 32 52 34 H12 Q4 36 4 32 Z"/>
+      <path style="fill:var(--b)" d="M6 30 L2 20 L8 20 L14 28 Z"/>
+      <g style="fill:var(--c)"><circle cx="22" cy="30" r="1.4"/><circle cx="28" cy="30" r="1.4"/><circle cx="34" cy="30" r="1.4"/><circle cx="40" cy="30" r="1.4"/><circle cx="46" cy="30" r="1.4"/></g>
+    </symbol>
+    <symbol id="s-hotel" viewBox="0 0 64 64">
+      <rect style="fill:var(--a)" x="14" y="6" width="36" height="54"/>
+      <rect style="fill:var(--b)" x="24" y="0" width="16" height="10" rx="2"/><path style="stroke:var(--c)" stroke-width="2" d="M28 2v6M36 2v6M28 5h8"/>
+      <g style="fill:var(--c)"><rect x="19" y="14" width="7" height="6"/><rect x="29" y="14" width="7" height="6"/><rect x="39" y="14" width="6" height="6"/>
+        <rect x="19" y="24" width="7" height="6"/><rect x="29" y="24" width="7" height="6"/><rect x="39" y="24" width="6" height="6"/>
+        <rect x="19" y="34" width="7" height="6"/><rect x="29" y="34" width="7" height="6"/><rect x="39" y="34" width="6" height="6"/></g>
+      <rect style="fill:var(--d)" x="27" y="46" width="10" height="14"/>
+    </symbol>
+    <symbol id="s-train" viewBox="0 0 96 48">
+      <path style="fill:var(--c);stroke:var(--a)" stroke-width="2" d="M4 14 H66 Q90 16 94 34 V38 H4 Z"/>
+      <rect style="fill:var(--a)" x="4" y="28" width="90" height="4"/>
+      <g style="fill:var(--a)"><rect x="10" y="18" width="8" height="6" rx="1"/><rect x="22" y="18" width="8" height="6" rx="1"/><rect x="34" y="18" width="8" height="6" rx="1"/><rect x="46" y="18" width="8" height="6" rx="1"/></g>
+      <path style="fill:var(--a)" d="M66 18 Q80 19 86 26 H66 Z"/>
+      <g style="fill:var(--b)"><circle cx="18" cy="42" r="4"/><circle cx="40" cy="42" r="4"/><circle cx="70" cy="42" r="4"/></g>
+      <rect style="fill:var(--b)" x="4" y="34" width="90" height="2"/>
+    </symbol>
+    <symbol id="s-map" viewBox="0 0 64 64">
+      <path style="fill:var(--d)" d="M4 14 L22 8 L42 14 L60 8 V50 L42 56 L22 50 L4 56 Z"/>
+      <path style="fill:var(--c)" d="M22 8 L42 14 V56 L22 50 Z"/>
+      <path style="fill:none;stroke:var(--a)" stroke-width="2" stroke-dasharray="3 3" d="M8 44 Q20 30 30 36 Q40 42 50 24"/>
+      <path style="fill:var(--b)" d="M50 26 Q44 18 44 14 A6 6 0 0 1 56 14 Q56 18 50 26Z"/><circle style="fill:var(--c)" cx="50" cy="14" r="2.2"/>
+    </symbol>
+    <symbol id="s-camera" viewBox="0 0 64 64">
+      <rect style="fill:var(--a)" x="4" y="18" width="56" height="38" rx="6"/>
+      <path style="fill:var(--a)" d="M20 18 L24 10 H40 L44 18 Z"/>
+      <circle style="fill:var(--c)" cx="32" cy="37" r="13"/><circle style="fill:var(--a)" cx="32" cy="37" r="8"/><circle style="fill:var(--c)" cx="29" cy="34" r="2.4"/>
+      <rect style="fill:var(--b)" x="48" y="12" width="8" height="6" rx="1"/><rect style="fill:var(--d)" x="8" y="22" width="8" height="4" rx="1"/>
+    </symbol>
+    <symbol id="s-sushi" viewBox="0 0 64 64">
+      <rect style="fill:#c99a5b" x="2" y="40" width="60" height="10" rx="2"/><g style="fill:#a77b42"><rect x="8" y="50" width="6" height="6"/><rect x="50" y="50" width="6" height="6"/></g>
+      <g><rect style="fill:var(--c)" x="6" y="30" width="22" height="11" rx="5"/><path style="fill:var(--b)" d="M4 30 Q16 20 30 28 Q30 32 26 32 H8 Q4 32 4 30Z"/><path style="stroke:var(--c)" stroke-width="1.4" d="M12 25 l3 5M18 24 l3 5"/></g>
+      <g><circle style="fill:var(--a)" cx="45" cy="32" r="9"/><circle style="fill:var(--c)" cx="45" cy="32" r="6.5"/><circle style="fill:var(--b)" cx="45" cy="32" r="3"/></g>
+    </symbol>
+    <symbol id="s-bubble" viewBox="0 0 64 48">
+      <path style="fill:var(--c);stroke:var(--a)" stroke-width="2" d="M8 4 H56 Q62 4 62 10 V30 Q62 36 56 36 H24 L12 46 L14 36 H8 Q2 36 2 30 V10 Q2 4 8 4Z"/>
+      <use href="#s-heart" x="22" y="6" width="20" height="24"/>
+    </symbol>
+    <symbol id="s-shoji" viewBox="0 0 64 64">
+      <rect style="fill:var(--c);stroke:var(--a)" stroke-width="2.4" x="4" y="4" width="56" height="56"/>
+      <path style="stroke:var(--a)" stroke-width="1.4" d="M32 4v56M4 22h56M4 40h56M18 4v56M46 4v56"/>
+    </symbol>
+
+    <!-- ===== Zählwörter-Motive ===== -->
+    <symbol id="c-apple" viewBox="0 0 64 64"><path style="fill:var(--b)" d="M32 18 C20 8 4 16 8 36 C11 52 22 60 32 54 C42 60 53 52 56 36 C60 16 44 8 32 18Z"/><path style="fill:none;stroke:var(--a)" stroke-width="3" stroke-linecap="round" d="M32 18 Q32 10 36 5"/><path style="fill:var(--good,#3d7650)" d="M35 11 Q44 4 50 9 Q42 15 35 11Z"/><ellipse style="fill:var(--c)" opacity=".5" cx="20" cy="28" rx="4" ry="6"/></symbol>
+    <symbol id="c-mandarin" viewBox="0 0 64 64"><circle style="fill:#f08a3c" cx="32" cy="36" r="22"/><path style="fill:var(--good,#3d7650)" d="M32 15 Q40 6 48 10 Q42 18 32 15Z"/><circle style="fill:#d06a22" cx="32" cy="15" r="2.4"/><g style="fill:#f7b37a"><circle cx="22" cy="30" r="1.4"/><circle cx="40" cy="44" r="1.4"/><circle cx="28" cy="46" r="1.4"/><circle cx="44" cy="30" r="1.4"/></g></symbol>
+    <symbol id="c-onigiri" viewBox="0 0 64 64"><path style="fill:var(--c);stroke:var(--a)" stroke-width="2" d="M32 6 C40 6 60 40 56 50 C52 58 12 58 8 50 C4 40 24 6 32 6Z"/><rect style="fill:var(--a)" x="20" y="38" width="24" height="18" rx="2"/></symbol>
+    <symbol id="c-cake" viewBox="0 0 64 64"><path style="fill:var(--d)" d="M8 30 L56 22 V54 H8 Z"/><path style="fill:var(--c)" d="M8 30 L56 22 V30 L8 38Z"/><rect style="fill:var(--c)" x="8" y="42" width="48" height="4"/><path style="fill:var(--b)" d="M34 14 A6 6 0 1 1 34.1 14Z"/><circle style="fill:var(--b)" cx="34" cy="20" r="5"/><path style="stroke:var(--good,#3d7650)" stroke-width="2" d="M34 15 q2 -4 5 -5"/></symbol>
+    <symbol id="c-gift" viewBox="0 0 64 64"><rect style="fill:var(--b)" x="8" y="26" width="48" height="32" rx="2"/><rect style="fill:var(--b)" x="4" y="18" width="56" height="10" rx="2"/><rect style="fill:var(--a)" x="28" y="18" width="8" height="40"/><path style="fill:none;stroke:var(--a)" stroke-width="4" stroke-linejoin="round" d="M32 18 Q20 4 16 12 Q14 18 32 18 Q50 18 48 12 Q44 4 32 18Z"/></symbol>
+    <symbol id="c-boy" viewBox="0 0 64 64"><rect style="fill:var(--a)" x="20" y="26" width="24" height="22" rx="6"/><g style="fill:var(--a)"><rect x="23" y="46" width="7" height="16" rx="2"/><rect x="34" y="46" width="7" height="16" rx="2"/></g><g style="fill:none;stroke:var(--skin,#f6d6c4)" stroke-width="4" stroke-linecap="round"><path d="M22 30 L16 42"/><path d="M42 30 L48 42"/></g><circle style="fill:var(--skin,#f6d6c4)" cx="32" cy="15" r="9"/><path style="fill:var(--a)" d="M23 14 Q24 4 33 5 Q42 5 41 14 Q36 9 30 11 Q26 10 23 14Z"/><g style="fill:var(--a)"><circle cx="29" cy="16" r="1"/><circle cx="35" cy="16" r="1"/></g><path style="fill:none;stroke:var(--b)" stroke-width="1.2" stroke-linecap="round" d="M30 19.5 q2 1.6 4 0"/><rect style="fill:var(--b)" x="20" y="30" width="24" height="3"/></symbol>
+    <symbol id="c-student" viewBox="0 0 64 64"><use href="#c-boy"/><path style="fill:var(--a)" d="M18 9 L32 2 L46 9 L32 15Z"/><path style="stroke:var(--b)" stroke-width="1.6" d="M44 10 v7"/><rect style="fill:var(--b)" x="42" y="34" width="12" height="16" rx="2"/></symbol>
+    <symbol id="c-dog" viewBox="0 0 64 64"><path style="fill:#c98d55" d="M14 40 Q14 28 26 28 H44 Q52 28 52 40 V50 H14Z"/><g style="fill:#c98d55"><rect x="16" y="46" width="7" height="14" rx="2"/><rect x="42" y="46" width="7" height="14" rx="2"/></g><path style="fill:none;stroke:#c98d55" stroke-width="4" stroke-linecap="round" d="M52 34 Q60 30 58 22"/><circle style="fill:#c98d55" cx="20" cy="22" r="12"/><path style="fill:var(--a)" d="M10 14 Q6 26 12 30 Q16 22 14 14Z"/><path style="fill:var(--a)" d="M26 12 Q32 20 30 28 Q24 24 24 14Z"/><circle style="fill:var(--a)" cx="18" cy="21" r="1.6"/><ellipse style="fill:var(--a)" cx="11" cy="26" rx="2.6" ry="2"/><rect style="fill:var(--b)" x="18" y="31" width="14" height="3.4" rx="1.5"/></symbol>
+    <symbol id="c-frog" viewBox="0 0 64 64"><ellipse style="fill:#5aa36a" cx="32" cy="42" rx="24" ry="16"/><g style="fill:#5aa36a"><circle cx="20" cy="22" r="9"/><circle cx="44" cy="22" r="9"/></g><g style="fill:var(--c)"><circle cx="20" cy="21" r="5"/><circle cx="44" cy="21" r="5"/></g><g style="fill:var(--a)"><circle cx="20" cy="22" r="2.4"/><circle cx="44" cy="22" r="2.4"/></g><path style="fill:none;stroke:var(--a)" stroke-width="2" stroke-linecap="round" d="M22 40 Q32 48 42 40"/><g style="fill:var(--d)"><circle cx="16" cy="40" r="3"/><circle cx="48" cy="40" r="3"/></g></symbol>
+    <symbol id="c-mouse" viewBox="0 0 64 64"><path style="fill:none;stroke:var(--d)" stroke-width="3" stroke-linecap="round" d="M50 46 Q62 46 60 34"/><ellipse style="fill:#a9adbb" cx="34" cy="42" rx="18" ry="13"/><circle style="fill:#a9adbb" cx="18" cy="34" r="10"/><g style="fill:#a9adbb"><circle cx="14" cy="22" r="7"/><circle cx="28" cy="22" r="7"/></g><g style="fill:var(--d)"><circle cx="14" cy="22" r="4"/><circle cx="28" cy="22" r="4"/></g><circle style="fill:var(--a)" cx="14" cy="34" r="1.6"/><circle style="fill:var(--b)" cx="8.6" cy="37" r="2"/></symbol>
+    <symbol id="c-pencil" viewBox="0 0 64 64"><g transform="rotate(-45 32 32)"><rect style="fill:#f2c14e" x="26" y="8" width="12" height="38"/><rect style="fill:var(--d)" x="26" y="2" width="12" height="7" rx="2"/><rect style="fill:var(--a)" x="26" y="8" width="12" height="2.5"/><path style="fill:#f1d3a6" d="M26 46 H38 L32 58Z"/><path style="fill:var(--a)" d="M30 54 H34 L32 58Z"/></g></symbol>
+    <symbol id="c-pen" viewBox="0 0 64 64"><g transform="rotate(-45 32 32)"><rect style="fill:var(--a)" x="27" y="4" width="10" height="44" rx="3"/><rect style="fill:var(--b)" x="33" y="8" width="3" height="16" rx="1.5"/><path style="fill:var(--c);stroke:var(--a)" stroke-width="1.5" d="M27 46 H37 L32 60Z"/></g></symbol>
+    <symbol id="c-bottle" viewBox="0 0 64 64"><path style="fill:#6d2a3c" d="M27 4 H37 V20 Q46 24 46 34 V58 Q46 62 42 62 H22 Q18 62 18 58 V34 Q18 24 27 20Z"/><rect style="fill:var(--b)" x="27" y="3" width="10" height="6"/><rect style="fill:var(--c)" x="20" y="36" width="24" height="14" rx="1"/><circle style="fill:var(--b)" cx="32" cy="43" r="3.6"/></symbol>
+    <symbol id="c-umbrella" viewBox="0 0 64 64"><path style="fill:var(--b)" d="M4 32 Q8 8 32 6 Q56 8 60 32 Q54 27 46 32 Q40 27 32 32 Q24 27 18 32 Q10 27 4 32Z"/><path style="fill:var(--d)" d="M32 6 Q24 18 24 31 Q28 29 32 32 Q36 29 40 31 Q40 18 32 6Z"/><path style="fill:none;stroke:var(--a)" stroke-width="3" stroke-linecap="round" d="M32 32 V54 Q32 60 26 60 Q21 60 21 55"/></symbol>
+    <symbol id="c-banana" viewBox="0 0 64 64"><path style="fill:#f2c94c" d="M8 30 Q14 54 40 54 Q56 52 58 40 Q48 46 36 44 Q18 40 14 24Z"/><path style="fill:var(--a)" d="M10 22 L16 24 L14 30 L8 28Z"/><path style="fill:none;stroke:#d9a520" stroke-width="2" d="M16 34 Q26 46 46 47"/></symbol>
+    <symbol id="c-paper" viewBox="0 0 64 64"><path style="fill:var(--c);stroke:var(--a)" stroke-width="2.4" d="M14 4 H40 L52 16 V60 H14 Z"/><path style="fill:var(--d)" d="M40 4 V16 H52Z"/><g style="stroke:var(--d)" stroke-width="2.4" stroke-linecap="round"><path d="M20 24h26M20 32h26M20 40h26M20 48h16"/></g></symbol>
+    <symbol id="c-tshirt" viewBox="0 0 64 64"><path style="fill:var(--b)" d="M22 6 Q32 14 42 6 L60 16 L52 28 L46 24 V58 H18 V24 L12 28 L4 16 Z"/><path style="fill:none;stroke:var(--c)" stroke-width="2" d="M22 6 Q32 14 42 6"/><circle style="fill:var(--c)" cx="32" cy="34" r="7"/></symbol>
+    <symbol id="c-ticket" viewBox="0 0 64 64"><path style="fill:var(--b)" d="M4 18 H60 V28 A4 4 0 0 0 60 36 V46 H4 V36 A4 4 0 0 0 4 28 Z"/><path style="stroke:var(--c)" stroke-width="2" stroke-dasharray="3 3" d="M44 18 V46"/><g style="fill:var(--c)"><rect x="10" y="25" width="26" height="4"/><rect x="10" y="33" width="18" height="4"/></g><circle style="fill:var(--c)" cx="52" cy="32" r="4"/></symbol>
+    <symbol id="c-photo" viewBox="0 0 64 64"><rect style="fill:var(--c);stroke:var(--a)" stroke-width="2.4" x="6" y="10" width="52" height="44" rx="2"/><rect style="fill:#d9e6f2" x="11" y="15" width="42" height="28"/><circle style="fill:var(--b)" cx="42" cy="23" r="5"/><path style="fill:var(--a)" d="M11 43 L24 26 L32 36 L38 30 L53 43Z"/></symbol>
+    <symbol id="c-plate" viewBox="0 0 64 64"><ellipse style="fill:var(--c);stroke:var(--a)" stroke-width="2.4" cx="32" cy="36" rx="28" ry="16"/><ellipse style="fill:none;stroke:var(--d)" stroke-width="2.4" cx="32" cy="36" rx="18" ry="9"/></symbol>
+    <symbol id="c-greentea" viewBox="0 0 64 64"><path style="fill:none;stroke:var(--d)" stroke-width="2.4" stroke-linecap="round" d="M26 16 q-4 -5 0 -10M36 16 q-4 -5 0 -10"/><path style="fill:#6d9a6a" d="M14 20 H50 L46 56 Q44 60 40 60 H24 Q20 60 18 56Z"/><rect style="fill:#567d53" x="14" y="20" width="36" height="5"/><path style="fill:none;stroke:var(--c)" stroke-width="2" d="M24 34 q8 6 16 0"/></symbol>
+    <symbol id="c-beer" viewBox="0 0 64 64"><path style="fill:none;stroke:#e0a828" stroke-width="5" d="M46 26 q12 0 12 10 q0 10 -12 10"/><rect style="fill:#f2b632" x="14" y="18" width="34" height="42" rx="3"/><path style="fill:var(--c)" d="M12 22 Q12 10 22 12 Q28 4 36 10 Q48 8 50 20 Q50 24 46 24 H16 Q12 24 12 22Z"/><g style="fill:#ffe49a"><circle cx="24" cy="40" r="2"/><circle cx="34" cy="48" r="1.6"/><circle cx="38" cy="34" r="1.4"/></g></symbol>
+    <symbol id="c-rice" viewBox="0 0 64 64"><path style="fill:var(--c)" d="M10 32 Q12 14 32 14 Q52 14 54 32Z"/><path style="fill:var(--b)" d="M6 32 H58 Q56 52 32 54 Q8 52 6 32Z"/><path style="fill:var(--a)" d="M6 32 H58 L57.6 36 H6.4Z"/><rect style="fill:var(--a)" x="22" y="53" width="20" height="5" rx="1"/><g style="stroke:var(--a)" stroke-width="2.6" stroke-linecap="round"><path d="M40 26 L58 8"/><path d="M44 28 L62 12"/></g></symbol>
+    <symbol id="c-egg" viewBox="0 0 64 64"><path style="fill:#fbf3e6;stroke:var(--a)" stroke-width="2.4" d="M32 4 C46 4 56 26 56 40 C56 54 46 60 32 60 C18 60 8 54 8 40 C8 26 18 4 32 4Z"/><ellipse style="fill:var(--c)" cx="22" cy="28" rx="4" ry="7"/></symbol>
+    <symbol id="c-candy" viewBox="0 0 64 64"><path style="fill:var(--d)" d="M18 32 L4 20 L8 32 L4 44Z"/><path style="fill:var(--d)" d="M46 32 L60 20 L56 32 L60 44Z"/><circle style="fill:var(--b)" cx="32" cy="32" r="15"/><path style="fill:none;stroke:var(--c)" stroke-width="3" d="M22 26 Q32 38 42 26M22 38 Q32 26 42 38"/></symbol>
+    <symbol id="c-peach" viewBox="0 0 64 64"><path style="fill:#f5a7a0" d="M32 14 C14 10 6 30 12 44 C18 58 46 58 52 44 C58 30 50 10 32 14Z"/><path style="fill:none;stroke:#e07f78" stroke-width="2.4" d="M32 16 Q24 34 32 54"/><path style="fill:var(--good,#3d7650)" d="M32 14 Q22 4 14 10 Q22 18 32 14Z"/></symbol>
+    <symbol id="c-cupcake" viewBox="0 0 64 64"><path style="fill:var(--b)" d="M14 34 H50 L44 60 H20Z"/><g style="stroke:var(--c)" stroke-width="1.6"><path d="M22 36 L25 58M32 36 V58M42 36 L39 58"/></g><path style="fill:var(--d)" d="M10 36 Q8 24 20 24 Q22 12 32 14 Q44 12 44 24 Q56 24 54 36Z"/><circle style="fill:var(--b)" cx="32" cy="10" r="5"/></symbol>
+    <symbol id="c-book" viewBox="0 0 64 64"><rect style="fill:var(--b)" x="12" y="6" width="40" height="52" rx="3"/><rect style="fill:var(--c)" x="16" y="54" width="36" height="6" rx="1"/><rect style="fill:var(--a)" x="12" y="6" width="6" height="52"/><rect style="fill:var(--c)" x="24" y="16" width="22" height="8" rx="1"/></symbol>
+    <symbol id="c-notebook" viewBox="0 0 64 64"><rect style="fill:var(--d)" x="12" y="6" width="42" height="54" rx="3"/><g style="fill:var(--a)"><rect x="8" y="12" width="10" height="3" rx="1.5"/><rect x="8" y="22" width="10" height="3" rx="1.5"/><rect x="8" y="32" width="10" height="3" rx="1.5"/><rect x="8" y="42" width="10" height="3" rx="1.5"/><rect x="8" y="52" width="10" height="3" rx="1.5"/></g><rect style="fill:var(--c)" x="24" y="16" width="22" height="10" rx="1"/></symbol>
+    <symbol id="c-manga" viewBox="0 0 64 64"><rect style="fill:var(--c);stroke:var(--a)" stroke-width="2.4" x="12" y="6" width="40" height="52" rx="2"/><path style="fill:var(--b)" d="M12 6 H52 V22 H12Z"/><g style="fill:none;stroke:var(--a)" stroke-width="2"><rect x="17" y="27" width="14" height="12"/><rect x="34" y="27" width="13" height="25"/><rect x="17" y="42" width="14" height="10"/></g><path style="fill:var(--c)" d="M18 10 h18 v8 h-14 l-4 3Z"/></symbol>
+    <symbol id="c-car" viewBox="0 0 64 64"><path style="fill:var(--b)" d="M4 44 V36 Q4 30 10 30 L18 18 Q20 16 24 16 H40 Q44 16 46 18 L54 30 Q60 30 60 36 V44 Z"/><path style="fill:var(--c)" d="M22 20 H31 V30 H15 Z M35 20 H42 L49 30 H35Z"/><g style="fill:var(--a)"><circle cx="18" cy="46" r="7"/><circle cx="46" cy="46" r="7"/></g><g style="fill:var(--c)"><circle cx="18" cy="46" r="2.6"/><circle cx="46" cy="46" r="2.6"/></g></symbol>
+    <symbol id="c-bike" viewBox="0 0 64 64"><g style="fill:none;stroke:var(--a)" stroke-width="3"><circle cx="15" cy="44" r="11"/><circle cx="49" cy="44" r="11"/></g><g style="fill:none;stroke:var(--b)" stroke-width="3.4" stroke-linejoin="round" stroke-linecap="round"><path d="M15 44 L26 26 H44 L49 44 M26 26 L32 44 L44 26 M32 44 H15"/><path d="M42 20 H50 M44 20 L44 26"/><path d="M22 22 H30"/></g></symbol>
+    <symbol id="c-laptop" viewBox="0 0 64 64"><rect style="fill:var(--a)" x="10" y="12" width="44" height="30" rx="3"/><rect style="fill:#d9e6f2" x="14" y="16" width="36" height="22"/><path style="fill:var(--b)" d="M2 46 H62 L58 52 H6Z"/><rect style="fill:var(--a)" x="26" y="46" width="12" height="2"/></symbol>
+    <symbol id="c-fish" viewBox="0 0 64 64"><path style="fill:var(--b)" d="M6 32 Q22 14 42 26 L58 16 L54 32 L58 48 L42 38 Q22 50 6 32Z"/><path style="fill:var(--d)" d="M22 22 Q30 14 38 22Z"/><circle style="fill:var(--c)" cx="15" cy="29" r="3"/><circle style="fill:var(--a)" cx="15.4" cy="29" r="1.4"/></symbol>
+    <symbol id="c-yen" viewBox="0 0 64 64"><rect style="fill:#e6efe2;stroke:#6d9a6a" stroke-width="2.4" x="4" y="12" width="44" height="28" rx="3"/><circle style="fill:none;stroke:#6d9a6a" stroke-width="2" cx="26" cy="26" r="8"/><circle style="fill:#f2c14e;stroke:#d9a520" stroke-width="2.4" cx="44" cy="42" r="16"/><path style="fill:none;stroke:#a77b12" stroke-width="2.6" stroke-linecap="round" d="M37 33 L44 42 L51 33 M44 42 V52 M38 42 H50 M38 47 H50"/></symbol>
+    <symbol id="c-cakebday" viewBox="0 0 64 64"><rect style="fill:var(--d)" x="8" y="34" width="48" height="24" rx="3"/><path style="fill:var(--c)" d="M8 38 Q14 44 20 38 Q26 44 32 38 Q38 44 44 38 Q50 44 56 38 V34 H8Z"/><g style="fill:var(--b)"><rect x="20" y="20" width="4" height="14"/><rect x="30" y="20" width="4" height="14"/><rect x="40" y="20" width="4" height="14"/></g><g style="fill:#f2b632"><path d="M22 18 q-3 -4 0 -8 q3 4 0 8Z"/><path d="M32 18 q-3 -4 0 -8 q3 4 0 8Z"/><path d="M42 18 q-3 -4 0 -8 q3 4 0 8Z"/></g><rect style="fill:var(--a)" x="4" y="58" width="56" height="3" rx="1.5"/></symbol>
+
+    <!-- ===== Gesprächs-Avatare (Brustbild) ===== -->
+    <symbol id="av-man" viewBox="0 0 64 64"><path style="fill:var(--a)" d="M8 64 Q10 44 32 42 Q54 44 56 64Z"/><path style="fill:var(--c)" d="M26 43 L32 52 L38 43Z"/><path style="fill:var(--b)" d="M30 46 h4 l1 12 -3 3 -3 -3Z"/><circle style="fill:var(--skin,#f6d6c4)" cx="32" cy="26" r="13"/><path style="fill:var(--a)" d="M19 24 Q19 10 32 10 Q46 10 45 24 Q40 16 30 18 Q24 18 19 24Z"/><g style="fill:var(--a)"><circle cx="27" cy="27" r="1.5"/><circle cx="37" cy="27" r="1.5"/></g><path style="fill:none;stroke:var(--b)" stroke-width="1.6" stroke-linecap="round" d="M28.5 32 q3.5 2.4 7 0"/></symbol>
+    <symbol id="av-woman" viewBox="0 0 64 64"><path style="fill:var(--a)" d="M16 40 Q14 14 32 12 Q50 14 48 40Z"/><path style="fill:var(--b)" d="M8 64 Q10 44 32 42 Q54 44 56 64Z"/><circle style="fill:var(--skin,#f6d6c4)" cx="32" cy="28" r="12"/><path style="fill:var(--a)" d="M20 26 Q22 14 32 14 Q44 14 44 26 Q36 18 26 22Z"/><g style="fill:var(--a)"><circle cx="27.5" cy="29" r="1.4"/><circle cx="36.5" cy="29" r="1.4"/></g><path style="fill:none;stroke:var(--b)" stroke-width="1.6" stroke-linecap="round" d="M29 33.5 q3 2.2 6 0"/><use href="#i-bloom" transform="translate(44 16) scale(.5)" style="fill:var(--d)"/></symbol>
+    <symbol id="av-girl" viewBox="0 0 64 64"><g style="fill:var(--a)"><circle cx="15" cy="30" r="7"/><circle cx="49" cy="30" r="7"/></g><path style="fill:var(--d)" d="M8 64 Q10 46 32 44 Q54 46 56 64Z"/><circle style="fill:var(--a)" cx="32" cy="27" r="15"/><circle style="fill:var(--skin,#f6d6c4)" cx="32" cy="30" r="12"/><path style="fill:var(--a)" d="M20 28 Q22 15 32 16 Q42 15 44 28 Q40 20 32 22 Q26 20 20 28Z"/><g style="fill:var(--a)"><circle cx="27.5" cy="31" r="1.4"/><circle cx="36.5" cy="31" r="1.4"/></g><g style="fill:var(--d)"><circle cx="24" cy="35" r="2"/><circle cx="40" cy="35" r="2"/></g><path style="fill:none;stroke:var(--b)" stroke-width="1.6" stroke-linecap="round" d="M29 35.5 q3 2.2 6 0"/><path style="fill:var(--b)" d="M42 12 L50 8 L50 18 Z M42 12 L36 6 L36 16Z"/></symbol>
+    <symbol id="av-oldman" viewBox="0 0 64 64"><path style="fill:#6b6f7c" d="M8 64 Q10 44 32 42 Q54 44 56 64Z"/><path style="fill:var(--d)" d="M26 43 L32 50 L38 43Z"/><circle style="fill:var(--skin,#f6d6c4)" cx="32" cy="26" r="13"/><path style="fill:#c9ccd4" d="M19 26 Q18 14 24 14 Q24 20 21 26Z M45 26 Q46 14 40 14 Q40 20 43 26Z"/><g style="fill:none;stroke:var(--a)" stroke-width="1.6"><circle cx="27" cy="27" r="3.6"/><circle cx="37" cy="27" r="3.6"/><path d="M30.6 27 h2.8"/></g><path style="fill:#c9ccd4" d="M26 33 Q32 30 38 33 Q32 36 26 33Z"/></symbol>
+    <symbol id="av-chef" viewBox="0 0 64 64"><path style="fill:var(--c);stroke:var(--a)" stroke-width="1.5" d="M8 64 Q10 44 32 42 Q54 44 56 64Z"/><g style="fill:var(--a)"><circle cx="28" cy="52" r="1.6"/><circle cx="36" cy="52" r="1.6"/><circle cx="28" cy="58" r="1.6"/><circle cx="36" cy="58" r="1.6"/></g><circle style="fill:var(--skin,#f6d6c4)" cx="32" cy="30" r="12"/><path style="fill:var(--c);stroke:var(--a)" stroke-width="1.5" d="M20 22 Q12 14 20 8 Q24 0 32 4 Q40 0 44 8 Q52 14 44 22Z"/><rect style="fill:var(--b)" x="20" y="19" width="24" height="4"/><g style="fill:var(--a)"><circle cx="27.5" cy="31" r="1.4"/><circle cx="36.5" cy="31" r="1.4"/></g><path style="fill:none;stroke:var(--b)" stroke-width="1.6" stroke-linecap="round" d="M29 35.5 q3 2.2 6 0"/></symbol>
+    <symbol id="av-boy" viewBox="0 0 64 64"><path style="fill:var(--b)" d="M8 64 Q10 44 32 42 Q54 44 56 64Z"/><path style="fill:var(--c)" d="M24 44 Q32 50 40 44" stroke="none"/><circle style="fill:var(--skin,#f6d6c4)" cx="32" cy="27" r="13"/><path style="fill:var(--a)" d="M19 26 Q18 12 30 12 L28 8 L34 11 L38 7 L38 12 Q46 14 45 26 Q42 18 34 21 Q26 18 19 26Z"/><g style="fill:var(--a)"><circle cx="27" cy="28" r="1.5"/><circle cx="37" cy="28" r="1.5"/></g><path style="fill:none;stroke:var(--b)" stroke-width="1.6" stroke-linecap="round" d="M28 33 q4 3 8 0"/></symbol>
+    <symbol id="av-traveler" viewBox="0 0 64 64"><path style="fill:#6d9a6a" d="M8 64 Q10 44 32 42 Q54 44 56 64Z"/><g style="fill:var(--a)"><rect x="18" y="44" width="5" height="20"/><rect x="41" y="44" width="5" height="20"/></g><circle style="fill:var(--skin,#f6d6c4)" cx="32" cy="27" r="13"/><path style="fill:var(--b)" d="M18 22 Q18 10 32 10 Q46 10 46 22Z"/><rect style="fill:var(--b)" x="30" y="19" width="22" height="4" rx="2"/><g style="fill:var(--a)"><circle cx="27" cy="29" r="1.5"/><circle cx="37" cy="29" r="1.5"/></g><path style="fill:none;stroke:var(--b)" stroke-width="1.6" stroke-linecap="round" d="M28.5 34 q3.5 2.4 7 0"/></symbol>
+    <symbol id="av-police" viewBox="0 0 64 64"><path style="fill:var(--a)" d="M8 64 Q10 44 32 42 Q54 44 56 64Z"/><path style="fill:#9fb3d9" d="M26 43 L32 50 L38 43Z"/><circle style="fill:#f2c14e" cx="40" cy="54" r="3"/><circle style="fill:var(--skin,#f6d6c4)" cx="32" cy="28" r="12"/><path style="fill:var(--a)" d="M17 20 Q32 4 47 20 L46 22 H18Z"/><rect style="fill:var(--a)" x="18" y="20" width="28" height="4"/><circle style="fill:#f2c14e" cx="32" cy="14" r="2.6"/><g style="fill:var(--a)"><circle cx="27.5" cy="30" r="1.4"/><circle cx="36.5" cy="30" r="1.4"/></g><path style="fill:none;stroke:var(--b)" stroke-width="1.6" stroke-linecap="round" d="M29 34.5 q3 2 6 0"/></symbol>
+    <symbol id="av-staff" viewBox="0 0 64 64"><path style="fill:#3d4f7f" d="M8 64 Q10 44 32 42 Q54 44 56 64Z"/><path style="fill:var(--c)" d="M26 43 L32 50 L38 43Z"/><rect style="fill:var(--b)" x="38" y="50" width="8" height="5" rx="1"/><circle style="fill:var(--skin,#f6d6c4)" cx="32" cy="28" r="12"/><path style="fill:var(--b)" d="M18 22 Q18 10 32 10 Q46 10 46 22Z"/><rect style="fill:var(--a)" x="16" y="20" width="32" height="4" rx="2"/><rect style="fill:var(--c)" x="28" y="13" width="8" height="4" rx="1"/><g style="fill:var(--a)"><circle cx="27.5" cy="30" r="1.4"/><circle cx="36.5" cy="30" r="1.4"/></g><path style="fill:none;stroke:var(--b)" stroke-width="1.6" stroke-linecap="round" d="M29 34.5 q3 2 6 0"/></symbol>
+
+    <!-- ===== Motive für neue Lesebücher ===== -->
+    <symbol id="s-shop" viewBox="0 0 64 64"><rect style="fill:var(--c)" x="6" y="22" width="52" height="36"/><path style="fill:var(--a)" d="M2 14 H62 V22 H2Z"/><g style="fill:var(--b)"><path d="M6 22 H17 V34 Q11.5 38 6 34Z"/><path d="M28 22 H39 V34 Q33.5 38 28 34Z"/><path d="M50 22 H58 V34 Q54 37 50 34Z"/></g><g style="fill:var(--d)"><path d="M17 22 H28 V34 Q22.5 38 17 34Z"/><path d="M39 22 H50 V34 Q44.5 38 39 34Z"/></g><rect style="fill:var(--a)" x="26" y="40" width="12" height="18"/><rect style="fill:#d9e6f2" x="10" y="40" width="12" height="10"/><rect style="fill:#d9e6f2" x="42" y="40" width="12" height="10"/><rect style="fill:var(--a)" x="2" y="58" width="60" height="3"/></symbol>
+    <symbol id="s-milk" viewBox="0 0 64 64"><path style="fill:var(--c);stroke:var(--a)" stroke-width="2" d="M18 20 L24 8 H40 L46 20 V60 H18Z"/><path style="fill:#9fb3d9" d="M18 34 H46 V52 H18Z"/><path style="fill:none;stroke:var(--a)" stroke-width="2" d="M18 20 H46"/><path style="fill:var(--c)" d="M26 40 Q32 34 38 40 Q32 46 26 40Z"/></symbol>
+    <symbol id="s-bag" viewBox="0 0 64 64"><path style="fill:none;stroke:var(--a)" stroke-width="3" d="M22 22 Q22 8 32 8 Q42 8 42 22"/><path style="fill:var(--d)" d="M10 20 H54 L50 60 H14Z"/><use href="#c-apple" x="16" y="6" width="18" height="18"/><use href="#c-banana" x="28" y="4" width="22" height="22"/></symbol>
+    <symbol id="s-rain" viewBox="0 0 64 64"><use href="#i-cloud" x="0" y="0" width="64" height="27" style="color:#9fa8c4"/><g style="stroke:#7d9bd1" stroke-width="2.6" stroke-linecap="round"><path d="M12 32 l-3 8M24 34 l-3 8M36 32 l-3 8M48 34 l-3 8M18 46 l-3 8M30 48 l-3 8M42 46 l-3 8"/></g></symbol>
+    <symbol id="s-onsen" viewBox="0 0 64 64"><g style="fill:none;stroke:var(--b)" stroke-width="3.4" stroke-linecap="round"><path d="M20 26 q-5 -6 0 -12 q5 -6 0 -10"/><path d="M32 26 q-5 -6 0 -12 q5 -6 0 -10"/><path d="M44 26 q-5 -6 0 -12 q5 -6 0 -10"/></g><path style="fill:#7fb3d5" d="M6 36 Q32 30 58 36 Q58 54 32 56 Q6 54 6 36Z"/><g style="fill:#8a8f9e"><ellipse cx="8" cy="40" rx="7" ry="5"/><ellipse cx="56" cy="40" rx="7" ry="5"/><ellipse cx="18" cy="54" rx="8" ry="5"/><ellipse cx="46" cy="54" rx="8" ry="5"/></g><path style="fill:none;stroke:var(--c)" stroke-width="2" d="M22 42 q5 -3 10 0 q5 3 10 0"/></symbol>
+    <symbol id="s-futon" viewBox="0 0 64 40"><rect style="fill:var(--c);stroke:var(--a)" stroke-width="1.6" x="2" y="22" width="60" height="12" rx="3"/><path style="fill:var(--b)" d="M18 18 H62 V30 Q62 34 58 34 H18Z"/><g style="fill:var(--d)"><circle cx="30" cy="24" r="2"/><circle cx="42" cy="28" r="2"/><circle cx="54" cy="23" r="2"/></g><rect style="fill:var(--c);stroke:var(--a)" stroke-width="1.6" x="4" y="14" width="16" height="10" rx="4"/></symbol>
+    <symbol id="s-family" viewBox="0 0 96 64"><use href="#s-woman" x="0" y="0" width="40" height="64"/><use href="#c-boy" x="28" y="4" width="40" height="60"/><use href="#s-girl" x="56" y="16" width="40" height="48"/></symbol>
+    <symbol id="s-grandpa" viewBox="0 0 64 64"><rect style="fill:#6b6f7c" x="20" y="26" width="24" height="22" rx="6"/><g style="fill:var(--a)"><rect x="23" y="46" width="7" height="16" rx="2"/><rect x="34" y="46" width="7" height="16" rx="2"/></g><path style="stroke:#a77b42" stroke-width="2.4" stroke-linecap="round" d="M50 34 V62"/><g style="fill:none;stroke:var(--skin,#f6d6c4)" stroke-width="4" stroke-linecap="round"><path d="M22 30 L16 42"/><path d="M42 30 L50 36"/></g><circle style="fill:var(--skin,#f6d6c4)" cx="32" cy="15" r="9"/><path style="fill:#c9ccd4" d="M23 16 Q22 8 26 8 Q26 12 24 16Z M41 16 Q42 8 38 8 Q38 12 40 16Z"/><g style="fill:none;stroke:var(--a)" stroke-width="1.2"><circle cx="29" cy="16" r="2.6"/><circle cx="35" cy="16" r="2.6"/></g></symbol>
+    <symbol id="s-window" viewBox="0 0 64 64"><rect style="fill:#c7d3ea;stroke:var(--a)" stroke-width="3" x="4" y="4" width="56" height="56" rx="2"/><path style="stroke:var(--a)" stroke-width="3" d="M32 4v56M4 32h56"/><g style="stroke:#7d9bd1" stroke-width="2" stroke-linecap="round"><path d="M12 10 l-2 6M22 16 l-2 6M42 10 l-2 6M52 18 l-2 6M14 40 l-2 6M24 46 l-2 6M44 40 l-2 6M54 46 l-2 6"/></g></symbol>
+
+    <!-- Buch-Cover: Katze -->
+    <symbol id="i-cat" viewBox="0 0 64 64">
+      <path style="fill:none;stroke:var(--a)" stroke-width="4" stroke-linecap="round" d="M41 59 Q57 59 56 46 Q55 37 61 33"/>
+      <path style="fill:var(--a)" d="M15 31 Q9 46 13 61 L42 61 Q47 46 40 31 Z"/>
+      <path style="fill:var(--a)" d="M14 13 L17 2 L24 9 Q28 8 32 9 L39 2 L42 13 Q46 20 43 27 Q40 33 28 33 Q16 33 13 27 Q10 20 14 13 Z"/>
+      <g style="fill:var(--d)"><path d="M17 6 L22 10 L16.5 12 Z"/><path d="M39 6 L34 10 L39.5 12 Z"/></g>
+      <g style="fill:var(--c)"><ellipse cx="22" cy="20" rx="2.6" ry="3.2"/><ellipse cx="34" cy="20" rx="2.6" ry="3.2"/></g>
+      <g style="fill:var(--a)"><ellipse cx="22.4" cy="20.6" rx="1.1" ry="2"/><ellipse cx="34.4" cy="20.6" rx="1.1" ry="2"/></g>
+      <path style="fill:var(--d)" d="M26.5 25 h3 l-1.5 2 z"/>
+      <path style="fill:var(--b)" d="M14.5 32 Q28 37 41 32 L41.5 35.5 Q28 40.5 14 35.5 Z"/>
+      <circle style="fill:var(--d)" cx="28" cy="39" r="2.4"/>
+    </symbol>
+
+    <!-- Buch-Cover: Wecker -->
+    <symbol id="i-clock" viewBox="0 0 64 64">
+      <g style="fill:var(--b)"><path d="M7 17 A10 10 0 0 1 22 6 Z"/><path d="M57 17 A10 10 0 0 0 42 6 Z"/></g>
+      <rect style="fill:var(--a)" x="29" y="4" width="6" height="6" rx="1"/>
+      <circle style="fill:var(--a)" cx="32" cy="34" r="24"/>
+      <circle style="fill:var(--c)" cx="32" cy="34" r="18.5"/>
+      <g style="fill:var(--a)"><rect x="31" y="17.5" width="2" height="3.4"/><rect x="31" y="47.1" width="2" height="3.4"/><rect x="15.5" y="33" width="3.4" height="2"/><rect x="45.1" y="33" width="3.4" height="2"/>
+        <rect x="30.6" y="22" width="2.8" height="13" rx="1"/><path d="M31 33 L43 40 L41.6 42.4 L29.6 35.4 Z"/></g>
+      <circle style="fill:var(--b)" cx="32" cy="34" r="2.6"/>
+      <path style="fill:none;stroke:var(--a)" stroke-width="3.4" stroke-linecap="round" d="M15 55 L10 62 M49 55 L54 62"/>
+    </symbol>
+
+    <!-- Buch-Cover: Feuerwerk -->
+    <symbol id="i-hanabi" viewBox="0 0 64 64">
+      <g style="stroke:var(--b)" stroke-width="2.6" stroke-linecap="round"><path d="M28 5v9M28 32v9M8 23h9M39 23h9M14 9l6 6M36 31l6 6M42 9l-6 6M20 31l-6 6"/></g>
+      <g style="stroke:var(--d)" stroke-width="2" stroke-linecap="round"><path d="M21 3l2.5 6M35 43l-2.5-6M5 31l6-2.5M51 15l-6 2.5M38 3l-2.5 6M18 43l2.5-6"/></g>
+      <g style="stroke:var(--a)" stroke-width="2.2" stroke-linecap="round"><path d="M51 37v5M51 49v5M43 45.5h5M54 45.5h5M45.5 40l2.5 2.5M54 49l2.5 2.5M56.5 40L54 42.5M48 49l-2.5 2.5"/></g>
+      <circle style="fill:var(--b)" cx="28" cy="23" r="3"/><circle style="fill:var(--a)" cx="51" cy="45.5" r="1.8"/>
+      <path style="fill:var(--a)" d="M0 64 L0 60 L8 56 L14 59 L22 53 L30 58 L38 54 L44 59 L52 56 L64 61 L64 64 Z"/>
+    </symbol>
+
+    <!-- Buch-Cover: Tokyo Tower -->
+    <symbol id="i-tower" viewBox="0 0 64 64">
+      <rect style="fill:var(--a)" x="31.2" y="0" width="1.6" height="9"/>
+      <path style="fill:var(--b)" d="M29.5 9 h5 l3.5 18 h-12 z"/>
+      <rect style="fill:var(--a)" x="23" y="26.5" width="18" height="4.5" rx="1"/>
+      <path style="fill:var(--b)" d="M26 31 h12 l5 15 h-22 z"/>
+      <rect style="fill:var(--a)" x="17" y="45.5" width="30" height="4.5" rx="1"/>
+      <path style="fill:var(--b)" d="M21 50 h22 l9 13 h-7 l-6 -8 h-14 l-6 8 h-7 z"/>
+      <g style="fill:var(--c)"><rect x="28.2" y="15" width="7.6" height="2"/><rect x="25.5" y="37" width="13" height="2.2"/><rect x="21.5" y="56" width="21" height="2"/></g>
+    </symbol>
   </svg>
+
+  <!-- Dezente Hintergrund-Deko (nur Design „Japan“) -->
+  <div class="deco" aria-hidden="true">
+    <svg class="d-cloud c1"><use href="#i-cloud"/></svg>
+    <svg class="d-cloud c2"><use href="#i-cloud"/></svg>
+    <svg class="d-cloud c3"><use href="#i-cloud"/></svg>
+    <svg class="d-flower f1"><use href="#i-flower"/></svg>
+    <svg class="d-flower f2"><use href="#i-flower"/></svg>
+    <svg class="d-flower f3"><use href="#i-flower"/></svg>
+    <svg class="d-flower f4"><use href="#i-flower"/></svg>
+    <svg class="d-flower f5"><use href="#i-flower"/></svg>
+  </div>
 
   <header class="topbar">
     <button id="backBtn" class="icon-btn" aria-label="Zurück" hidden>‹</button>
