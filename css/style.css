@@ -602,3 +602,9 @@ h1, h2, .tile b, .btn, .stat b { font-family: var(--sans); }
 .tip-ic { font-size: 24px; line-height: 1; }
 .tip-h { color: var(--accent); }
 .tip-ic { width: 38px; height: 38px; flex: none; margin-top: -2px; }
+/* Spiel-Ende: Feld wächst mit dem Inhalt, kein Scrollen im Feld */
+.rain-field.ended, .sushi-field.ended { height: auto; min-height: 300px; }
+.ended .rain-start { position: static; padding: 22px 16px; }
+/* Leben-Anzeige über der Deko-Blüte */
+.game-hud { position: relative; z-index: 2; }
+.game-hud .lives { background: var(--surface); border-radius: 999px; padding: 4px 9px; box-shadow: var(--shadow); }

@@ -1785,7 +1785,7 @@
       const key = words ? "rainW" : "rain", best = g[key] || 0, rec = st.score > best;
       if (rec) g[key] = st.score;
       save();
-      field.innerHTML = `<div class="rain-start scroll"><div class="big-emoji">${rec ? "🏆" : "🌸"}</div><h2 style="margin:0">${st.score} Punkte</h2>
+      field.classList.add("ended"); field.innerHTML = `<div class="rain-start scroll"><div class="big-emoji">${rec ? "🏆" : "🌸"}</div><h2 style="margin:0">${st.score} Punkte</h2>
         <p class="small muted" style="margin:0">${rec ? "Neuer Rekord!" : `Rekord: ${best}`}</p>
         ${st.missed.length ? `<p class="small" style="margin:10px 0 2px">Nochmal anschauen (antippen = anhören):</p>
         <div class="chip-row" style="justify-content:center">${st.missed.map((it, i) => `<button class="chip jp" data-i="${i}">${esc(it.label)}</button>`).join("")}</div>` : ""}
@@ -1876,7 +1876,7 @@
       if (rec) g.sushi = st.score;
       save();
       const chips = arr => `<div class="chip-row" style="justify-content:center">${uniqBy(arr, w => w.kana).map(w => `<button class="chip jp" data-k="${esc(w.kana)}">${esc(w.kana)} = ${esc(w.de)}</button>`).join("")}</div>`;
-      field.innerHTML = `<div class="rain-start scroll"><div class="big-emoji">${rec ? "🏆" : "🍣"}</div><h2 style="margin:0">${st.score} Punkte</h2>
+      field.classList.add("ended"); field.innerHTML = `<div class="rain-start scroll"><div class="big-emoji">${rec ? "🏆" : "🍣"}</div><h2 style="margin:0">${st.score} Punkte</h2>
         <p class="small muted" style="margin:0">${rec ? "Neuer Rekord!" : `Rekord: ${best}`} · ${st.got.length} richtige Teller</p>
         ${st.wrong.length ? `<p class="small" style="margin:8px 0 2px">Passte nicht zu „${esc(cat.title)}“:</p>${chips(st.wrong)}` : ""}
         ${st.missed.length ? `<p class="small" style="margin:8px 0 2px">Verpasst:</p>${chips(st.missed)}` : ""}
