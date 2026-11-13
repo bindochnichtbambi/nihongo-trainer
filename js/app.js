@@ -28,7 +28,7 @@
   // ---------- Wörter ----------
   let WORDS = [], GROUPS = [];
   function buildWords() {
-    GROUPS = window.VOCAB_GROUPS.map(g => ({ id: g.id, name: g.name, kind: g.kind }));
+    GROUPS = window.VOCAB_GROUPS.map(g => ({ id: g.id, name: g.name, kind: g.kind, off: !!g.off }));
     GROUPS.push({ id: "custom", name: "Eigene Wörter", kind: "custom" });
     WORDS = [];
     for (const g of window.VOCAB_GROUPS) {
@@ -37,13 +37,20 @@
       }
     }
     for (const c of DB.custom) WORDS.push(mkWord(c.id, c.g || "custom", c.kana, c.kanji, c.de, !!c.p, true));
-    if (!DB.groups) DB.groups = GROUPS.filter(g => g.kind !== "extra").map(g => g.id);
+    if (!DB.groups) DB.groups = GROUPS.filter(g => g.kind !== "extra" && !g.off).map(g => g.id);
   }
   function mkWord(id, g, kana, kanji, de, p, custom) {
     return { id, g, kana, kanji: kanji || "", de, p, custom, romaji: Kana.kanaToRomaji(kana, p) };
   }
   function activeWords() {
-    return WORDS.filter(w => DB.groups.includes(w.g) && (DB.settings.phrases || !w.p));
+    const list = WORDS.filter(w => DB.groups.includes(w.g) && (DB.settings.phrases || !w.p));
+    // gleiches Wort in mehreren aktiven Gruppen (z. B. Kurs + Reise) nur einmal – bevorzugt das mit Lernfortschritt
+    const key = w => w.kana + "|" + w.kanji, started = new Set(list.filter(w => DB.progress[w.id]).map(key)), seen = new Set();
+    return list.filter(w => {
+      const k = key(w);
+      if (seen.has(k) || (started.has(k) && !DB.progress[w.id])) return false;
+      seen.add(k); return true;
+    });
   }
   const prog = w => DB.progress[w.id];
 
@@ -68,6 +75,8 @@
   const $title = document.getElementById("title");
   const $back = document.getElementById("backBtn");
   const $script = document.getElementById("scriptBtn");
+  const $set = document.getElementById("setBtn");
+  $set.onclick = () => settingsView();
   let current = null; // aktuelle Ansicht (für Neu-Rendern)
   let cleanup = null;
 
@@ -80,6 +89,9 @@
     $back.onclick = opts.back || null;
     $title.onclick = opts.back || null;              // auch Tippen auf den Titel geht zurück
     $title.classList.toggle("can-back", !!opts.back);
+    // Einstellungen oben: auf der Startseite mit Text, sonst nur Fächer; auf der Einstellungsseite selbst ausgeblendet
+    $set.hidden = title === "Einstellungen";
+    $set.classList.toggle("short", !!opts.back);
     $app.innerHTML = html;
     window.scrollTo(0, 0);
     syncHistory();
@@ -103,7 +115,7 @@
   }
   function updateScriptBtn() { $script.textContent = SCRIPTS[DB.settings.script]; }
   function applyTheme() {
-    const t = DB.settings.theme || "stamp";
+    const t = DB.settings.theme = "stamp";   // nur noch das Japan-Design
     document.documentElement.dataset.theme = t;
     document.documentElement.dataset.mode = DB.settings.mode || "auto";
     const m = document.querySelector('meta[name="theme-color"]');
@@ -150,6 +162,10 @@
   }
 
   // ---------- Startseite ----------
+  // breite, halb so hohe Kachel (Lektionen, Einstellungen)
+  const wideTile = (id, ic, emo, t, sub) => `<button class="tile wide beige" id="${id}">
+      <span class="ico"><i class="emo">${emo}</i><svg class="pic"><use href="#${/^[a-z]-/.test(ic) ? ic : "i-" + ic}"/></svg></span>
+      <span class="wide-txt"><b>${t}</b><small>${sub}</small></span></button>`;
   function home() {
     current = { rerender: home };
     const act = activeWords(), now = Date.now();
@@ -170,19 +186,23 @@
         ${learned ? `<button class="btn" id="practice">Gelernte Wörter üben</button>` : ""}
         <p class="small muted center" style="margin:8px 0 0">${fresh} neue Wörter verfügbar · heute ${todayCount} Karten</p>
       </div>
+      ${wideTile("m-groups", "torii", "📚", "Lektionen", `${DB.groups.length} von ${GROUPS.length} aktiv`)}
       <div class="tiles">${[
+        // Nachschlagen → Sprechen & Lesen → Zahlen & Zeit → Schreiben & Spielen
+        ["m-list", "sakura", "🔎", "Wortliste", "Suchen & ergänzen"],
+        ["m-grammar", "scroll", "文", "Grammatik", "は, を, に, 〜ます …"],
         ["m-dialog", "tea", "💬", "Gespräche", "Dialoge & Rollenspiel"],
         ["m-story", "fuji", "📖", "Lesebücher", "Geschichten & Fragen"],
-        ["m-write", "brush", "✍️", "Schreiben", "Kanji & Kana zeichnen"],
         ["m-counters", "soroban", "三", "Zählwörter", "ひとつ, さんぼん …"],
         ["m-cal", "s-calendar", "📅", "Kalender", "きょう, らいしゅう …"],
-        ["m-list", "sakura", "🔎", "Wortliste", "Suchen & ergänzen"],
-        ["m-groups", "torii", "📚", "Lektionen", `${DB.groups.length} von ${GROUPS.length} aktiv`],
-        ["m-settings", "fan", "⚙️", "Einstellungen", "Design, Schrift, Sicherung"],
+        ["m-write", "brush", "✍️", "Schreiben", "Kanji & Kana zeichnen"],
+        ["m-games", "daruma", "🎮", "Spiele", "Kana-Regen, Sushi, Puzzle"],
       ].map(([id, ic, emo, t, sub], i) => `<button class="tile ${(Math.floor(i / 2) + i % 2) % 2 ? "beige" : "red"}" id="${id}">
           <span class="ico"><i class="emo">${emo}</i><svg class="pic"><use href="#${ic.startsWith("s-") ? ic : "i-" + ic}"/></svg></span>
           <b>${t}</b><small>${sub}</small></button>`).join("")}</div>
     `);
+    document.getElementById("m-grammar").onclick = grammarList;
+    document.getElementById("m-games").onclick = gamesView;
     document.getElementById("go").onclick = () => startSession();
     if (learned) document.getElementById("practice").onclick = startPractice;
     document.getElementById("m-cal").onclick = () => calendarView();
@@ -192,7 +212,6 @@
     document.getElementById("m-write").onclick = writeView;
     document.getElementById("m-dialog").onclick = dialogList;
     document.getElementById("m-story").onclick = storyList;
-    document.getElementById("m-settings").onclick = settingsView;
   }
 
   // ---------- Gruppenauswahl ----------
@@ -208,7 +227,7 @@
       <h2>Kurs (Marugoto A1)</h2><div class="card">${block("kurs")}</div>
       <h2>Zusatzwortschatz</h2><div class="card">${block("extra")}</div>
       <h2>Eigene</h2><div class="card">${block("custom")}</div>
-      <p class="small muted">Neue Wörter kommen in der Reihenfolge der Lektionen dran.</p>
+      <p class="small muted">Neue Wörter kommen in der Reihenfolge der Lektionen dran. Lektion 13–18 sind zu Beginn ausgeschaltet – einfach einschalten, sobald ihr sie im Kurs habt.</p>
     `, { back: home });
     $app.querySelectorAll("input[data-g]").forEach(cb => cb.onchange = () => {
       const id = cb.dataset.g;
@@ -858,8 +877,8 @@
     const s = DB.settings;
     const seg = (key, opts) => `<div class="seg" data-key="${key}">${opts.map(([v, l]) => `<button data-v="${v}" class="${String(s[key]) === String(v) ? "on" : ""}">${l}</button>`).join("")}</div>`;
     show("Einstellungen", `
-      <h2>Design</h2>
-      <div class="card">${seg("theme", [["stamp", "Japan"], ["classic", "Klassisch"]])}<p class="small muted">Japan: Marineblau, Rot &amp; Rosé mit eigenen Symbolen.</p><label class="field" style="margin:0"><span>Hell / Dunkel</span>${seg("mode", [["auto", "Wie Handy"], ["light", "Hell"], ["dark", "Dunkel"]])}</label></div>
+      <h2>Hell / Dunkel</h2>
+      <div class="card">${seg("mode", [["auto", "Wie Handy"], ["light", "Hell"], ["dark", "Dunkel"]])}</div>
       <h2>Schrift</h2>
       <div class="card">
         ${seg("script", [["romaji", "Romaji"], ["kana", "Kana"], ["kanji", "Kanji"]])}
@@ -1498,8 +1517,31 @@
     show("Lesebücher", `<div class="story-grid">${window.STORIES.map(s => `<button class="story-card" data-s="${s.id}">
         <svg class="cover-pic"><use href="#${s.icon}"/></svg><div class="cover cover-emo">${s.cover}</div><div class="jp st-title">${tokText({ kana: s.title, kanji: "" })}</div>
         <div class="small muted">${esc(s.de)}</div><div class="small muted">${esc(s.lesson)}${st[s.id] != null ? ` · ${st[s.id]}% ✓` : ""}</div></button>`).join("")}</div>
-      <p class="small muted">Tippe ein Wort an, um es zu hören. Lange drücken zeigt die Übersetzung.</p>`, { back: home });
+      <p class="small muted">Tippe ein Wort an, um es zu hören. Lange drücken zeigt die Übersetzung.</p>
+      <button class="btn" id="tadoku">📚 Mehr Bücher zum Lesen &amp; Hören (Tadoku)</button>`, { back: home });
     $app.querySelectorAll("[data-s]").forEach(b => b.onclick = () => storyPage(window.STORIES.find(s => s.id === b.dataset.s), 0));
+    $("#tadoku").onclick = () => tadokuView();
+  }
+  // Linkliste zu den kostenlosen Büchern von tadoku.org (werden dort gelesen/angehört, nicht kopiert)
+  function tadokuView(lv) {
+    lv = lv || DB.tadokuLv || "s";
+    current = { rerender: () => tadokuView(lv) };
+    const done = DB.tadoku || {}, books = window.TADOKU.filter(b => b[0] === lv);
+    const info = window.TADOKU_LEVELS.find(l => l[0] === lv);
+    show("Tadoku-Bücher", `
+      <div class="seg" id="tlv">${window.TADOKU_LEVELS.map(l => `<button data-l="${l[0]}" class="${l[0] === lv ? "on" : ""}">${l[1]}</button>`).join("")}</div>
+      <p class="small muted center" style="margin:8px 0">${esc(info[2])} · ${books.filter(b => done[b[2]]).length} von ${books.length} gelesen</p>
+      <div class="card tadoku-list">${books.map(b => `<div class="td-row${done[b[2]] ? " done" : ""}">
+          <a class="td-link jp" href="https://tadoku.org/japanese/book/${b[2]}/" target="_blank" rel="noopener">${esc(b[1])}</a>
+          <button class="td-check" data-b="${b[2]}" aria-label="gelesen">${done[b[2]] ? "✓" : ""}</button></div>`).join("")}</div>
+      <p class="small muted">Die Bücher öffnen sich auf tadoku.org. Dort kannst du sie lesen und meist auch anhören (▶). Tippe danach auf den Kreis, um ein Buch als gelesen abzuhaken.<br>
+      Bücher: NPO 多言語多読, Lizenz CC BY-NC-ND 4.0. <a href="https://tadoku.org/japanese/free-books/" target="_blank" rel="noopener">Alle Bücher ansehen</a></p>`, { back: storyList });
+    $app.querySelectorAll("#tlv [data-l]").forEach(b => b.onclick = () => { DB.tadokuLv = b.dataset.l; save(); tadokuView(b.dataset.l); });
+    $app.querySelectorAll(".td-check").forEach(b => b.onclick = () => {
+      DB.tadoku = DB.tadoku || {}; const id = b.dataset.b;
+      if (DB.tadoku[id]) delete DB.tadoku[id]; else DB.tadoku[id] = Date.now();
+      save(); tadokuView(lv);
+    });
   }
   function storyPage(s, p) {
     current = { rerender: () => storyPage(s, p) };
@@ -1548,6 +1590,367 @@
       $("#area").innerHTML = `<button class="btn primary" id="sq-next">Weiter</button>`;
       $("#sq-next").onclick = () => storyQuiz(s, qi + 1, right + (ok ? 1 : 0));
     });
+  }
+
+  // ---------- Grammatik ----------
+  const maxLesson = () => Math.max(2, ...DB.groups.map(id => { const m = /^L\d+-(\d+)$/.exec(id); return m ? +m[1] : 0; }));
+  // Beispielsatz je nach Schrift-Einstellung
+  const exText = e => DB.settings.script === "romaji" ? Kana.kanaToRomaji(e[0], true) : DB.settings.script === "kanji" && e[1] ? e[1] : e[0];
+  const PART_RO = { "は": "wa", "へ": "e", "を": "o" };
+  const optText = o => DB.settings.script === "romaji" && /^[぀-ヿ]+$/.test(o) ? (PART_RO[o] || Kana.kanaToRomaji(o)) : o;
+  function grammarList() {
+    current = { rerender: grammarList };
+    const done = DB.gram || {}, maxL = maxLesson();
+    show("Grammatik", `
+      <p class="small muted">Kurze Erklärungen zu den wichtigsten A1-Punkten, mit Beispielen zum Anhören und einer kleinen Übung. Die Lektionsnummer zeigt, wann es ungefähr im Kurs drankommt.</p>
+      <div class="card gram-list">${window.GRAMMAR.map(g => `<button class="gram-row${g.l > maxL ? " later" : ""}" data-g="${g.id}">
+          <span class="gram-l">L${g.l}</span>
+          <span class="gram-t"><b class="jp">${esc(g.title)}</b><small>${esc(g.sub)}</small></span>
+          <span class="gram-s">${done[g.id] != null ? `${done[g.id]}/4 ✓` : "›"}</span></button>`).join("")}</div>`, { back: home });
+    $app.querySelectorAll("[data-g]").forEach(b => b.onclick = () => grammarPoint(window.GRAMMAR.find(g => g.id === b.dataset.g)));
+  }
+  function grammarPoint(g) {
+    current = { rerender: () => grammarPoint(g) };
+    show("Grammatik", `
+      <div class="card">
+        <div class="gram-head"><span class="gram-l">L${g.l}</span><h2 class="jp" style="margin:0">${esc(g.title)}</h2></div>
+        <p class="muted" style="margin:4px 0 10px">${esc(g.sub)}</p>
+        <div class="gram-expl">${g.expl}</div>
+      </div>
+      <h2>Beispiele</h2>
+      <div class="card">${g.ex.map((e, i) => `<div class="cal-line"><div class="cal-w"><span class="jp gram-ex">${esc(exText(e))}</span><small>${esc(e[2])}</small></div>
+        <button class="speak-btn" data-say="${i}">🔊</button></div>`).join("")}</div>
+      <button class="btn primary" id="gq">Üben (4 Fragen)</button>`, { back: grammarList });
+    $app.querySelectorAll("[data-say]").forEach(b => b.onclick = () => say(g.ex[+b.dataset.say][0]));
+    $("#gq").onclick = () => grammarQuiz(g, shuffle(g.quiz), 0, 0);
+  }
+  function grammarQuiz(g, qs, qi, right) {
+    if (qi >= qs.length) {
+      DB.gram = DB.gram || {}; DB.gram[g.id] = Math.max(DB.gram[g.id] || 0, right); save();
+      current = null;
+      show("Grammatik", `<div class="card center"><div class="big-emoji">${right === qs.length ? "🏆" : right >= 2 ? "👍" : "💪"}</div>
+        <h2>${right} von ${qs.length} richtig</h2><p class="jp">${esc(g.title)}</p>
+        <button class="btn primary" id="ga">Nochmal üben</button><button class="btn" id="gb">Erklärung ansehen</button><button class="btn" id="gl">Alle Themen</button></div>`, { back: grammarList });
+      $("#ga").onclick = () => grammarQuiz(g, shuffle(g.quiz), 0, 0); $("#gb").onclick = () => grammarPoint(g); $("#gl").onclick = grammarList;
+      return;
+    }
+    const q = qs[qi], opts = shuffle(q.o.map((o, i) => ({ o, ok: i === 0 })));
+    const sentence = fill => {
+      const [a, b] = q.q.split("＿");
+      const t = s => DB.settings.script === "romaji" ? Kana.kanaToRomaji(s, true) : s;
+      return `${esc(t(a))}<span class="gap${fill ? " filled" : ""}">${fill ? esc(optText(fill === "（nichts）" ? "—" : fill)) : "　"}</span>${esc(t(b || ""))}`;
+    };
+    current = { rerender: () => grammarQuiz(g, qs, qi, right) };
+    show("Grammatik", `<div class="progress"><i style="width:${Math.round(100 * qi / qs.length)}%"></i></div>
+      <div class="stage-label"><span>${esc(g.title)}</span><span>${qi + 1}/${qs.length}</span></div>
+      <div class="card"><div class="gram-q jp" id="gs">${sentence("")}</div><p class="muted center" style="margin:6px 0 14px">${esc(q.de)}</p>
+        <div class="options">${opts.map((o, i) => `<button class="option jp" data-o="${i}">${esc(optText(o.o))}</button>`).join("")}</div><div id="area"></div></div>`, { back: () => grammarPoint(g) });
+    $app.querySelectorAll("[data-o]").forEach(b => b.onclick = () => {
+      const ok = opts[+b.dataset.o].ok;
+      $app.querySelectorAll("[data-o]").forEach((x, i) => { x.disabled = true; if (opts[i].ok) x.classList.add("correct"); });
+      if (!ok) b.classList.add("wrong");
+      $("#gs").innerHTML = sentence(q.o[0]);
+      say(q.q.replace(/（.*?）/g, "").replace("＿", q.o[0] === "（nichts）" ? "" : q.o[0]));
+      $("#area").innerHTML = `<button class="btn ${ok ? "good" : "primary"}" id="gn">Weiter</button>`;
+      $("#gn").onclick = () => grammarQuiz(g, qs, qi + 1, right + (ok ? 1 : 0));
+    });
+  }
+
+  // ---------- Spiele ----------
+  const gstore = () => DB.games || (DB.games = {});
+  const gpick = a => a[Math.floor(Math.random() * a.length)];
+  function gamesView() {
+    current = { rerender: gamesView };
+    const g = gstore();
+    show("Spiele", `<div class="games-list">
+      ${wideTile("g-rain", "i-sakura", "🌸", "Kana-Regen", `Zeichen oder Wörter, bevor sie landen${g.rain ? ` · Rekord ${g.rain}` : ""}`)}
+      ${wideTile("g-sushi", "s-sushi", "🍣", "Sushi-Band", `Nur die passenden Teller schnappen${g.sushi ? ` · Rekord ${g.sushi}` : ""}`)}
+      ${wideTile("g-puzzle", "s-bubble", "🧩", "Satz-Puzzle", `Sätze richtig zusammensetzen${g.puzzle ? ` · ${g.puzzle} gelöst` : ""}`)}
+      </div>`, { back: home });
+    $("#g-rain").onclick = rainStart;
+    $("#g-sushi").onclick = sushiStart;
+    $("#g-puzzle").onclick = puzzleStart;
+  }
+  const LIFE = on => `<svg class="life${on ? "" : " off"}" viewBox="-10 -10 20 20"><use href="#i-bloom"/></svg>`;
+  const livesHTML = n => LIFE(1).repeat(Math.max(0, n)) + LIFE(0).repeat(Math.max(0, 3 - n));
+
+  // --- Kana-Regen ---
+  function rainStart() {
+    const g = gstore(), mode = g.rainMode || "kata", words = mode === "words";
+    current = null;
+    show("Kana-Regen", `
+      <div class="seg" id="rmode">${[["kata", "Katakana"], ["hira", "Hiragana"], ["mix", "Gemischt"], ["words", "Wörter"]].map(([v, l]) => `<button data-v="${v}" class="${v === mode ? "on" : ""}">${l}</button>`).join("")}</div>
+      <div class="game-hud"><span class="lives" id="r-lives">${livesHTML(3)}</span><span id="r-score">0</span><button class="speak-btn" id="r-snd">${g.mute ? "🔇" : "🔊"}</button></div>
+      <div class="rain-field" id="field"><div class="rain-start">${words
+        ? `<p>Japanische Wörter fallen herunter. Tippe unten die richtige <b>Bedeutung</b> des <b>roten</b> (untersten) Wortes an, bevor es den Boden berührt.</p>
+           <p class="small muted">Es kommen vor allem Wörter, die du schon gelernt hast. Schrift wie oben rechts eingestellt.</p>`
+        : `<p>Blüten mit Schriftzeichen fallen herunter. Tippe unten die richtige Lesung der <b>roten</b> (untersten) Blüte an, bevor sie den Boden berührt.</p>
+           <p class="small muted">Je mehr Punkte, desto schneller – und später kommen ゛゜ und ゃゅょ dazu.</p>`}
+        <p class="small muted">Rekord: ${(words ? g.rainW : g.rain) || 0}</p><button class="btn primary" id="r-go">Los geht's!</button></div></div>
+      <div class="rain-opts" id="opts"></div>`, { back: gamesView });
+    $app.querySelectorAll("#rmode [data-v]").forEach(b => b.onclick = () => { g.rainMode = b.dataset.v; save(); rainStart(); });
+    $("#r-snd").onclick = () => { g.mute = !g.mute; save(); $("#r-snd").textContent = g.mute ? "🔇" : "🔊"; };
+    $("#r-go").onclick = () => rainRun(mode);
+  }
+  // Wörter für den Wort-Regen: zuerst gelernte/angefangene, sonst die aktiven Lektionen
+  function rainWords() {
+    const ok = w => !w.p && w.kana.length <= 8 && w.de.length <= 26;
+    const known = WORDS.filter(w => ok(w) && prog(w));
+    const pool = known.length >= 16 ? known : known.concat(activeWords().filter(w => ok(w) && !prog(w)).slice(0, 60 - known.length));
+    return uniqBy(pool, w => w.de);
+  }
+  function rainRun(mode) {
+    const g = gstore(), field = $("#field"), opts = $("#opts"), words = mode === "words";
+    $("#rmode").classList.add("locked");
+    field.innerHTML = "";
+    const ro = ch => Kana.kanaToRomaji(ch);
+    // Einheitliche „Regentropfen“: show = Anzeige, ans = richtige Antwort, say = Vorlesetext
+    const kanaItem = ch => ({ key: ch, show: ch, ans: ro(ch), say: ch, label: `${ch} = ${ro(ch)}` });
+    const wordItem = w => ({ key: w.id, show: DB.settings.script === "romaji" ? w.romaji : DB.settings.script === "kanji" && w.kanji ? w.kanji : w.kana, ans: w.de, say: w.kana, label: `${w.kanji || w.kana} = ${w.de}` });
+    const levels = words ? [rainWords().map(wordItem)] : window.RAIN.levels(mode).map(l => l.map(kanaItem));
+    let pool = levels[0].slice(), level = 0, raf = 0, last = performance.now();
+    const st = { score: 0, hits: 0, lives: 3, combo: 0, drops: [], missed: [], spawnT: 0, target: null, over: false };
+    const hud = () => { $("#r-score").textContent = st.score; $("#r-lives").innerHTML = livesHTML(st.lives); };
+    function spawn() {
+      if (st.drops.length >= (words ? 4 : 5)) return;
+      let it; for (let n = 0; n < 10; n++) { it = gpick(pool); if (!st.drops.some(d => d.it.key === it.key)) break; }
+      const el = document.createElement("div");
+      el.className = "drop jp" + (words ? " word" : it.show.length > 1 ? " two" : ""); el.textContent = it.show;
+      field.appendChild(el);
+      el.style.left = (6 + Math.random() * Math.max(10, field.clientWidth - el.offsetWidth - 12)) + "px";
+      el.style.transform = "translateY(-64px)"; st.drops.push({ it, el, y: -64 });
+    }
+    function buildOpts() {
+      if (!st.target) { opts.innerHTML = ""; return; }
+      const t = st.target.it, right = t.ans, set = new Set([right]), all = levels.slice(0, level + 1).flat();
+      if (!words) { const conf = window.RAIN.CONFUSE[t.key]; if (conf) set.add(ro(conf)); }
+      // ähnliche Antworten bevorzugen (gleiche Länge), damit es nicht zu leicht wird
+      for (let n = 0; set.size < 4 && n < 200; n++) { const r = gpick(all).ans; if (words || n > 60 || r.length === right.length) set.add(r); }
+      opts.innerHTML = shuffle([...set]).map(r => `<button class="opt-btn${words ? " de" : ""}" data-r="${esc(r)}">${esc(r)}</button>`).join("");
+      opts.querySelectorAll("button").forEach(b => b.onclick = () => answer(b));
+    }
+    function pickTarget() {
+      const t = st.drops.reduce((a, d) => (!a || d.y > a.y ? d : a), null);
+      if (t === st.target) return;
+      st.drops.forEach(d => d.el.classList.toggle("target", d === t));
+      st.target = t; buildOpts();
+    }
+    function lose(it) {
+      st.lives--; st.combo = 0;
+      if (!st.missed.includes(it)) st.missed.push(it);
+      field.classList.remove("hit"); void field.offsetWidth; field.classList.add("hit");
+      hud(); if (st.lives <= 0) end();
+    }
+    function answer(b) {
+      if (st.over || !st.target) return;
+      const t = st.target;
+      if (b.dataset.r === t.it.ans) {
+        st.combo++; st.hits++; st.score += 10 + 2 * Math.min(st.combo, 10);
+        t.el.classList.add("pop"); setTimeout(() => t.el.remove(), 320);
+        st.drops = st.drops.filter(d => d !== t); st.target = null;
+        if (!g.mute) say(t.it.say);
+        hud(); pickTarget();
+      } else { b.classList.add("bad"); b.disabled = true; lose(t.it); }
+    }
+    function frame(now) {
+      if (st.over) return;
+      const dt = Math.min(0.05, (now - last) / 1000); last = now;
+      if (level < levels.length - 1 && st.hits >= (level + 1) * 25) {
+        level++; pool = pool.concat(levels[level]);
+        toast(level === 1 ? "Neu: Zeichen mit ゛ und ゜ (ga, pa …)" : "Neu: Zeichen mit kleinem ゃゅょ (kya …)");
+      }
+      // Wörter fallen langsamer – man muss sie erst lesen
+      const speed = words ? Math.min(85, 22 + st.hits * 1.1) : Math.min(140, 34 + st.hits * 1.8);
+      st.spawnT -= dt;
+      if (st.spawnT <= 0 || !st.drops.length) { spawn(); st.spawnT = words ? Math.max(1.8, 3.4 - st.hits * 0.03) : Math.max(0.9, 2.6 - st.hits * 0.025); }
+      const H = field.clientHeight;
+      for (const d of [...st.drops]) {
+        d.y += speed * dt; d.el.style.transform = `translateY(${d.y}px)`;
+        if (d.y >= H - d.el.offsetHeight - 4) {
+          d.el.remove(); st.drops = st.drops.filter(x => x !== d);
+          if (st.target === d) st.target = null;
+          lose(d.it); if (st.over) return;
+        }
+      }
+      pickTarget();
+      raf = requestAnimationFrame(frame);
+    }
+    function end() {
+      st.over = true; cancelAnimationFrame(raf);
+      const key = words ? "rainW" : "rain", best = g[key] || 0, rec = st.score > best;
+      if (rec) g[key] = st.score;
+      save();
+      field.innerHTML = `<div class="rain-start scroll"><div class="big-emoji">${rec ? "🏆" : "🌸"}</div><h2 style="margin:0">${st.score} Punkte</h2>
+        <p class="small muted" style="margin:0">${rec ? "Neuer Rekord!" : `Rekord: ${best}`}</p>
+        ${st.missed.length ? `<p class="small" style="margin:10px 0 2px">Nochmal anschauen (antippen = anhören):</p>
+        <div class="chip-row" style="justify-content:center">${st.missed.map((it, i) => `<button class="chip jp" data-i="${i}">${esc(it.label)}</button>`).join("")}</div>` : ""}
+        <button class="btn primary" id="r-again">Nochmal</button></div>`;
+      opts.innerHTML = "";
+      field.querySelectorAll("[data-i]").forEach(b => b.onclick = () => say(st.missed[+b.dataset.i].say));
+      $("#r-again").onclick = rainStart;
+      $("#rmode").classList.remove("locked");
+    }
+    cleanup = () => { st.over = true; cancelAnimationFrame(raf); };
+    hud(); raf = requestAnimationFrame(frame);
+  }
+
+  // --- Sushi-Band ---
+  function sushiStart() {
+    const g = gstore(), cats = window.SUSHI_CATS.filter(c => c.id !== g.sushiLast), cat = gpick(cats);
+    g.sushiLast = cat.id; save();
+    current = null;
+    show("Sushi-Band", `
+      <div class="sushi-cat">Schnapp dir: <b>${esc(cat.title)}</b></div>
+      <div class="game-hud"><span class="lives" id="s-lives">${livesHTML(3)}</span><span id="s-time">⏱ 60</span><span id="s-score">0</span></div>
+      <div class="sushi-field" id="sfield"><div class="belt b1"></div><div class="belt b2"></div>
+        <div class="rain-start" id="s-intro"><p>Teller mit Wörtern fahren vorbei. Tippe nur die Teller an, die zum Thema <b>${esc(cat.title)}</b> passen. Falsche Teller kosten eine Blüte ❀.</p>
+          <button class="btn primary" id="s-go">Los geht's!</button></div></div>
+      <div id="s-info" class="sushi-info"></div>`, { back: gamesView });
+    $("#s-go").onclick = () => sushiRun(cat);
+  }
+  function sushiRun(cat) {
+    const g = gstore(), field = $("#sfield"), info = $("#s-info");
+    $("#s-intro").remove();
+    const others = window.SUSHI_CATS.filter(c => c !== cat).flatMap(c => c.items);
+    const RIMS = ["#d63a50", "#273560", "#c99a2e", "#4f8a6b"];
+    const st = { score: 0, lives: 3, time: 60, plates: [], spawnT: 0, lane: 1, over: false, got: [], wrong: [], missed: [] };
+    let raf = 0, last = performance.now();
+    const hud = () => { $("#s-score").textContent = st.score; $("#s-lives").innerHTML = livesHTML(st.lives); $("#s-time").textContent = "⏱ " + Math.ceil(st.time); };
+    const wordOf = it => ({ kana: it[0], kanji: it[1], de: it[2], romaji: Kana.kanaToRomaji(it[0]) });
+    function spawn() {
+      const ok = Math.random() < 0.45, w = wordOf(ok ? gpick(cat.items) : gpick(others));
+      const lane = st.lane = 1 - st.lane, el = document.createElement("button");
+      const txt = DB.settings.script === "romaji" ? w.romaji : DB.settings.script === "kanji" && w.kanji ? w.kanji : w.kana;
+      el.className = "plate lane" + lane;
+      el.style.setProperty("--rim", gpick(RIMS));
+      // Nigiri-Sushi auf dem Teller: Lachs, Thunfisch, Ei oder Garnele – das Wort steht auf dem Belag
+      const neta = gpick(["sake", "maguro", "tamago", "ebi", "sake"]);
+      const fs = Math.max(11, 20 - 2 * Math.max(0, txt.length - (DB.settings.script === "romaji" ? 6 : 3)));
+      el.innerHTML = `<span class="nigiri n-${neta}"><span class="jp" style="font-size:${fs}px">${esc(txt)}</span></span>`;
+      const W = field.clientWidth, p = { w, ok, el, lane, x: lane === 0 ? -124 : W + 4, done: false };
+      el.style.transform = `translateX(${p.x}px)`; el.onclick = () => tap(p);
+      field.appendChild(el); st.plates.push(p);
+    }
+    function tap(p) {
+      if (st.over || p.done) return;
+      p.done = true;
+      if (p.ok) {
+        st.score += 10; st.got.push(p.w); p.el.classList.add("eaten");
+        info.innerHTML = `<span class="good-t">✓ ${esc(p.w.kana)} = ${esc(p.w.de)}</span>`;
+        if (!g.mute) say(p.w.kana);
+      } else {
+        st.lives--; st.wrong.push(p.w); p.el.classList.add("wrongp");
+        info.innerHTML = `<span class="bad-t">✗ ${esc(p.w.kana)} = ${esc(p.w.de)}</span> – passt nicht`;
+        field.classList.remove("hit"); void field.offsetWidth; field.classList.add("hit");
+        if (st.lives <= 0) { hud(); return end(); }
+      }
+      hud();
+    }
+    function frame(now) {
+      if (st.over) return;
+      const dt = Math.min(0.05, (now - last) / 1000); last = now;
+      st.time -= dt;
+      if (st.time <= 0) { st.time = 0; hud(); return end(); }
+      const speed = 55 + (60 - st.time) * 1.1, W = field.clientWidth;
+      st.spawnT -= dt;
+      if (st.spawnT <= 0) { spawn(); st.spawnT = Math.max(0.8, 1.6 - (60 - st.time) / 70); }
+      for (const p of [...st.plates]) {
+        p.x += (p.lane === 0 ? 1 : -1) * speed * dt;
+        p.el.style.transform = `translateX(${p.x}px)`;
+        if (p.x > W + 10 || p.x < -130) {
+          p.el.remove(); st.plates = st.plates.filter(x => x !== p);
+          if (p.ok && !p.done) st.missed.push(p.w);
+        }
+      }
+      hud();
+      raf = requestAnimationFrame(frame);
+    }
+    function end() {
+      st.over = true; cancelAnimationFrame(raf);
+      const best = g.sushi || 0, rec = st.score > best;
+      if (rec) g.sushi = st.score;
+      save();
+      const chips = arr => `<div class="chip-row" style="justify-content:center">${uniqBy(arr, w => w.kana).map(w => `<button class="chip jp" data-k="${esc(w.kana)}">${esc(w.kana)} = ${esc(w.de)}</button>`).join("")}</div>`;
+      field.innerHTML = `<div class="rain-start scroll"><div class="big-emoji">${rec ? "🏆" : "🍣"}</div><h2 style="margin:0">${st.score} Punkte</h2>
+        <p class="small muted" style="margin:0">${rec ? "Neuer Rekord!" : `Rekord: ${best}`} · ${st.got.length} richtige Teller</p>
+        ${st.wrong.length ? `<p class="small" style="margin:8px 0 2px">Passte nicht zu „${esc(cat.title)}“:</p>${chips(st.wrong)}` : ""}
+        ${st.missed.length ? `<p class="small" style="margin:8px 0 2px">Verpasst:</p>${chips(st.missed)}` : ""}
+        <button class="btn primary" id="s-again">Nochmal (neues Thema)</button></div>`;
+      info.innerHTML = "";
+      field.querySelectorAll("[data-k]").forEach(b => b.onclick = () => say(b.dataset.k));
+      $("#s-again").onclick = sushiStart;
+    }
+    cleanup = () => { st.over = true; cancelAnimationFrame(raf); };
+    hud(); raf = requestAnimationFrame(frame);
+  }
+
+  // --- Satz-Puzzle ---
+  let PZ = null;
+  function puzzleStart() {
+    const lessons = DB.groups.map(id => { const m = /^L\d+-(\d+)$/.exec(id); return m ? +m[1] : 0; });
+    const maxL = Math.max(2, ...lessons);
+    const pool = window.PUZZLES.filter(p => p.l <= maxL);
+    PZ = { round: shuffle(pool).slice(0, Math.min(8, pool.length)), i: 0, right: 0, maxL, cur: null };
+    puzzleCard();
+  }
+  function pzTok(p, i) {
+    const sc = DB.settings.script, k = p.k[i];
+    if (sc === "kanji") return p.j[i];
+    if (sc === "romaji") return ({ "は": "wa", "へ": "e", "を": "o" })[k] || Kana.kanaToRomaji(k);
+    return k;
+  }
+  function puzzleCard() {
+    const P = PZ;
+    if (P.i >= P.round.length) return puzzleEnd();
+    const p = P.round[P.i];
+    if (!P.cur || P.cur.p !== p) {
+      let order; do { order = shuffle(p.k.map((_, i) => i)); } while (p.k.length > 1 && order.map(i => p.k[i]).join("|") === p.k.join("|"));
+      P.cur = { p, order, picked: [], tries: 0, solved: false, bad: [], shown: false };
+    }
+    const c = P.cur;
+    current = { rerender: puzzleCard };
+    const roman = DB.settings.script === "romaji" ? " roman" : "";
+    show("Satz-Puzzle", `
+      <div class="stage-label"><span>Satz-Puzzle · bis Lektion ${P.maxL}</span><span>${P.i + 1}/${P.round.length}</span></div>
+      <div class="card">
+        <div class="pz-de">${esc(p.de)}</div>
+        <div class="pz-line${c.solved ? " ok" : ""}${roman}">${c.picked.length ? c.picked.map((ti, n) => `<button class="pz-chip in${c.bad.includes(n) ? " bad" : ""}" data-n="${n}">${esc(pzTok(p, ti))}</button>`).join("") : `<span class="muted small">Tippe die Teile in der richtigen Reihenfolge an</span>`}</div>
+        <div class="pz-pool${roman}">${c.order.map(ti => `<button class="pz-chip" data-t="${ti}" ${c.picked.includes(ti) || c.solved ? "disabled" : ""}>${esc(pzTok(p, ti))}</button>`).join("")}</div>
+        <div id="after">${c.solved ? `<div class="pz-ok">${c.shown ? "So wäre es richtig:" : "✓ Richtig!"}</div>
+            <div class="center jp" style="font-size:20px">${esc(p.j.join(""))}</div><div class="center small muted">${esc(Kana.kanaToRomaji(p.k.join(" "), true))}</div>
+            <div class="row"><button class="btn" id="pz-say">🔊 Anhören</button><button class="btn primary" id="pz-next">Weiter</button></div>`
+          : c.bad.length ? `<p class="small center" style="color:var(--bad)">Noch nicht ganz – tippe die roten Teile an, um sie zurückzulegen.</p>${c.tries >= 2 ? `<button class="btn" id="pz-show">Lösung zeigen</button>` : ""}` : ""}</div>
+      </div>`, { back: gamesView });
+    $app.querySelectorAll(".pz-pool [data-t]").forEach(b => b.onclick = () => {
+      c.picked.push(+b.dataset.t); c.bad = [];
+      if (c.picked.length === p.k.length) pzCheck(); else puzzleCard();
+    });
+    if (!c.solved) $app.querySelectorAll(".pz-line [data-n]").forEach(b => b.onclick = () => { c.picked.splice(+b.dataset.n, 1); c.bad = []; puzzleCard(); });
+    if ($("#pz-say")) $("#pz-say").onclick = () => say(p.k.join(""));
+    if ($("#pz-next")) $("#pz-next").onclick = () => { P.i++; puzzleCard(); };
+    if ($("#pz-show")) $("#pz-show").onclick = () => { c.picked = p.k.map((_, i) => i); c.solved = true; c.shown = true; c.bad = []; puzzleCard(); say(p.k.join("")); };
+  }
+  function pzCheck() {
+    const P = PZ, c = P.cur, p = c.p, txt = c.picked.map(i => p.k[i]);
+    const goods = [p.k, ...p.alt.map(a => a.map(i => p.k[i]))];
+    if (goods.some(gd => gd.join("|") === txt.join("|"))) {
+      c.solved = true; if (c.tries === 0) P.right++;
+      const g = gstore(); g.puzzle = (g.puzzle || 0) + 1; save();
+      puzzleCard(); say(p.k.join(""));
+    } else {
+      c.tries++;
+      c.bad = txt.map((t, n) => (t !== p.k[n] ? n : -1)).filter(n => n >= 0);
+      puzzleCard();
+    }
+  }
+  function puzzleEnd() {
+    const P = PZ;
+    current = null;
+    show("Satz-Puzzle", `<div class="card center"><div class="big-emoji">${P.right === P.round.length ? "🏆" : "🧩"}</div>
+      <h2>${P.right} von ${P.round.length} Sätzen beim ersten Versuch</h2>
+      <p class="small muted">Es kommen Sätze bis Lektion ${P.maxL} – je mehr Lektionen du einschaltest, desto mehr Sätze.</p>
+      <button class="btn primary" id="pz-again">Nochmal</button><button class="btn" id="pz-games">Zu den Spielen</button></div>`, { back: gamesView });
+    $("#pz-again").onclick = puzzleStart; $("#pz-games").onclick = gamesView;
   }
 
   // ---------- Start ----------

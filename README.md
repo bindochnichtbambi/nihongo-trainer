@@ -23,3 +23,4 @@ Dann http://localhost:8123 öffnen.
 
 ## Quellen
 - Strichdaten: [KanjiVG](https://kanjivg.tagaini.net) von Ulrich Apel, Lizenz [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/)
+- Lesebuch-Links: [NPO 多言語多読 – にほんごたどく](https://tadoku.org/japanese/free-books/), Lizenz CC BY-NC-ND 4.0 (nur verlinkt, nicht kopiert)

@@ -54,6 +54,8 @@
     ["魚", "さかな", "ギョ", "Fisch", "ding"], ["肉", "", "ニク", "Fleisch", "ding"], ["茶", "", "チャ", "Tee", "ding"],
     ["写", "うつ(す)", "シャ", "abbilden", "ding"], ["真", "ま", "シン", "wahr, echt", "ding"], ["映", "うつ(る)", "エイ", "spiegeln", "ding"],
     ["画", "", "ガ", "Bild", "ding"], ["音", "おと", "オン", "Ton, Klang", "ding"],
+    // ergänzt aus der JLPT-N5-Liste
+    ["長", "なが(い)", "チョウ", "lang; Chef", "adj"], ["校", "", "コウ", "Schule", "mensch"], ["間", "あいだ・ま", "カン・ケン", "Zwischenraum, Zeitspanne", "zeit"],
   ];
 
   const SETS = [
@@ -62,6 +64,8 @@
     ...[["zahl", "Kanji: Zahlen & Geld"], ["zeit", "Kanji: Zeit & Wochentage"], ["mensch", "Kanji: Menschen & Lernen"],
       ["ort", "Kanji: Orte & Richtungen"], ["verb", "Kanji: Verben"], ["adj", "Kanji: Eigenschaften & Farben"], ["ding", "Kanji: Dinge & Natur"]]
       .map(([id, name]) => ({ id, name, kind: "kanji", chars: K.filter(k => k[4] === id).map(([c, kun, on, de]) => ({ c, kun, on, de })) })),
+    // alle 79 Kanji der JLPT-Stufe N5 in einer Gruppe
+    { id: "n5", name: "Kanji: alle JLPT N5 (79)", kind: "kanji", chars: [..."一二三四五六七八九十百千万円人入上下大女子山川土小中今天木火水父午日月友白出半生左右外本北母先名年行西毎休気何男車見来国学金長東雨後前食南書時校高間話電語読聞"].map(c => K.find(k => k[0] === c)).filter(Boolean).map(([c, kun, on, de]) => ({ c, kun, on, de })) },
   ];
   window.KanjiData = { SETS, rows };
 })();
