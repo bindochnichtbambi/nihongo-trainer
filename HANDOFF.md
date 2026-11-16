@@ -1,7 +1,7 @@
 # Übergabe – Stand 16.11.2026
 
-Online-Version **v35** (`sw.js`): https://bindochnichtbambi.github.io/nihongo-trainer/
-Lokal fertig, aber **noch nicht hochgeladen: v36** (siehe unten). Auf diesem Computer fehlte Git.
+Online-Version **v36** (`sw.js`): https://bindochnichtbambi.github.io/nihongo-trainer/
+Git ist auf diesem Computer installiert (`C:\Program Files\Git\cmd\git.exe`), Anmeldung bei GitHub läuft über den Browser. Hochladen am besten im Terminal-Tab des Benutzers (`git push`), weil die Anmeldung dort ein Fenster öffnen kann.
 
 Konzept, Technik und Konventionen stehen in `CLAUDE.md`.
 
