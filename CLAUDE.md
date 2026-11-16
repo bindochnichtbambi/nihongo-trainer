@@ -23,12 +23,14 @@ Persönliche Lern-App für Japanisch, gebaut für **eine Person**:
 - Lektionen (Wortgruppen ein- und ausschalten)
 - Wortliste mit eigenen Wörtern
 - Grammatik (14 A1-Themen mit Übung)
-- Gespräche (Lesen, Lückentext, Rollenspiel per Sprache)
-- Lesebücher (eigene Bildergeschichten mit Quiz und Links zu Tadoku)
+- Gespräche (Lesen, Lückentext, Rollenspiel per Sprache; Stimmen passend zur Figur) + Füllwörter & Reaktionen mit Quiz
+- Bücher (eigene Bildergeschichten mit Quiz und Links zu Tadoku; hiess früher „Lesebücher“)
 - Zählwörter
 - Kalender (Entdecken und Üben)
+- Familie (Stammbaum, bescheidene/höfliche Wörter, Anrede, Quiz)
+- Kanji (Lernkarten mit Merkbild, Eselsbrücke, Lesungen, Beispielen; Lernrunden mit Wiederholung; Liste aller Kanji; Kana-Tabelle)
 - Schreiben (Kana und Kanji mit Strichprüfung)
-- Spiele (Kana-Regen, Sushi-Band, Satz-Puzzle)
+- Spiele (Kana-Regen, Sushi-Band, Satz-Puzzle, Kanji-Memory)
 - Einstellungen (blauer Knopf oben)
 
 ## Tech-Stack
@@ -53,7 +55,9 @@ Persönliche Lern-App für Japanisch, gebaut für **eine Person**:
 | `js/kana.js` | `Kana.kanaToRomaji`, Vergleich von Eingaben, Bewertung der Spracherkennung |
 | `js/counters.js` | Zählwörter, Zahlenlesungen, Datum/Monate/Wochentage, Kalender-SVG |
 | `js/kanji.js` | Schreib-Sets: Hiragana, Katakana, Kanji-Gruppen, „alle JLPT N5 (79)“ |
-| `js/dialogs.js` | 9 Dialoge, 8 Lesebücher (`STORIES`), Szenen (`SCENES`), Glossar (`GLOSS`) |
+| `js/kanji-info.js` | `KANJI_INFO`: je Kanji Merkbild (Sprite-Symbol oder gezeichnet: `n:`, `dir:`, `col:`, `pos:`), Eselsbrücke, Beispielwörter, Beispielsatz (alles selbst geschrieben) |
+| `js/family.js` | `FAMILY` (Stammbaum: mein Wort / Wort für andere / Anrede, Position) und `FAMILY_WORDS` |
+| `js/dialogs.js` | 9 Dialoge, 8 Bücher (`STORIES`), Szenen (`SCENES`), Glossar (`GLOSS`), Füllwörter (`FILLERS`). Rollen: `[Name, Avatar, Stimme?]`, Stimme m/f/g/b/o, sonst nach Avatar |
 | `js/grammar.js` | 14 Grammatik-Themen (eigene Erklärungen, Beispiele, Lückensätze; erste Antwort = richtig) |
 | `js/games-data.js` | Daten für die Spiele: Kana-Listen und Verwechslungspaare, Sushi-Kategorien, Satz-Puzzles |
 | `js/tadoku.js` | Linkliste zu kostenlosen Tadoku-Büchern (nur Titel und ID) |
@@ -70,7 +74,8 @@ Persönliche Lern-App für Japanisch, gebaut für **eine Person**:
 - `story` – Ergebnisse der Lesebücher
 - `dlg` – Ergebnisse der Gespräche
 - `gram` – Ergebnisse der Grammatik-Übungen
-- `games` – Rekorde und Spiel-Einstellungen
+- `games` – Rekorde und Spiel-Einstellungen (`games.mem` = Kanji-Memory: Modus, Gruppe, Bestwerte)
+- `kanji` – Lernstand der Kanji je Zeichen `{ b: Box, d: fällig }`; dazu `kanjiSet`, `kanjiTab`, `kanaTab`
 - `tadoku` – gelesene Tadoku-Bücher
 - `counterCats` – gewählte Zählwort-Kategorien
 - `write` – Fortschritt beim Schreiben
@@ -129,7 +134,7 @@ Es braucht keine Installation, keine Abhängigkeiten, keine Umgebungsvariablen u
 - Startseite, Reihenfolge bewusst so gewählt:
   1. Statistik + „Vokabeln lernen“ und „Gelernte üben“ nebeneinander
   2. breite Lektionen-Kachel
-  3. 8 Kacheln: Wortliste | Grammatik, Gespräche | Lesebücher, Zählwörter | Kalender, Schreiben | Spiele
+  3. 10 Kacheln: Wortliste | Grammatik, Gespräche | Bücher, Zählwörter | Kalender, Familie | Kanji, Schreiben | Spiele
 - Die Einstellungen sind ein blauer Knopf in der Kopfzeile (keine Kachel).
 - Hinweise immer mit `tipBox(html)` (weisser Kasten, roter Streifen, Glühbirne `#i-bulb`), nicht als kleine graue Schrift.
 - Hintergrund-Animation nur auf der Startseite (`body.on-home`). Sie ist abschaltbar (`settings.decoAnim`) und respektiert `prefers-reduced-motion`.
@@ -141,4 +146,7 @@ Es braucht keine Installation, keine Abhängigkeiten, keine Umgebungsvariablen u
 - **Doppelte Wörter**: Gleiche Kana und Kanji in mehreren aktiven Gruppen werden in `activeWords()` nur einmal abgefragt. Homographen mit anderem Kanji (来ます/着ます) bleiben getrennt.
 - **Zurück-Geste (Android)**: Pro Unterseite gibt es einen History-Eintrag (`syncHistory`). Antippen des Titels wirkt wie „Zurück“.
 - Die Startseite wird in `show()` am Titel `日本語 Trainer` erkannt. Bei einer Titeländerung dort mit anpassen.
+- **Stimmen**: `say(text, voiceFor(kind))`. Gibt es mehrere japanische Stimmen, wird eine männliche/weibliche gewählt, sonst nur die Tonhöhe angepasst (auf dem Pixel meist nur eine Stimme).
+- **Spracherkennung im Rollenspiel**: `listen(…, { long: true })` hört weiter, auch bei Denkpausen. Ende durch erneutes Tippen, nach 4,5 s Stille (10 s vor dem ersten Wort) oder nach 30 s.
+- Lokaler Test-Server läuft auch mit Windows PowerShell 5.1 (`powershell -File tools/serve.ps1`), siehe `.claude/launch.json`.
 - `show(title, html, { back })` rendert jede Seite. `cleanup` stoppt Timer und Animationen (Spiele) beim Seitenwechsel.

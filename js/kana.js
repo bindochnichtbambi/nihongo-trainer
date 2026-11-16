@@ -40,7 +40,7 @@
 
   // Partikel は / へ am Ende eines Wortblocks markieren (wa / e)
   function markParticles(s) {
-    // Ausnahme: Grußformeln, in denen は zum Wort gehört (こんにちは / こんばんは)
+    // Ausnahme: Grussformeln, in denen は zum Wort gehört (こんにちは / こんばんは)
     return s.replace(/([ぁ-ゖァ-ヺー一-鿿～])は(?=[\s　。、？！?!,.]|$)/g, "$1")
             .replace(/([ぁ-ゖァ-ヺー一-鿿～])へ(?=[\s　。、？！?!,.]|$)/g, "$1")
             .replace(/(こんにち|こんばん)/g, "$1わ");

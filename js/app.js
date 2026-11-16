@@ -22,6 +22,8 @@
   }
   let DB = load();
   DB.counterCats = (DB.counterCats || []).filter(c => c !== "kal");
+  // umbenannte Wörter: Lernstand mitnehmen
+  [["L3-4|パートナー", "L3-4|かれし"]].forEach(([a, b]) => { if (DB.progress && DB.progress[a] && !DB.progress[b]) { DB.progress[b] = DB.progress[a]; delete DB.progress[a]; } });
   function save() { try { localStorage.setItem(KEY, JSON.stringify(DB)); } catch (e) { toast("Speichern nicht möglich"); } }
   try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch (e) { }
 
@@ -132,27 +134,43 @@
   };
 
   // ---------- Sprache ----------
-  let jaVoice = null;
+  let jaVoice = null, jaVoices = [];
+  const MALE_V = /male(?!.*female)|男|otoya|ichiro|keita|kenji|takumi|daichi|naoki|hiroshi|-jab-|-jad-/i;
+  const FEMALE_V = /female|女|kyoko|haruka|ayumi|nanami|sayaka|mizuki|kaori|-htm-|-jac-/i;
   function pickVoice() {
     const vs = speechSynthesis.getVoices();
-    jaVoice = vs.find(v => v.lang === "ja-JP" && /google/i.test(v.name)) || vs.find(v => v.lang && v.lang.startsWith("ja")) || null;
+    jaVoices = vs.filter(v => v.lang && v.lang.replace("_", "-").startsWith("ja"));
+    jaVoice = jaVoices.find(v => /google/i.test(v.name)) || jaVoices[0] || null;
   }
   if ("speechSynthesis" in window) { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
+  // Stimme je Figur: Mann, Frau, Kind, älterer Mann. Gibt es mehrere japanische Stimmen, wird eine passende gewählt,
+  // sonst wird die Tonhöhe angepasst.
+  const VOICE_KIND = { "av-man": "m", "av-chef": "m", "av-police": "m", "av-staff": "m", "av-traveler": "m", "av-woman": "f", "av-girl": "g", "av-boy": "b", "av-oldman": "o" };
+  const VOICE_SET = { m: { pitch: 0.75, rate: 1 }, o: { pitch: 0.6, rate: 0.9 }, f: { pitch: 1.2, rate: 1 }, g: { pitch: 1.55, rate: 1.05 }, b: { pitch: 1.4, rate: 1.05 } };
+  function voiceFor(kind) {
+    const v = VOICE_SET[kind]; if (!v) return null;
+    const male = kind === "m" || kind === "o";
+    const match = jaVoices.find(x => (male ? MALE_V : FEMALE_V).test(x.name + " " + (x.voiceURI || "")));
+    return { ...v, voice: match || null };
+  }
   // Liest japanischen Text vor; das Promise wird erfüllt, wenn das Vorlesen fertig ist
-  function say(text) {
+  function say(text, vo) {
     if (!("speechSynthesis" in window)) { toast("Sprachausgabe nicht verfügbar"); return Promise.resolve(); }
     speechSynthesis.cancel();
     return new Promise(res => {
       const u = new SpeechSynthesisUtterance(text.replace(/～/g, "なになに"));
-      u.lang = "ja-JP"; u.rate = DB.settings.ttsRate; if (jaVoice) u.voice = jaVoice;
+      u.lang = "ja-JP"; u.rate = DB.settings.ttsRate * (vo && vo.rate || 1);
+      const voice = (vo && vo.voice) || jaVoice; if (voice) u.voice = voice;
+      if (vo && vo.pitch) u.pitch = vo.voice ? 1 + (vo.pitch - 1) * 0.4 : vo.pitch;
       u.onend = res; u.onerror = res;
       setTimeout(res, 15000);
       speechSynthesis.speak(u);
     });
   }
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  function listen(onResult, onEnd) {
+  function listen(onResult, onEnd, opts = {}) {
     if (!SR) { onEnd && onEnd("unsupported"); return null; }
+    if (opts.long) return listenLong(onResult, onEnd, opts);
     const r = new SR();
     r.lang = "ja-JP"; r.interimResults = false; r.maxAlternatives = 5; r.continuous = false;
     let got = false;
@@ -162,12 +180,54 @@
     try { r.start(); } catch (e) { onEnd && onEnd("error"); }
     return r;
   }
+  // Langes Zuhören (Rollenspiel): Pausen zum Überlegen sind erlaubt. Die Aufnahme endet erst,
+  // wenn man nochmals aufs Mikrofon tippt, nach längerer Stille (pause ms) oder nach max ms.
+  function listenLong(onResult, onEnd, opts) {
+    const pause = opts.pause || 4500, max = opts.max || 30000;
+    let parts = [], alts0 = [], live = "", stopped = false, done = false, rec = null, tPause = null;
+    const t0 = Date.now();
+    const finish = () => {
+      if (done) return; done = true; clearTimeout(tPause); clearTimeout(tMax);
+      try { rec && rec.abort(); } catch (e) { }
+      const text = (parts.join("") + live).trim();
+      if (!text) { onEnd && onEnd("nomatch"); return; }
+      const before = parts.slice(0, -1).join("");
+      const alts = [text, ...alts0.map(a => before + a)];
+      onResult([...new Set(alts)]);
+    };
+    const bump = () => { clearTimeout(tPause); tPause = setTimeout(() => { stopped = true; finish(); }, pause); };
+    const tMax = setTimeout(() => { stopped = true; finish(); }, max);
+    const start = () => {
+      rec = new SR();
+      rec.lang = "ja-JP"; rec.interimResults = true; rec.maxAlternatives = 5; rec.continuous = true;
+      const base = parts.length;
+      rec.onresult = e => {
+        live = "";
+        const fin = [];
+        for (let i = 0; i < e.results.length; i++) {
+          const res = e.results[i];
+          if (res.isFinal) { fin.push(res[0].transcript); if (i === e.results.length - 1) { alts0 = []; for (let k = 1; k < res.length; k++) alts0.push(res[k].transcript); } }
+          else live += res[0].transcript;
+        }
+        // Android liefert manchmal den ganzen Satz wiederholt – nur den längsten Stand behalten
+        const dedup = fin.filter((t, i) => !fin.some((u, j) => j !== i && u.length > t.length && u.startsWith(t)));
+        parts = parts.slice(0, base).concat(dedup);
+        bump();
+      };
+      rec.onerror = e => { if (e.error === "not-allowed" || e.error === "audio-capture") { done = true; clearTimeout(tPause); clearTimeout(tMax); onEnd && onEnd(e.error); } };
+      // Der Browser beendet manchmal von selbst – dann weiter zuhören, solange nicht fertig
+      rec.onend = () => { if (done) return; if (live) { parts.push(live); live = ""; } if (stopped || Date.now() - t0 > max) finish(); else { try { start(); } catch (e) { finish(); } } };
+      try { rec.start(); } catch (e) { finish(); }
+    };
+    start(); tPause = setTimeout(() => { stopped = true; finish(); }, opts.startWait || 10000); // vor dem ersten Wort länger warten
+    return { stop: () => { stopped = true; finish(); }, abort: () => { done = true; clearTimeout(tPause); clearTimeout(tMax); try { rec && rec.abort(); } catch (e) { } } };
+  }
 
   // ---------- Startseite ----------
   // gut sichtbarer Hinweis-Kasten
   const tipBox = html => `<div class="tip-box"><svg class="tip-ic"><use href="#i-bulb"/></svg><div><b class="tip-h">Tipp</b><br>${html}</div></div>`;
   // breite, halb so hohe Kachel (Lektionen, Einstellungen)
-  const wideTile = (id, ic, emo, t, sub) => `<button class="tile wide beige" id="${id}">
+  const wideTile = (id, ic, emo, t, sub, cls = "beige") => `<button class="tile wide ${cls}" id="${id}">
       <span class="ico"><i class="emo">${emo}</i><svg class="pic"><use href="#${/^[a-z]-/.test(ic) ? ic : "i-" + ic}"/></svg></span>
       <span class="wide-txt"><b>${t}</b><small>${sub}</small></span></button>`;
   function home() {
@@ -187,7 +247,7 @@
           <div class="stat"><b>${learned}</b><span>gelernt</span></div>
         </div>
         <div class="row home-btns"><button class="btn primary" id="go">${due + learning + fresh ? "Vokabeln lernen" : "Alles erledigt 🎉"}</button>
-        ${learned ? `<button class="btn" id="practice">Gelernte üben</button>` : ""}</div>
+        <button class="btn" id="practice">Gelernte üben</button></div>
         <p class="small muted center" style="margin:8px 0 0">${fresh} neue Wörter verfügbar · heute ${todayCount} Karten</p>
       </div>
       ${wideTile("m-groups", "torii", "📚", "Lektionen", `${DB.groups.length} von ${GROUPS.length} aktiv`)}
@@ -196,9 +256,11 @@
         ["m-list", "sakura", "🔎", "Wortliste", "Suchen & ergänzen"],
         ["m-grammar", "scroll", "文", "Grammatik", "は, を, に, 〜ます …"],
         ["m-dialog", "tea", "💬", "Gespräche", "Dialoge & Rollenspiel"],
-        ["m-story", "fuji", "📖", "Lesebücher", "Geschichten & Fragen"],
+        ["m-story", "fuji", "📖", "Bücher", "Geschichten & Fragen"],
         ["m-counters", "soroban", "三", "Zählwörter", "ひとつ, さんぼん …"],
         ["m-cal", "s-calendar", "📅", "Kalender", "きょう, らいしゅう …"],
+        ["m-family", "sakuratree", "👪", "Familie", "Stammbaum & Anrede"],
+        ["m-kanji", "kanji", "漢", "Kanji", "Eselsbrücken & Lesungen"],
         ["m-write", "brush", "✍️", "Schreiben", "Kanji & Kana zeichnen"],
         ["m-games", "daruma", "🎮", "Spiele", "Kana-Regen, Sushi, Puzzle"],
       ].map(([id, ic, emo, t, sub], i) => `<button class="tile ${(Math.floor(i / 2) + i % 2) % 2 ? "beige" : "red"}" id="${id}">
@@ -208,8 +270,10 @@
     document.getElementById("m-grammar").onclick = grammarList;
     document.getElementById("m-games").onclick = gamesView;
     document.getElementById("go").onclick = () => startSession();
-    if (learned) document.getElementById("practice").onclick = startPractice;
+    document.getElementById("practice").onclick = () => learned ? startPractice() : toast("Noch keine Wörter gelernt – zuerst „Vokabeln lernen“");
     document.getElementById("m-cal").onclick = () => calendarView();
+    document.getElementById("m-family").onclick = () => familyView();
+    document.getElementById("m-kanji").onclick = () => kanjiView();
     document.getElementById("m-groups").onclick = groupsView;
     document.getElementById("m-counters").onclick = countersView;
     document.getElementById("m-list").onclick = () => listView();
@@ -363,7 +427,7 @@
       });
     } else if (task.mode === 2) {
       show(title, cardShell(task, `
-        <div class="prompt"><div class="de">${esc(w.de)}</div><div class="sub">Wie heißt das auf Japanisch?</div></div>
+        <div class="prompt"><div class="de">${esc(w.de)}</div><div class="sub">Wie heisst das auf Japanisch?</div></div>
         <div class="timer"><i id="bar"></i></div>
         <div id="area"><button class="btn" id="reveal">Aufdecken</button></div>`), { back: backHome });
       const sec = DB.settings.recallSec, bar = $("#bar");
@@ -750,14 +814,13 @@
     current = null;
     const cats = Counters.CATEGORIES;
     show("Zählwörter", `
-      <p class="muted small" style="margin-top:0">Wähle, was du üben willst:</p>
-      <div class="cat-grid">${cats.map(c => `<button class="cat ${DB.counterCats.includes(c.id) ? "on" : ""}" data-c="${c.id}">${c.icon ? `<svg class="cat-ic"><use href="#${c.icon}"/></svg>` : ""}<b>${c.label}</b><small>${esc(c.title)}</small></button>`).join("")}</div>
-      <h2>Reihenfolge</h2>
-      <div class="seg" id="order"><button data-o="rand" class="${DB.settings.counterOrder !== "seq" ? "on" : ""}">Zufällig (10 Fragen)</button><button data-o="seq" class="${DB.settings.counterOrder === "seq" ? "on" : ""}">Der Reihe nach</button></div>
-      <h2>Antwortmodus</h2>
-      <div class="seg" id="mode"><button data-m="mc" class="${DB.settings.counterMode === "mc" ? "on" : ""}">Auswählen</button><button data-m="type" class="${DB.settings.counterMode === "type" ? "on" : ""}">Tippen</button><button data-m="speak" class="${DB.settings.counterMode === "speak" ? "on" : ""}">Sprechen</button></div>
-      <button class="btn primary" id="start">Üben</button>
-      <button class="btn" id="tables">📋 Liste: alle der Reihe nach</button>`, { back: home });
+      <div class="card opt-card">
+        <div class="opt-row"><span class="opt-l">Antwort</span><div class="seg sm" id="mode"><button data-m="mc" class="${DB.settings.counterMode === "mc" ? "on" : ""}">Auswählen</button><button data-m="type" class="${DB.settings.counterMode === "type" ? "on" : ""}">Tippen</button><button data-m="speak" class="${DB.settings.counterMode === "speak" ? "on" : ""}">Sprechen</button></div></div>
+        <div class="opt-row"><span class="opt-l">Reihenfolge</span><div class="seg sm" id="order"><button data-o="rand" class="${DB.settings.counterOrder !== "seq" ? "on" : ""}">Zufällig (10)</button><button data-o="seq" class="${DB.settings.counterOrder === "seq" ? "on" : ""}">Der Reihe nach</button></div></div>
+        <div class="opt-btns"><button class="btn primary" id="start">Üben</button><button class="btn" id="tables"><svg class="btn-ic"><use href="#i-scroll"/></svg>Liste</button></div>
+      </div>
+      <h2>Was willst du üben?</h2>
+      <div class="cat-grid">${cats.map(c => `<button class="cat ${DB.counterCats.includes(c.id) ? "on" : ""}" data-c="${c.id}">${c.icon ? `<svg class="cat-ic"><use href="#${c.icon}"/></svg>` : `<span class="cat-ic"></span>`}<b>${c.label}</b><small>${esc(c.title)}</small></button>`).join("")}</div>`, { back: home });
     $app.querySelectorAll("#order button").forEach(b => b.onclick = () => {
       DB.settings.counterOrder = b.dataset.o; save();
       $app.querySelectorAll("#order button").forEach(x => x.classList.toggle("on", x === b));
@@ -1044,33 +1107,36 @@
   function writeView() {
     current = null;
     const W = writeState();
+    // Zeichen-Gruppen als kompakte Kacheln zum An- und Abwählen
     const sets = allSets().map(s => {
       const done = s.chars.filter(x => charScore(x.c) >= 2).length;
-      return `<label class="check"><input type="checkbox" data-s="${s.id}" ${W.sets.includes(s.id) ? "checked" : ""}>
-        <span class="main">${esc(s.name)}<br><span class="small muted">${s.chars.length} Zeichen · ${done} sicher</span></span>
-        <span class="jp muted">${esc(s.chars.slice(0, 4).map(x => x.c).join(""))}</span></label>`;
+      return `<button class="wset ${W.sets.includes(s.id) ? "on" : ""}" data-s="${s.id}"><span class="jp wset-c">${esc(s.chars.slice(0, 3).map(x => x.c).join(""))}</span>
+        <span class="wset-t"><b>${esc(s.name.replace("Kanji: ", ""))}</b><small>${done}/${s.chars.length} sicher</small></span></button>`;
     }).join("");
     show("Schreiben üben", `
-      <h2 style="margin-top:0">Modus</h2>
-      <div class="seg" id="wmode">
-        <button data-m="trace" class="${W.mode === "trace" ? "on" : ""}">Nachzeichnen</button>
-        <button data-m="help" class="${W.mode === "help" ? "on" : ""}">Mit Hilfe</button>
-        <button data-m="free" class="${W.mode === "free" ? "on" : ""}">Aus dem Kopf</button>
+      <div class="card opt-card">
+        <div class="seg sm" id="wmode">
+          <button data-m="trace" class="${W.mode === "trace" ? "on" : ""}">Nachzeichnen</button>
+          <button data-m="help" class="${W.mode === "help" ? "on" : ""}">Mit Hilfe</button>
+          <button data-m="free" class="${W.mode === "free" ? "on" : ""}">Aus dem Kopf</button>
+        </div>
+        <div class="opt-btns"><button class="btn primary" id="wstart">Üben (10)</button><button class="btn" id="wgrid">Alle Zeichen</button></div>
       </div>
-      <div class="tip-box"><svg class="tip-ic"><use href="#i-bulb"/></svg><div><b class="tip-h">Tipp</b><br><span id="wmodeinfo"></span></div></div>
-      <button class="btn primary" id="wstart">Üben (10 Zeichen)</button>
-      <button class="btn" id="wgrid">Alle Zeichen ansehen</button>
-      <h2>Zeichen</h2>
-      <div class="card">${sets}</div>
-      ${tipBox(`Beim ersten Mal braucht jedes Zeichen <b>Internet</b>, danach geht es auch offline.`)}<p class="small muted">Strichdaten: KanjiVG (CC BY-SA 3.0).</p>`, { back: home });
+      <h2>Welche Zeichen?</h2>
+      <div class="wset-grid">${sets}</div>
+      <div class="tip-box"><svg class="tip-ic"><use href="#i-bulb"/></svg><div><b class="tip-h">Tipp</b><br><span id="wmodeinfo"></span><br>
+        Beim ersten Mal braucht jedes Zeichen <b>Internet</b>, danach geht es auch offline.</div></div>
+      <p class="small muted">Strichdaten: KanjiVG (CC BY-SA 3.0).</p>`, { back: home });
     const info = { trace: "Das Zeichen ist grau vorgezeichnet. Ideal zum Kennenlernen.", help: "Kein Vorbild – nur ein Punkt zeigt, wo der nächste Strich beginnt.", free: "Ganz aus dem Kopf. Nach zwei Fehlern gibt es einen Hinweis." };
     const setInfo = () => ($("#wmodeinfo").textContent = info[W.mode]); setInfo();
     $app.querySelectorAll("#wmode button").forEach(b => b.onclick = () => {
       W.mode = b.dataset.m; save(); setInfo();
       $app.querySelectorAll("#wmode button").forEach(x => x.classList.toggle("on", x === b));
     });
-    $app.querySelectorAll("input[data-s]").forEach(cb => cb.onchange = () => {
-      W.sets = cb.checked ? [...new Set([...W.sets, cb.dataset.s])] : W.sets.filter(x => x !== cb.dataset.s); save();
+    $app.querySelectorAll(".wset").forEach(b => b.onclick = () => {
+      const id = b.dataset.s, on = !W.sets.includes(id);
+      W.sets = on ? [...new Set([...W.sets, id])] : W.sets.filter(x => x !== id); save();
+      b.classList.toggle("on", on);
     });
     $("#wstart").onclick = () => {
       const pool = allSets().filter(s => W.sets.includes(s.id)).flatMap(s => s.chars.map(ch => ({ ...ch, set: s })));
@@ -1325,12 +1391,12 @@
   $app.addEventListener("contextmenu", e => { if (e.target.closest(".tok")) e.preventDefault(); });
   document.addEventListener("scroll", hideGloss, { passive: true });
 
-  async function playSeq(texts, onStep) {
+  async function playSeq(texts, onStep, voices) {
     const run = ++playRun;
     for (let i = 0; i < texts.length; i++) {
       if (run !== playRun) return false;
       onStep && onStep(i);
-      await say(texts[i]);
+      await say(texts[i], voices && voices[i]);
       await new Promise(r => setTimeout(r, 250));
     }
     if (run === playRun) onStep && onStep(-1);
@@ -1339,6 +1405,8 @@
   // Avatar: gezeichnet (av-…) oder Emoji
   function avHTML(v) { return String(v).startsWith("av-") ? `<svg class="av-svg"><use href="#${v}"/></svg>` : esc(v); }
   function roleName(d, who) { return tokText({ kana: d.roles[who][0], kanji: "" }); }
+  // Stimme einer Rolle: 3. Eintrag in roles (m/f/g/b/o) oder nach Avatar
+  const roleVoice = (d, who) => voiceFor(d.roles[who][2] || VOICE_KIND[d.roles[who][1]]);
 
   // ---------- Gespräche ----------
   function dialogList() {
@@ -1346,13 +1414,62 @@
     const st = DB.dlg || {};
     const groups = [...new Set(window.DIALOGS.map(d => d.lesson))];
     void groups;
-    show("Gespräche", `<div class="tiles">` + window.DIALOGS.map((d, i) => {
+    show("Gespräche", wideTile("m-fill", "s-bubble", "💬", "Füllwörter & Reaktionen", "えっと, あのう, そうですか …") + `<div class="tiles">` + window.DIALOGS.map((d, i) => {
       const s = st[d.id];
       return `<button class="tile small-tile ${(Math.floor(i / 2) + i % 2) % 2 ? "beige" : "red"}" data-d="${d.id}">
         <span class="ico"><i class="emo">${d.emoji}</i><svg class="pic"><use href="#${d.icon}"/></svg></span>
         <b>${esc(d.title)}</b><small>${esc(d.lesson)}${s && s.gap === 100 ? " · ✓" : ""}</small></button>`;
     }).join("") + `</div>${tipBox("Kurz auf ein Wort <b>tippen</b> = anhören<br><b>Lange drücken</b> = Übersetzung")}`, { back: home });
     $app.querySelectorAll("[data-d]").forEach(b => b.onclick = () => dialogView(window.DIALOGS.find(d => d.id === b.dataset.d), "read"));
+    $("#m-fill").onclick = () => fillerView();
+  }
+  // Text in der gewählten Schrift (Romaji / Kana / Kanji)
+  // sentence = true: は/へ als Partikel (wa/e) lesen – nur bei Sätzen, sonst wird はは zu „hawa“
+  const scriptText = (kana, kanji, sentence) => DB.settings.script === "romaji" ? Kana.kanaToRomaji(kana, !!sentence) : DB.settings.script === "kanji" && kanji ? kanji : kana;
+
+  // ---------- Füllwörter & Reaktionen ----------
+  function fillerView() {
+    current = { rerender: fillerView };
+    const F = window.FILLERS;
+    show("Füllwörter", `${tipBox(`Japaner zeigen beim Zuhören oft mit kleinen Wörtern, dass sie dabei sind (<span class="jp">あいづち</span>). Und beim Überlegen füllen sie Pausen mit <span class="jp">えっと</span> oder <span class="jp">あのう</span>. Das klingt sofort natürlicher!<br>Antippen = anhören.`)}
+      <button class="btn primary" id="fq">Üben: Was passt?</button>
+      ${F.map((f, i) => `<div class="card fill-card">
+        <button class="fill-word jp" data-fw="${i}">${esc(scriptText(f[0], f[1]))} <span class="spk">🔊</span></button>
+        <div class="fill-de"><b>${esc(f[2])}</b></div>
+        <div class="small muted">${esc(f[3])}</div>
+        <button class="fill-ex" data-fe="${i}"><span class="jp">${esc(scriptText(f[4], "", true))}</span><br><span class="small muted">${esc(f[5])}</span></button>
+      </div>`).join("")}`, { back: dialogList });
+    $app.querySelectorAll("[data-fw]").forEach(b => b.onclick = () => say(F[+b.dataset.fw][0].replace(/…/g, "")));
+    $app.querySelectorAll("[data-fe]").forEach(b => b.onclick = () => say(F[+b.dataset.fe][4].replace(/――/g, "。")));
+    $("#fq").onclick = () => fillerQuiz();
+  }
+  function fillerQuiz(st) {
+    const F = window.FILLERS;
+    if (!st) st = { qs: shuffle(F.filter(f => f[6])).slice(0, 8), i: 0, right: 0 };
+    current = { rerender: () => fillerQuiz(st) };
+    if (st.i >= st.qs.length) {
+      show("Füllwörter", `<div class="card center"><div class="big-emoji">${st.right >= st.qs.length * 0.8 ? "🎉" : "💪"}</div><h2>${st.right} von ${st.qs.length} richtig</h2>
+        <button class="btn primary" id="again">Nochmal</button><button class="btn" id="back">Zurück</button></div>`, { back: fillerView });
+      $("#again").onclick = () => fillerQuiz(); $("#back").onclick = fillerView; return;
+    }
+    const q = st.qs[st.i];
+    // Wörter, die in derselben Situation auch passen würden, nicht als falsche Antwort anbieten
+    const SAME = [["えっと", "えーと", "うーん", "そうですね", "あのう"], ["そうですか", "なるほど", "へえ", "ほんとうですか", "そっか"], ["すごい", "いいですね", "へえ"], ["はい", "ええ", "うん"]];
+    const clash = f => SAME.some(g => g.includes(f[0]) && g.includes(q[0]));
+    const opts = shuffle([q, ...shuffle(F.filter(f => f[6] && f !== q && !clash(f))).slice(0, 3)]);
+    show("Füllwörter", `<div class="progress"><i style="width:${Math.round(100 * st.i / st.qs.length)}%"></i></div>
+      <div class="stage-label"><span>Was sagst du?</span><span>${st.i + 1}/${st.qs.length}</span></div>
+      <div class="card"><div class="prompt" style="font-size:20px">${esc(q[6])}</div>
+      <div class="options">${opts.map((o, i) => `<button class="option jp" data-i="${i}">${esc(scriptText(o[0], o[1]))}</button>`).join("")}</div><div id="area"></div></div>`, { back: fillerView });
+    $app.querySelectorAll(".option").forEach(b => b.onclick = () => {
+      const ok = opts[+b.dataset.i] === q; if (ok) st.right++;
+      $app.querySelectorAll(".option").forEach((x, i) => { x.disabled = true; if (opts[i] === q) x.classList.add("correct"); });
+      if (!ok) b.classList.add("wrong");
+      say(q[0].replace(/…/g, ""));
+      $("#area").innerHTML = `<div class="feedback ${ok ? "ok" : "no"}">${ok ? "✓ Richtig!" : "✗ Besser passt:"} <span class="jp">${esc(scriptText(q[0], q[1]))}</span> – ${esc(q[2])}</div>
+        <button class="btn primary" id="next">Weiter</button>`;
+      $("#next").onclick = () => { st.i++; fillerQuiz(st); };
+    });
   }
   function saveDlg(id, key, val) { DB.dlg = DB.dlg || {}; const s = DB.dlg[id] = DB.dlg[id] || {}; s[key] = Math.max(s[key] || 0, val); save(); }
 
@@ -1375,7 +1492,7 @@
         ${tipBox(`Kurz tippen = Wort anhören · lange drücken = Übersetzung`)}`, { back: dialogList });
       $("#playall").onclick = () => playSeq(lines.map(l => lineSay(l.toks)), i => {
         $app.querySelectorAll(".bubble-row").forEach(r => r.classList.toggle("speaking", +r.dataset.line === i));
-      });
+      }, lines.map(l => roleVoice(d, l.who)));
     } else if (mode === "gap") {
       const gaps = []; // {line, idx, tok}
       lines.forEach((l, li) => l.toks.forEach((t, ti) => { if (t.gap) gaps.push({ li, ti, t }); }));
@@ -1426,7 +1543,7 @@
     }
     $app.querySelectorAll("#dmode button").forEach(b => b.onclick = () => dialogView(d, b.dataset.m, {}));
     const dt = $("#detog"); if (dt) dt.onchange = () => { DB.showDe = dt.checked; save(); $app.querySelectorAll(".de-line").forEach(x => x.hidden = !dt.checked); };
-    $app.querySelectorAll("[data-say]").forEach(b => b.onclick = () => say(lineSay(lines[+b.dataset.say].toks)));
+    $app.querySelectorAll("[data-say]").forEach(b => b.onclick = () => say(lineSay(lines[+b.dataset.say].toks), roleVoice(d, lines[+b.dataset.say].who)));
   }
 
   function roleplay(d, lines, st, tabs, bubble, deToggle) {
@@ -1460,9 +1577,9 @@
       const run = playRun;
       const row = document.createElement("div"); row.innerHTML = bubble(cur, st.i, lineHTML(cur.toks));
       $app.querySelector(".chat").appendChild(row.firstElementChild);
-      $app.querySelectorAll("[data-say]").forEach(b => b.onclick = () => say(lineSay(lines[+b.dataset.say].toks)));
+      $app.querySelectorAll("[data-say]").forEach(b => b.onclick = () => say(lineSay(lines[+b.dataset.say].toks), roleVoice(d, lines[+b.dataset.say].who)));
       scrollEnd();
-      say(lineSay(cur.toks)).then(() => setTimeout(() => { if (run === playRun) nextLine(); }, 500));
+      say(lineSay(cur.toks), roleVoice(d, cur.who)).then(() => setTimeout(() => { if (run === playRun) nextLine(); }, 500));
       return;
     }
     // Eigene Zeile
@@ -1476,7 +1593,7 @@
       area.innerHTML = `<div class="feedback ${ok ? "ok" : "no"}">${ok ? "✓ Gut gesagt!" : "✗ Noch nicht ganz."}${heard ? `<div class="small">Verstanden: <span class="jp">${esc(heard)}</span></div>` : ""}</div>
         <div class="row"><button class="btn" id="rp-hear">🔊 Anhören</button>${!ok && heard ? `<button class="btn" id="rp-override">War doch richtig</button>` : ""}</div>
         <button class="btn primary" id="rp-next">Weiter</button>`;
-      $("#rp-hear").onclick = () => say(lineSay(cur.toks));
+      $("#rp-hear").onclick = () => say(lineSay(cur.toks), roleVoice(d, cur.who));
       const ov = $("#rp-override"); if (ov) ov.onclick = () => { st.ok++; nextLine(); };
       $("#rp-next").onclick = nextLine; scrollEnd();
     };
@@ -1486,11 +1603,11 @@
       let rec = null; const mic = $("#rp-mic");
       mic.onclick = () => {
         if (rec) { rec.stop(); return; }
-        mic.classList.add("listening"); $("#rp-msg").textContent = "Ich höre zu …";
+        mic.classList.add("listening"); $("#rp-msg").innerHTML = "Ich höre zu … Lass dir Zeit.<br>Wenn du fertig bist, tippe nochmals aufs Mikrofon.";
         rec = listen(alts => {
           mic.classList.remove("listening"); rec = null;
           finish(Kana.speechScore(alts, target.kana, target.kanji) >= 0.6, alts[0]);
-        }, err => { mic.classList.remove("listening"); rec = null; $("#rp-msg").textContent = err === "not-allowed" ? "Mikrofon nicht erlaubt" : "Nichts verstanden – nochmal"; });
+        }, err => { mic.classList.remove("listening"); rec = null; $("#rp-msg").textContent = err === "not-allowed" ? "Mikrofon nicht erlaubt" : "Nichts verstanden – nochmal"; }, { long: true });
       };
       cleanup = () => { try { rec && rec.abort(); } catch (e) { } };
       $("#rp-skip").onclick = () => finish(false);
@@ -1519,11 +1636,11 @@
     current = { rerender: storyList };
     TOKS = [];
     const st = DB.story || {};
-    show("Lesebücher", `<div class="story-grid">${window.STORIES.map(s => `<button class="story-card" data-s="${s.id}">
+    show("Bücher", `<div class="story-grid">${window.STORIES.map(s => `<button class="story-card" data-s="${s.id}">
         <svg class="cover-pic"><use href="#${s.icon}"/></svg><div class="cover cover-emo">${s.cover}</div><div class="jp st-title">${tokText({ kana: s.title, kanji: "" })}</div>
         <div class="small muted">${esc(s.de)}</div><div class="small muted">${esc(s.lesson)}${st[s.id] != null ? ` · ${st[s.id]}% ✓` : ""}</div></button>`).join("")}</div>
       ${tipBox("Kurz auf ein Wort <b>tippen</b> = anhören<br><b>Lange drücken</b> = Übersetzung")}
-      <button class="btn" id="tadoku">📚 Mehr Bücher zum Lesen &amp; Hören (Tadoku)</button>`, { back: home });
+      <button class="btn" id="tadoku"><svg class="btn-ic"><use href="#s-books"/></svg>Mehr Bücher zum Lesen &amp; Hören (Tadoku)</button>`, { back: home });
     $app.querySelectorAll("[data-s]").forEach(b => b.onclick = () => storyPage(window.STORIES.find(s => s.id === b.dataset.s), 0));
     $("#tadoku").onclick = () => tadokuView();
   }
@@ -1607,12 +1724,150 @@
     current = { rerender: grammarList };
     const done = DB.gram || {}, maxL = maxLesson();
     show("Grammatik", `
-      ${tipBox(`Kurze Erklärungen zu den wichtigsten A1-Punkten, mit Beispielen zum Anhören und einer kleinen Übung. Die Lektionsnummer zeigt, wann es ungefähr im Kurs drankommt.`)}
+      ${wideTile("g-satzbau", "i-scroll", "🧱", "Satzbau", "Wie ein japanischer Satz aufgebaut ist")}
+      ${wideTile("g-frage", "s-question", "❓", "Fragewörter", "なに, なんじ, どこ, いつ, だれ …")}
       <div class="card gram-list">${window.GRAMMAR.map(g => `<button class="gram-row${g.l > maxL ? " later" : ""}" data-g="${g.id}">
           <span class="gram-l">L${g.l}</span>
           <span class="gram-t"><b class="jp">${esc(g.title)}</b><small>${esc(g.sub)}</small></span>
-          <span class="gram-s">${done[g.id] != null ? `${done[g.id]}/4 ✓` : "›"}</span></button>`).join("")}</div>`, { back: home });
+          <span class="gram-s">${done[g.id] != null ? `${done[g.id]}/4 ✓` : "›"}</span></button>`).join("")}</div>
+      ${tipBox(`Kurze Erklärungen zu den wichtigsten A1-Punkten, mit Beispielen zum Anhören und einer kleinen Übung. Die Lektionsnummer zeigt, wann es ungefähr im Kurs drankommt.`)}`, { back: home });
     $app.querySelectorAll("[data-g]").forEach(b => b.onclick = () => grammarPoint(window.GRAMMAR.find(g => g.id === b.dataset.g)));
+    $("#g-satzbau").onclick = () => satzbauView();
+    $("#g-frage").onclick = () => questionView();
+  }
+
+  // ---------- Fragewörter ----------
+  function questionView() {
+    current = { rerender: questionView };
+    const Q = window.QWORDS, j = (kana, kanji) => esc(scriptText(kana, kanji, true)), maxL = maxLesson();
+    const known = Q.filter(q => q[9] <= maxL).length;
+    show("Fragewörter", `
+      <button class="btn primary" id="qq" style="margin-top:0">Üben: Welches Fragewort?</button>
+      <p class="small muted center" style="margin:6px 0 0">Geübt werden die ${known} Fragewörter bis Lektion ${maxL}.</p>
+      ${[...Q].sort((a, b) => a[9] - b[9]).map(q => [q, Q.indexOf(q)]).map(([q, i]) => `<div class="card fill-card${q[9] > maxL ? " later" : ""}">
+        <span class="gram-l q-l">L${q[9]}</span>
+        <button class="fill-word jp" data-qw="${i}">${esc(scriptText(q[0], q[1]))} <span class="spk">🔊</span></button>
+        <div class="fill-de"><b>${esc(q[2])}</b></div>
+        <button class="fill-ex" data-qe="${i}"><span class="jp">${j(q[3], q[4])}</span><br><span class="small muted">${esc(q[5])}</span>
+          <br><span class="jp small">→ ${j(q[6], q[7])}</span> <span class="small muted">${esc(q[8])}</span></button>
+      </div>`).join("")}
+      ${tipBox(`<b>なに oder なん?</b> Beides heisst „was“. Vor <span class="jp">です</span>, vor の und vor Zählwörtern sagt man meist <span class="jp">なん</span> (なんですか, なんじ, なんにん). Vor を und が meist <span class="jp">なに</span> (なにを たべますか).<br>
+        Das Fragewort steht im Satz genau dort, wo später die Antwort steht – und am Ende kommt <span class="jp">か</span>.<br>
+        Die Lektionsnummer zeigt, wann das Wort ungefähr im Kurs drankommt. Spätere Wörter sind heller – anschauen geht trotzdem schon.`)}`, { back: grammarList });
+    $app.querySelectorAll("[data-qw]").forEach(b => b.onclick = () => say(Q[+b.dataset.qw][1] || Q[+b.dataset.qw][0]));
+    $app.querySelectorAll("[data-qe]").forEach(b => { const q = Q[+b.dataset.qe]; b.onclick = () => playSeq([q[4] || q[3], q[7] || q[6]]); });
+    $("#qq").onclick = () => questionQuiz();
+  }
+  function questionQuiz(st) {
+    // nur Fragewörter bis zur höchsten eingeschalteten Lektion (mindestens 4 Wörter, damit es Auswahl gibt)
+    const maxL = maxLesson(), all = window.QWORDS;
+    const Q = all.filter(q => q[9] <= maxL).length >= 4 ? all.filter(q => q[9] <= maxL) : all.slice().sort((a, b) => a[9] - b[9]).slice(0, 4);
+    if (!st) st = { qs: shuffle(Q).slice(0, 10), i: 0, right: 0 };
+    current = { rerender: () => questionQuiz(st) };
+    if (st.i >= st.qs.length) {
+      show("Fragewörter", `<div class="card center"><div class="big-emoji">${st.right >= st.qs.length * 0.8 ? "🎉" : "💪"}</div><h2>${st.right} von ${st.qs.length} richtig</h2>
+        <button class="btn primary" id="again">Nochmal</button><button class="btn" id="back">Zurück</button></div>`, { back: questionView });
+      $("#again").onclick = () => questionQuiz(); $("#back").onclick = questionView; return;
+    }
+    const q = st.qs[st.i];
+    // Frage mit Lücke: das Fragewort wird durch ＿＿ ersetzt
+    const gapKana = q[3].replace(q[0], "＿＿ "), gapKanji = q[4] ? q[4].replace(q[1] || q[0], "＿＿") : "";
+    // Wörter, die dieselbe Frage auch stellen könnten, nicht als falsche Antwort anbieten
+    const SAME = [["なに", "なん", "なにご"], ["なんさい", "いくつ"], ["どれ", "どちら", "どの"], ["どうして", "なんで"], ["なんぷん", "どのくらい"]];
+    const clash = x => SAME.some(g => g.includes(x[0]) && g.includes(q[0]));
+    const opts = shuffle([q, ...shuffle(Q.filter(x => x !== q && x[0] !== q[0] && !clash(x))).slice(0, 3)]);
+    show("Fragewörter", `<div class="progress"><i style="width:${Math.round(100 * st.i / st.qs.length)}%"></i></div>
+      <div class="stage-label"><span>Welches Fragewort?</span><span>${st.i + 1}/${st.qs.length}</span></div>
+      <div class="card"><div class="prompt"><div class="jp" style="font-size:22px">${esc(scriptText(gapKana, gapKanji, true))}</div><div class="sub">${esc(q[5])}</div></div>
+      <div class="options">${opts.map((o, i) => `<button class="option jp" data-i="${i}">${esc(scriptText(o[0], o[1]))}</button>`).join("")}</div><div id="area"></div></div>`, { back: questionView });
+    $app.querySelectorAll(".option").forEach(b => b.onclick = () => {
+      const ok = opts[+b.dataset.i] === q; if (ok) st.right++;
+      $app.querySelectorAll(".option").forEach((x, i) => { x.disabled = true; if (opts[i] === q) x.classList.add("correct"); });
+      if (!ok) b.classList.add("wrong");
+      say(q[4] || q[3]);
+      $("#area").innerHTML = `<div class="feedback ${ok ? "ok" : "no"}">${ok ? "✓ Richtig!" : "✗ Richtig wäre:"} <span class="jp">${esc(scriptText(q[0], q[1]))}</span> – ${esc(q[2])}</div>
+        <button class="btn primary" id="next">Weiter</button>`;
+      $("#next").onclick = () => { st.i++; questionQuiz(st); };
+    });
+  }
+
+  // ---------- Satzbau: Bausteine eines japanischen Satzes ----------
+  // [kana, kanji, Rolle, Frage, deutsch]
+  const SB = {
+    T: ["わたし|は", "私は", "thema", "Wer? (Thema)", "ich"], Z: ["あさ", "朝", "zeit", "Wann?", "am Morgen"],
+    O: ["うち|で", "家で", "ort", "Wo?", "zu Hause"], M: ["ともだち|と", "友だちと", "mit", "Mit wem?", "mit einer Freundin"],
+    X: ["コーヒー|を", "", "obj", "Was?", "Kaffee"], V: ["のみます", "飲みます", "verb", "Tun (Verb)", "trinke"],
+  };
+  function satzbauView(on) {
+    on = on || { T: true, Z: true, O: true, M: false };
+    current = { rerender: () => satzbauView(on) };
+    // „|“ trennt die Partikel ab: in Romaji mit Leerzeichen (uchi de), sonst zusammen (うちで)
+    const j = (kana, kanji) => esc(DB.settings.script === "romaji" ? Kana.kanaToRomaji(kana.replace(/\|は/g, "は").replace(/\|/g, " "), true) : scriptText(kana.replace(/\|/g, ""), kanji, true));
+    const blk = (k, label = true) => `<span class="sb-b sb-${SB[k][2]}"><b class="jp">${j(SB[k][0], SB[k][1])}</b>${label ? `<small>${SB[k][3]}</small>` : ""}</span>`;
+    const row = keys => `<div class="sb-row">${keys.map(k => blk(k)).join("")}<span class="sb-end">。</span></div>`;
+    const order = ["T", "Z", "O", "M", "X", "V"].filter(k => !(k in on) || on[k]);
+    const kanaS = order.map(k => SB[k][0]).join(" ") + "。", kanjiS = order.map(k => SB[k][1] || SB[k][0].replace("|", "")).join("") + "。";
+    const deS = `${on.T ? "Ich trinke" : "(Ich) trinke"}${on.Z ? " am Morgen" : ""}${on.M ? " mit einer Freundin" : ""}${on.O ? " zu Hause" : ""} Kaffee.`;
+    const ex = (kana, kanji, de) => `<button class="sb-ex" data-say="${esc(kanji || kana)}"><span class="jp">${j(kana, kanji)}</span> 🔊<small>${esc(de)}</small></button>`;
+    show("Satzbau", `
+      <div class="card">
+        <h2 style="margin-top:0">1. Das Verb kommt ans Ende</h2>
+        <p>Im Deutschen steht das Verb meist an zweiter Stelle. Im Japanischen steht es <b>immer am Schluss</b>. Alles andere kommt davor.</p>
+        <div class="sb-compare"><div><small class="muted">Deutsch</small><br>Ich <b class="sb-t-verb">trinke</b> Kaffee.</div>
+          <div><small class="muted">Japanisch</small><br><span class="jp">${j("わたしは", "私は")} ${j("コーヒーを", "")} <b class="sb-t-verb">${j("のみます", "飲みます")}</b>。</span><br><small class="muted">wörtlich: Ich Kaffee trinke.</small></div></div>
+      </div>
+      <div class="card">
+        <h2 style="margin-top:0">2. Bausteine mit Etikett</h2>
+        <p>Jedes Satzteil bekommt ein kleines Etikett dahinter – die <b>Partikel</b>. Sie sagt, welche Rolle das Wort hat:</p>
+        <ul class="sb-list">
+          <li><span class="sb-b sb-thema"><b class="jp">は</b></span><span>Thema – worum es geht (gesprochen <b>wa</b>)</span></li>
+          <li><span class="sb-b sb-zeit"><b>Zeit</b></span><span>oft ohne Partikel (<span class="jp">${j("あさ", "朝")}</span>), bei Uhrzeit mit <span class="jp">に</span></span></li>
+          <li><span class="sb-b sb-ort"><b class="jp">で</b></span><span>Ort, wo etwas passiert · <span class="jp">に / へ</span> = Ziel</span></li>
+          <li><span class="sb-b sb-mit"><b class="jp">と</b></span><span>mit wem</span></li>
+          <li><span class="sb-b sb-obj"><b class="jp">を</b></span><span>was (Objekt, gesprochen <b>o</b>)</span></li>
+          <li><span class="sb-b sb-verb"><b>Verb</b></span><span>immer am Schluss</span></li>
+        </ul>
+      </div>
+      <div class="card">
+        <h2 style="margin-top:0">3. Probier es aus</h2>
+        <p class="small muted" style="margin-top:0">Schalte Bausteine ein und aus. Die übliche Reihenfolge ist:<br>Thema → Wann → Wo → Mit wem → Was → Verb</p>
+        <div class="chip-row">${[["T", "Thema (ich)"], ["Z", "Wann"], ["O", "Wo"], ["M", "Mit wem"]].map(([k, l]) => `<button class="chip ${on[k] ? "on" : ""}" data-sb="${k}">${l}</button>`).join("")}</div>
+        ${row(order)}
+        <button class="sb-ex" id="sb-say"><span class="jp">${j(kanaS, kanjiS)}</span> 🔊<small>${esc(deS)}</small></button>
+        ${on.T ? "" : `<p class="small">Ohne <span class="jp">${j("わたしは", "私は")}</span> ist der Satz trotzdem richtig – wenn klar ist, wer gemeint ist, lässt man das Thema einfach weg. Das ist sogar sehr typisch!</p>`}
+      </div>
+      <div class="card">
+        <h2 style="margin-top:0">4. Die Reihenfolge ist locker – nur das Verb nicht</h2>
+        <p>Weil die Partikeln die Rolle zeigen, darf man Bausteine auch umstellen. Wichtiges kommt eher nach vorne. Nur das Verb bleibt am Ende.</p>
+        ${ex("あさ わたしは コーヒーを のみます。", "朝私はコーヒーを飲みます。", "Am Morgen trinke ich Kaffee.")}
+        ${ex("わたしは あさ コーヒーを のみます。", "私は朝コーヒーを飲みます。", "Ich trinke am Morgen Kaffee.")}
+      </div>
+      <div class="card">
+        <h2 style="margin-top:0">5. Fragen: einfach か anhängen</h2>
+        <p>Für eine Frage bleibt die Reihenfolge gleich. Man hängt nur <b class="jp">か</b> an. Ein Fragewort steht genau dort, wo später die Antwort steht.</p>
+        ${ex("コーヒーを のみますか。", "コーヒーを飲みますか。", "Trinkst du Kaffee?")}
+        ${ex("なにを のみますか。", "何を飲みますか。", "Was trinkst du?")}
+        ${ex("おちゃを のみます。", "お茶を飲みます。", "Ich trinke Tee.")}
+      </div>
+      <div class="card">
+        <h2 style="margin-top:0">6. Sätze ohne Verb: A は B です</h2>
+        <p>Für „A ist B“ braucht es kein Verb. <b class="jp">です</b> steht am Schluss, wie ein Verb.</p>
+        ${ex("わたしは がくせいです。", "私は学生です。", "Ich bin Studentin.")}
+        ${ex("この ラーメンは おいしいです。", "このラーメンはおいしいです。", "Diese Ramen sind lecker.")}
+      </div>
+      <div class="card">
+        <h2 style="margin-top:0">7. Beschreibung steht immer davor</h2>
+        <p>Was ein Wort genauer beschreibt, steht <b>vor</b> dem Wort – wie im Deutschen bei „roter Apfel“, aber auch bei „von“:</p>
+        ${ex("あかい りんご", "赤いりんご", "ein roter Apfel")}
+        ${ex("わたしの ほん", "私の本", "mein Buch (wörtlich: ich-von Buch)")}
+        ${ex("にほんの くるま", "日本の車", "ein Auto aus Japan")}
+      </div>
+      ${tipBox(`Merksatz: <b>Etiketten hinter die Wörter, das Verb ans Ende.</b> Üben kannst du das im <b>Satz-Puzzle</b> bei den Spielen.`)}
+      <button class="btn primary" id="sb-puzzle">Zum Satz-Puzzle</button>`, { back: grammarList });
+    $app.querySelectorAll("[data-sb]").forEach(b => b.onclick = () => { const k = b.dataset.sb, y = window.scrollY; satzbauView({ ...on, [k]: !on[k] }); window.scrollTo(0, y); });
+    $app.querySelectorAll("[data-say]").forEach(b => b.onclick = () => say(b.dataset.say));
+    $("#sb-say").onclick = () => say(kanjiS);
+    $("#sb-puzzle").onclick = puzzleStart;
   }
   function grammarPoint(g) {
     current = { rerender: () => grammarPoint(g) };
@@ -1661,6 +1916,314 @@
     });
   }
 
+  // ---------- Familie (Stammbaum & Anrede) ----------
+  const FAM_G = { sofu: "m", sobo: "f", chichi: "m", haha: "f", ani: "m", ane: "f", partner: "p", otouto: "m", imouto: "f", musuko: "m", musume: "f" };
+  // „älterer Bruder“ → „deinem älteren Bruder“ / „deine ältere Schwester“
+  const famAdj = (de, end) => de.replace(/^(älter|jünger)er? /, `$1${end} `);
+  const famDein = (id, de) => FAM_G[id] === "f" ? `deiner ${famAdj(de, "en")}` : FAM_G[id] === "p" ? `deinem Mann / deiner Frau` : `deinem ${famAdj(de, "en")}`;
+  const famAkk = (id, de) => FAM_G[id] === "f" ? `deine ${famAdj(de, "e")}` : FAM_G[id] === "p" ? `deinen Mann / deine Frau` : `deinen ${famAdj(de, "en")}`;
+  const famIhr = (id, de) => FAM_G[id] === "f" ? `ihrer ${famAdj(de, "en")}` : FAM_G[id] === "p" ? `ihrem Mann` : `ihrem ${famAdj(de, "en")}`;
+  const famSay = s => s.split(" / ")[0].replace(/\s*\(.*\)/, "");
+  function familyView(mode, sel) {
+    mode = mode || "mine";
+    current = { rerender: () => familyView(mode, sel) };
+    const F = window.FAMILY, W = 372, cx = x => 30 + x * 60, cy = y => 38 + y * 92;
+    const pos = id => { const f = F.find(f => f[0] === id); return [cx(f[8]), cy(f[9])]; };
+    const [g1, g2, p1, p2, me, pa] = ["sofu", "sobo", "chichi", "haha", "me", "partner"].map(pos);
+    const sib = F.filter(f => f[9] === 2 && f[0] !== "partner"), kids = F.filter(f => f[0].startsWith("musu"));
+    // Linien: Grosseltern → Vater, Eltern → Geschwister, ich + Partner → Kinder
+    const midP = (p1[0] + p2[0]) / 2, barY = cy(1.55), kidBar = cy(2.95), midM = (me[0] + pa[0]) / 2;
+    const lines = `<path class="fam-line" d="M${g1[0]} ${g1[1]} H${g2[0]} M${(g1[0] + g2[0]) / 2} ${g1[1]} V${cy(0.55)} H${p1[0]} V${p1[1]}
+      M${p1[0]} ${p1[1]} H${p2[0]} M${midP} ${p1[1]} V${barY} M${Math.min(...sib.map(f => cx(f[8])))} ${barY} H${Math.max(...sib.map(f => cx(f[8])))}
+      ${sib.map(f => `M${cx(f[8])} ${barY} V${cy(2)}`).join(" ")}
+      M${me[0]} ${me[1]} H${pa[0]} M${midM} ${me[1]} V${kidBar} M${Math.min(...kids.map(f => cx(f[8])))} ${kidBar} H${Math.max(...kids.map(f => cx(f[8])))}
+      ${kids.map(f => `M${cx(f[8])} ${kidBar} V${cy(f[9])}`).join(" ")}"/>`;
+    const lab = f => {
+      if (f[0] === "me") return scriptText("わたし", "私");
+      return mode === "mine" ? scriptText(f[3], f[4]) : scriptText(f[5], f[6]);
+    };
+    // lange Wörter (z. B. おとうとさん) auf die Breite eines Platzes zusammendrücken
+    // Kinder stehen weiter auseinander und haben mehr Platz
+    const fit = (t, mw) => { const w = [...t].reduce((s, ch) => s + (/[　-鿿]/.test(ch) ? 11 : 6), 0); return w > mw ? ` textLength="${mw}" lengthAdjust="spacingAndGlyphs"` : ""; };
+    const tsp = (txt, x, y, mw = 56) => txt.split(" / ").map((t, i, a) => { const s = t + (i < a.length - 1 ? " /" : ""), ft = fit(s, mw); return `<tspan x="${x - (ft ? mw / 2 : 0)}" y="${y + i * 12}"${ft}${ft ? ` text-anchor="start"` : ""}>${esc(s)}</tspan>`; }).join("");
+    const nodes = F.map(f => {
+      const x = cx(f[8]), y = cy(f[9]), on = sel === f[0], mw = f[0].startsWith("musu") ? 76 : 56;
+      const pic = f[0] === "me" ? `<circle cx="${x}" cy="${y}" r="22" class="fam-me"/><text x="${x}" y="${y + 5}" class="fam-me-t">${DB.settings.script === "romaji" ? "ich" : "私"}</text>`
+        : `<circle cx="${x}" cy="${y}" r="22" class="fam-bg${on ? " on" : ""}"/><use href="#${f[2]}" x="${x - 19}" y="${y - 20}" width="38" height="38"/>`;
+      return `<g class="fam-node" data-f="${f[0]}">${pic}<text class="fam-jp" text-anchor="middle">${tsp(lab(f), x, y + 36, mw)}</text>
+        <text class="fam-de" text-anchor="middle">${f[1].split(/ \/ | /).map((w, i) => `<tspan x="${x}" y="${y + 36 + lab(f).split(" / ").length * 12 + i * 11}">${esc(w)}</tspan>`).join("")}</text></g>`;
+    }).join("");
+    const f = sel && F.find(x => x[0] === sel);
+    const info = f && f[0] !== "me" ? `<div class="card fam-info">
+        <h3 style="margin:0 0 6px">${esc(f[1])}</h3>
+        <button class="fam-row" data-say="${esc(famSay(f[3]))}"><span class="small muted">Wenn du anderen von ${esc(famDein(f[0], f[1]))} erzählst:</span><br><b class="jp">${esc(scriptText(f[3], f[4]))}</b> 🔊</button>
+        <button class="fam-row" data-say="${esc(famSay(f[5]))}"><span class="small muted">Die Familie von anderen (höflich):</span><br><b class="jp">${esc(scriptText(f[5], f[6]))}</b> 🔊</button>
+        <div class="fam-row"><span class="small muted">So rufst du ${esc(famAkk(f[0], f[1]))} selbst:</span><br><b class="jp">${esc(/^[぀-ヿ]/.test(f[7]) ? scriptText(f[7], "") : f[7])}</b></div>
+      </div>` : f ? `<div class="card fam-info small">Das bist du! Von dir aus wird alles benannt.</div>` : "";
+    show("Familie", `
+      <button class="btn primary" id="fq" style="margin-top:0">Üben: Wie sagt man?</button>
+      <div class="seg" id="fmode" style="margin-top:10px"><button data-m="mine" class="${mode === "mine" ? "on" : ""}">Meine Familie</button><button data-m="other" class="${mode === "other" ? "on" : ""}">Familie von anderen</button></div>
+      <div class="card fam-card"><svg class="fam-tree" viewBox="0 0 ${W} 412">${lines}${nodes}</svg></div>
+      ${info || `<p class="small muted center">Tippe eine Person an.</p>`}
+      <h2>Sammelwörter</h2>
+      <div class="card"><table class="tbl fam-tbl"><tr><th></th><th>meine</th><th>von anderen</th></tr>
+        ${window.FAMILY_WORDS.map(w => `<tr><td>${esc(w[0])}</td><td class="jp say-cell" data-say="${esc(w[1])}">${esc(scriptText(w[1], w[2]))}</td><td class="jp say-cell" data-say="${esc(w[3])}">${esc(scriptText(w[3], w[4]))}</td></tr>`).join("")}</table></div>
+      ${tipBox(`<b>Zwei Wörter pro Person:</b><br>
+        1. Erzählst du <b>anderen</b> von deiner eigenen Familie, nimmst du das bescheidene Wort: <span class="jp">${scriptText("はは", "母")}</span> (meine Mutter).<br>
+        2. Für die Familie von <b>anderen</b> nimmst du das höfliche Wort mit <span class="jp">お〜さん</span>: <span class="jp">${scriptText("おかあさん", "お母さん")}</span>.<br>
+        3. <b>Ältere</b> Familienmitglieder rufst du selbst auch mit dem höflichen Wort: „<span class="jp">${scriptText("おかあさん", "お母さん")}</span>!“ – <b>Jüngere</b> (Geschwister, Kinder) beim Vornamen.`)}`, { back: home });
+    $app.querySelectorAll("#fmode button").forEach(b => b.onclick = () => familyView(b.dataset.m, sel));
+    $app.querySelectorAll(".fam-node").forEach(n => n.onclick = () => {
+      const id = n.dataset.f, fm = F.find(x => x[0] === id);
+      if (fm[0] !== "me") say(famSay(mode === "mine" ? fm[3] : fm[5]));
+      familyView(mode, id);
+      const c = $(".fam-info"); if (c) c.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    });
+    $app.querySelectorAll("[data-say]").forEach(b => b.onclick = () => say(b.dataset.say));
+    $("#fq").onclick = () => familyQuiz();
+  }
+  function familyQuiz(st) {
+    const F = window.FAMILY.filter(f => f[0] !== "me");
+    if (!st) {
+      const qs = [];
+      F.forEach(f => {
+        qs.push({ f, t: "mine", q: `Du erzählst einer Kollegin von ${famDein(f[0], f[1])}.`, a: [f[3], f[4]] });
+        qs.push({ f, t: "other", q: `Du fragst Frau Tanaka nach ${famIhr(f[0], f[1])}.`, a: [f[5], f[6]] });
+        if (/^[぀-ヿ]/.test(f[7])) qs.push({ f, t: "call", q: `Du rufst ${famAkk(f[0], f[1])} zu Hause. Was sagst du?`, a: [f[5], f[6]] });
+      });
+      st = { qs: shuffle(qs).slice(0, 10), i: 0, right: 0 };
+    }
+    current = { rerender: () => familyQuiz(st) };
+    if (st.i >= st.qs.length) {
+      show("Familie", `<div class="card center"><div class="big-emoji">${st.right >= st.qs.length * 0.8 ? "🎉" : "💪"}</div><h2>${st.right} von ${st.qs.length} richtig</h2>
+        <button class="btn primary" id="again">Nochmal</button><button class="btn" id="back">Zum Stammbaum</button></div>`, { back: () => familyView() });
+      $("#again").onclick = () => familyQuiz(); $("#back").onclick = () => familyView(); return;
+    }
+    const q = st.qs[st.i];
+    const other = q.t === "mine" ? [q.f[5], q.f[6]] : [q.f[3], q.f[4]];
+    const pool = F.filter(f => f !== q.f).map(f => q.t === "mine" ? [f[3], f[4]] : [f[5], f[6]]);
+    const opts = shuffle(uniqBy([q.a, other, ...shuffle(pool)], o => o[0]).slice(0, 4));
+    show("Familie", `<div class="progress"><i style="width:${Math.round(100 * st.i / st.qs.length)}%"></i></div>
+      <div class="stage-label"><span>Wie sagt man?</span><span>${st.i + 1}/${st.qs.length}</span></div>
+      <div class="card"><div class="prompt" style="font-size:19px">${esc(q.q)}</div>
+      <div class="options">${opts.map((o, i) => `<button class="option jp" data-i="${i}">${esc(scriptText(o[0], o[1]))}</button>`).join("")}</div><div id="area"></div></div>`, { back: () => familyView() });
+    $app.querySelectorAll(".option").forEach(b => b.onclick = () => {
+      const ok = opts[+b.dataset.i][0] === q.a[0]; if (ok) st.right++;
+      $app.querySelectorAll(".option").forEach((x, i) => { x.disabled = true; if (opts[i][0] === q.a[0]) x.classList.add("correct"); });
+      if (!ok) b.classList.add("wrong");
+      say(famSay(q.a[0]));
+      const why = q.t === "mine" ? "Über die eigene Familie spricht man bescheiden." : q.t === "other" ? "Für die Familie von anderen nimmt man das höfliche Wort." : "Ältere in der Familie ruft man mit dem höflichen Wort.";
+      $("#area").innerHTML = `<div class="feedback ${ok ? "ok" : "no"}">${ok ? "✓ Richtig!" : "✗ Richtig wäre:"} <span class="jp">${esc(scriptText(q.a[0], q.a[1]))}</span><div class="small">${why}</div></div>
+        <button class="btn primary" id="next">Weiter</button>`;
+      $("#next").onclick = () => { st.i++; familyQuiz(st); };
+    });
+  }
+
+  // ---------- Kanji (Lernkarten, Üben, Liste) & Kana-Tabelle ----------
+  const kanjiAll = () => uniqBy(window.KanjiData.SETS.filter(s => s.kind === "kanji" && s.id !== "n5").flatMap(s => s.chars.map(c => ({ ...c, set: s }))), x => x.c);
+  const kinfo = c => (window.KANJI_INFO || {})[c] || ["", "", "", ""];
+  const kex = c => (kinfo(c)[2] || "").split(";").map(s => s.trim()).filter(Boolean).map(s => { const [kana, kanji, de] = s.split("|"); return { kana, kanji, de }; });
+  const ksent = c => { const s = kinfo(c)[3]; if (!s) return null; const [kana, kanji, de] = s.split("|"); return { kana, kanji, de }; };
+  const kstore = () => DB.kanji || (DB.kanji = {});
+  const readList = s => (s || "").split("・").filter(Boolean);
+  const readSay = s => s.replace(/[()]/g, "");
+  const readShow = s => DB.settings.script === "romaji" ? Kana.kanaToRomaji(Kana.toHira(s.replace(/[()]/g, ""))) : s;
+  // Merkbild zeichnen
+  function kanjiPic(pic, cls = "kpic") {
+    if (!pic) return "";
+    const box = inner => `<svg class="${cls}" viewBox="0 0 64 64" aria-hidden="true">${inner}</svg>`;
+    const [t, v] = pic.includes(":") ? pic.split(/:(.*)/s) : ["use", pic];
+    if (t === "use") return box(`<use href="#${pic}" x="0" y="0" width="64" height="64"/>`);
+    if (t === "n") {
+      const n = +v;
+      if (n > 10) return box(`<text x="32" y="40" text-anchor="middle" class="kpic-num" style="font-size:${n >= 10000 ? 15 : n >= 1000 ? 18 : 24}px">${n.toLocaleString("de-CH")}</text>`);
+      const dots = Array.from({ length: n }, (_, i) => { const r = Math.floor(i / 5), c = i % 5, cnt = Math.min(5, n - r * 5); return `<circle cx="${32 + (c - (cnt - 1) / 2) * 11}" cy="${n > 5 ? 24 + r * 16 : 32}" r="4.6" style="fill:var(--b)"/>`; }).join("");
+      return box(dots);
+    }
+    if (t === "col") return box(`<circle cx="32" cy="32" r="24" style="fill:${v};stroke:var(--a)" stroke-width="2.5"/>`);
+    if (t === "dir") {
+      const a = { N: 0, E: 90, S: 180, W: 270 }[v];
+      return box(`<circle cx="32" cy="32" r="27" style="fill:var(--c);stroke:var(--a)" stroke-width="2"/>
+        <g class="kpic-dir"><text x="32" y="12">N</text><text x="55" y="36">O</text><text x="32" y="60">S</text><text x="9" y="36">W</text></g>
+        <path d="M32 14 L38 32 H26Z" transform="rotate(${a} 32 32)" style="fill:var(--b)"/><circle cx="32" cy="32" r="3" style="fill:var(--a)"/>`);
+    }
+    if (t === "pos") {
+      const arrow = (x1, y1, x2, y2) => `<path d="M${x1} ${y1} L${x2} ${y2}" style="stroke:var(--b);fill:none" stroke-width="5" stroke-linecap="round" marker-end="url(#kArr)"/>`;
+      const defs = `<defs><marker id="kArr" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="3" markerHeight="3" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10z" style="fill:var(--b)"/></marker></defs>`;
+      const ground = `<path d="M6 34 H58" style="stroke:var(--a)" stroke-width="4" stroke-linecap="round"/>`;
+      const boxR = `<rect x="16" y="16" width="32" height="32" rx="3" style="fill:var(--surface-2,#f3c3bd);stroke:var(--a)" stroke-width="3"/>`;
+      const m = {
+        up: ground + arrow(32, 28, 32, 8), down: ground + arrow(32, 40, 32, 58),
+        mid: boxR + `<circle cx="32" cy="32" r="6" style="fill:var(--b)"/>`,
+        left: arrow(50, 32, 12, 32), right: arrow(14, 32, 52, 32),
+        in: boxR + arrow(2, 32, 30, 32), out: boxR + arrow(32, 32, 60, 32),
+        front: `<use href="#k-person" x="2" y="12" width="40" height="40"/>` + arrow(34, 40, 60, 40),
+        back: `<use href="#k-person" x="24" y="12" width="40" height="40"/>` + arrow(28, 40, 4, 40),
+      };
+      return box(defs + (m[v] || ""));
+    }
+    return "";
+  }
+  function kanjiView(tab) {
+    tab = tab || DB.kanjiTab || "learn";
+    DB.kanjiTab = tab; save();
+    current = { rerender: () => kanjiView(tab) };
+    const all = kanjiAll(), K = kstore(), now = Date.now();
+    const learned = all.filter(k => K[k.c]).length, due = all.filter(k => K[k.c] && K[k.c].d <= now).length;
+    const tabs = `<div class="seg" id="ktab">${[["learn", "Lernen"], ["list", "Alle Kanji"], ["kana", "Kana-Tabelle"]].map(([t, l]) => `<button data-t="${t}" class="${t === tab ? "on" : ""}">${l}</button>`).join("")}</div>`;
+    let body = "";
+    const sets = window.KanjiData.SETS.filter(s => s.kind === "kanji");
+    const setSel = DB.kanjiSet || "n5";
+    if (tab === "learn") {
+      body = `<div class="card stats-card"><div class="stats">
+          <div class="stat"><b>${due}</b><span>fällig</span></div><div class="stat"><b>${learned}</b><span>gelernt</span></div><div class="stat"><b>${all.length}</b><span>Kanji</span></div></div>
+          <button class="btn primary" id="klearn">${due ? "Wiederholen & Neue lernen" : "Neue Kanji lernen"}</button></div>
+        <h2>Welche Kanji?</h2>
+        <div class="chip-row">${sets.map(s => `<button class="chip ${s.id === setSel ? "on" : ""}" data-set="${s.id}">${esc(s.name.replace("Kanji: ", ""))}</button>`).join("")}</div>
+        ${tipBox(`Pro Runde lernst du 5 neue Kanji mit Bild und Eselsbrücke. Danach fragt die App Bedeutung, Zeichen und Lesung ab. Was sitzt, kommt nach und nach in grösseren Abständen wieder.<br>Zum Spielen: <b>Kanji-Memory</b> bei den Spielen.`)}`;
+    } else if (tab === "list") {
+      body = `${tipBox("Tippe ein Kanji an, um die Lernkarte zu sehen. Grün = schon gelernt.")}
+        ${sets.filter(s => s.id !== "n5").map(s => `<h2>${esc(s.name.replace("Kanji: ", ""))}</h2><div class="kgrid">${s.chars.map(c => `<button class="kcell jp ${K[c.c] ? "done" : ""}" data-k="${c.c}"><b>${c.c}</b><small>${esc(c.de.split(",")[0])}</small></button>`).join("")}</div>`).join("")}`;
+    } else {
+      body = kanaTableHTML(DB.kanaTab || "hira");
+    }
+    show("Kanji", tabs + body, { back: home });
+    $app.querySelectorAll("#ktab button").forEach(b => b.onclick = () => kanjiView(b.dataset.t));
+    $app.querySelectorAll("[data-set]").forEach(b => b.onclick = () => { DB.kanjiSet = b.dataset.set; save(); kanjiView("learn"); });
+    $app.querySelectorAll("[data-k]").forEach(b => b.onclick = () => kanjiCard(b.dataset.k, () => kanjiView("list")));
+    const kl = $("#klearn"); if (kl) kl.onclick = () => kanjiLearn();
+    $app.querySelectorAll("[data-kt]").forEach(b => b.onclick = () => { DB.kanaTab = b.dataset.kt; save(); kanjiView("kana"); });
+    $app.querySelectorAll("[data-kana]").forEach(b => b.onclick = () => say(b.dataset.kana));
+  }
+  // Lernkarte eines Kanji
+  function kanjiCard(c, onBack, nav) {
+    const k = kanjiAll().find(x => x.c === c); if (!k) return;
+    current = { rerender: () => kanjiCard(c, onBack, nav) };
+    const [pic, memo] = kinfo(c), ex = kex(c), s = ksent(c);
+    // Blättern: vorheriges / nächstes Kanji (Reihenfolge wie in „Alle Kanji“)
+    const ALL = kanjiAll(), idx = ALL.findIndex(x => x.c === c);
+    const prevK = ALL[(idx - 1 + ALL.length) % ALL.length].c, nextK = ALL[(idx + 1) % ALL.length].c;
+    const pager = nav ? "" : `<div class="k-nav"><button class="k-arrow" id="kprev" aria-label="Vorheriges Kanji">‹ <span class="jp">${prevK}</span></button>
+      <button class="k-write" id="kwrite"><svg class="btn-ic"><use href="#i-brush"/></svg>Schreiben üben<small>${idx + 1} / ${ALL.length}</small></button><button class="k-arrow" id="knextk" aria-label="Nächstes Kanji"><span class="jp">${nextK}</span> ›</button></div>`;
+    const rd = (list, label) => list.length ? `<div class="k-read"><span class="small muted">${label}</span>${list.map(r => `<button class="chip jp" data-say="${esc(readSay(r))}">${esc(readShow(r))}</button>`).join("")}</div>` : "";
+    show("Kanji", `${nav ? nav.head : pager}<div class="card k-card">
+        <div class="k-top"><div class="k-big jp">${c}</div>${kanjiPic(pic, "kpic big")}</div>
+        <div class="k-de">${esc(k.de)}</div>
+        ${memo ? `<div class="k-memo"><svg class="tip-ic"><use href="#i-bulb"/></svg><div><b class="tip-h">Eselsbrücke</b><br>${esc(memo)}</div></div>` : ""}
+        ${rd(readList(k.kun), "japanische Lesung (kun)")}${rd(readList(k.on), "chinesische Lesung (on)")}
+        ${ex.length ? `<h3>Wörter</h3>${ex.map(e => `<button class="k-ex" data-say="${esc(e.kanji || e.kana)}"><span class="jp k-ex-j">${esc(e.kanji)}</span><span class="jp small">${esc(readingText(e.kana))}</span><span class="small muted">${esc(e.de)}</span></button>`).join("")}` : ""}
+        ${s ? `<h3>Satz</h3><button class="k-ex k-sent" data-say="${esc(s.kanji)}"><span class="jp">${esc(scriptText(s.kana, s.kanji, true))}</span><span class="small muted">${esc(s.de)}</span></button>` : ""}
+      </div>${nav ? nav.foot : ""}`, { back: onBack });
+    $app.querySelectorAll("[data-say]").forEach(b => b.onclick = () => say(b.dataset.say));
+    const kw = $("#kwrite"); if (kw) kw.onclick = () => writeSession([{ ...k }], () => kanjiCard(c, onBack));
+    if (nav && nav.bind) nav.bind();
+    if (!nav) {
+      $("#kprev").onclick = () => kanjiCard(prevK, onBack);
+      $("#knextk").onclick = () => kanjiCard(nextK, onBack);
+      // Pfeiltasten (Tastatur) und Wischen nach links/rechts
+      const key = e => { if (e.key === "ArrowLeft") kanjiCard(prevK, onBack); else if (e.key === "ArrowRight") kanjiCard(nextK, onBack); };
+      let sx = null, sy = 0;
+      const ts = e => { sx = e.touches[0].clientX; sy = e.touches[0].clientY; };
+      const te = e => { if (sx == null) return; const dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy; sx = null;
+        if (Math.abs(dx) > 70 && Math.abs(dx) > 2 * Math.abs(dy)) kanjiCard(dx < 0 ? nextK : prevK, onBack); };
+      document.addEventListener("keydown", key); $app.addEventListener("touchstart", ts, { passive: true }); $app.addEventListener("touchend", te);
+      cleanup = () => { document.removeEventListener("keydown", key); $app.removeEventListener("touchstart", ts); $app.removeEventListener("touchend", te); };
+    }
+  }
+  // Lernrunde: neue Kanji kennenlernen, dann abfragen (Bedeutung, Zeichen, Lesung)
+  function kanjiLearn() {
+    const K = kstore(), now = Date.now();
+    const set = window.KanjiData.SETS.find(s => s.id === (DB.kanjiSet || "n5")) || window.KanjiData.SETS.find(s => s.id === "n5");
+    const all = kanjiAll(), inSet = c => set.chars.some(x => x.c === c.c);
+    const due = shuffle(all.filter(k => K[k.c] && K[k.c].d <= now)).slice(0, 10);
+    const fresh = set.chars.map(x => all.find(k => k.c === x.c)).filter(k => k && !K[k.c]).slice(0, 5);
+    void inSet;
+    if (!due.length && !fresh.length) {
+      show("Kanji", `<div class="card center"><div class="big-emoji">🎉</div><h2>Alles erledigt!</h2><p>In dieser Gruppe hast du alle Kanji gelernt und nichts ist fällig. Wähle eine andere Gruppe oder spiel Kanji-Memory.</p>
+        <button class="btn primary" id="back">Zurück</button></div>`, { back: () => kanjiView("learn") });
+      $("#back").onclick = () => kanjiView("learn"); return;
+    }
+    const L = { intro: fresh.slice(), items: [...fresh, ...due], fail: new Set(), queue: [], n: 0 };
+    const types = ["mean", "kanji", "read"];
+    L.items.forEach(k => shuffle(types).slice(0, 2).forEach(t => L.queue.push({ k, t })));
+    L.queue = shuffle(L.queue); L.total = L.queue.length;
+    const introNext = i => {
+      if (i >= L.intro.length) return quiz();
+      kanjiCard(L.intro[i].c, () => kanjiView("learn"), {
+        head: `<div class="progress"><i style="width:${Math.round(100 * i / L.intro.length)}%"></i></div><div class="stage-label"><span>Neues Kanji</span><span>${i + 1}/${L.intro.length}</span></div>`,
+        foot: `<button class="btn primary" id="knext">${i + 1 < L.intro.length ? "Nächstes Kanji" : "Jetzt üben"}</button>`,
+        bind: () => { say(readSay((kex(L.intro[i].c)[0] || {}).kanji || L.intro[i].c)); $("#knext").onclick = () => introNext(i + 1); },
+      });
+    };
+    const quiz = () => {
+      if (!L.queue.length) return end();
+      const task = L.queue.shift(), k = task.k; L.n++;
+      current = null;
+      const others = shuffle(all.filter(x => x.c !== k.c));
+      let prompt, opts, right;
+      const ex = kex(k.c).filter(e => e.kanji && e.kanji.includes(k.c));
+      let t = task.t; if (t === "read" && !ex.length) t = "mean";
+      if (t === "mean") {
+        prompt = `<div class="k-q jp">${k.c}</div><div class="sub">Was bedeutet das?</div>`;
+        right = k.de; opts = shuffle(uniqBy([k.de, ...others.map(x => x.de)], x => x).slice(0, 4)).map(x => [x, esc(x)]);
+      } else if (t === "kanji") {
+        prompt = `<div class="de">${esc(k.de)}</div><div class="sub">Welches Kanji ist das?</div>`;
+        right = k.c; opts = shuffle([k.c, ...others.slice(0, 3).map(x => x.c)]).map(x => [x, `<span class="k-opt">${x}</span>`]);
+      } else {
+        const e = gpick(ex);
+        prompt = `<div class="k-q jp" style="font-size:44px">${esc(e.kanji)}</div><div class="sub">Wie liest man das? (${esc(e.de)})</div>`;
+        const pool = all.flatMap(x => kex(x.c)).filter(x => x.kana !== e.kana && x.kanji !== e.kanji);
+        right = e.kana; opts = shuffle(uniqBy([e.kana, ...shuffle(pool).map(x => x.kana)], x => x).slice(0, 4)).map(x => [x, esc(readingText(x))]);
+        task.say = e.kanji;
+      }
+      show("Kanji", `<div class="progress"><i style="width:${Math.round(100 * (L.n - 1) / L.total)}%"></i></div>
+        <div class="stage-label"><span>Kanji üben</span><span>${L.n}/${L.total}</span></div>
+        <div class="card"><div class="prompt">${prompt}</div><div class="options">${opts.map(([v, h], i) => `<button class="option jp" data-i="${i}">${h}</button>`).join("")}</div><div id="area"></div></div>`, { back: () => { if (confirm("Runde beenden?")) kanjiView("learn"); } });
+      $app.querySelectorAll(".option").forEach(b => b.onclick = () => {
+        const ok = opts[+b.dataset.i][0] === right;
+        $app.querySelectorAll(".option").forEach((x, i) => { x.disabled = true; if (opts[i][0] === right) x.classList.add("correct"); });
+        if (!ok) { b.classList.add("wrong"); L.fail.add(k.c); if ((task.retry || 0) < 2) { L.queue.splice(Math.min(L.queue.length, 3), 0, { k, t: task.t, retry: (task.retry || 0) + 1 }); L.total++; } }
+        say(task.say || readSay((kex(k.c)[0] || {}).kanji || k.c));
+        const [pic, memo] = kinfo(k.c);
+        $("#area").innerHTML = `<div class="feedback ${ok ? "ok" : "no"}">${ok ? "✓ Richtig!" : "✗ Nicht ganz."}
+            <div class="k-fb">${kanjiPic(pic, "kpic")}<div><b class="jp" style="font-size:28px">${k.c}</b> = ${esc(k.de)}${!ok && memo ? `<div class="small">${esc(memo)}</div>` : ""}</div></div></div>
+          <button class="btn primary" id="next">Weiter</button>`;
+        $("#next").onclick = quiz;
+      });
+    };
+    const end = () => {
+      const K2 = kstore(), t = Date.now();
+      L.items.forEach(k => {
+        const p = K2[k.c] || { b: 0 };
+        p.b = L.fail.has(k.c) ? Math.max(1, p.b - 1) : Math.min(INTERVALS.length - 1, p.b + 1);
+        p.d = t + INTERVALS[p.b] * DAY - 3600000; K2[k.c] = p;
+      });
+      save(); current = null;
+      const ok = L.items.length - L.fail.size;
+      show("Kanji", `<div class="card center"><div class="big-emoji">${ok === L.items.length ? "🏆" : "💪"}</div>
+        <h2>${ok} von ${L.items.length} Kanji ohne Fehler</h2>
+        <div class="k-done jp">${L.items.map(k => `<span class="${L.fail.has(k.c) ? "bad" : ""}">${k.c}</span>`).join("")}</div>
+        <button class="btn primary" id="more">Weiter lernen</button><button class="btn" id="back">Zurück</button></div>`, { back: () => kanjiView("learn") });
+      $("#more").onclick = kanjiLearn; $("#back").onclick = () => kanjiView("learn");
+    };
+    if (L.intro.length) introNext(0); else quiz();
+  }
+  // Hiragana / Katakana als Tabelle (antippen = anhören)
+  const KANA_ROWS = ["あいうえお", "かきくけこ", "さしすせそ", "たちつてと", "なにぬねの", "はひふへほ", "まみむめも", "や・ゆ・よ", "らりるれろ", "わ・・・を", "ん"];
+  const KANA_DAK = ["がぎぐげご", "ざじずぜぞ", "だぢづでど", "ばびぶべぼ", "ぱぴぷぺぽ"];
+  const KANA_YOON = "きしちにひみりぎじびぴ";
+  function kanaTableHTML(kt) {
+    const conv = s => kt === "kata" ? s.replace(/[ぁ-ゖ]/g, c => String.fromCharCode(c.charCodeAt(0) + 0x60)) : s;
+    const cell = k => k && k !== "・" ? `<button class="kana-cell" data-kana="${conv(k)}"><b class="jp">${conv(k)}</b><small>${k === "を" ? "o (wo)" : Kana.kanaToRomaji(k)}</small></button>` : `<span class="kana-cell empty"></span>`;
+    const grid = (rows, cols) => `<div class="kana-grid" style="grid-template-columns:repeat(${cols},1fr)">${rows.map(r => { const a = [...r]; while (a.length < cols) a.push(""); return a.map(cell).join(""); }).join("")}</div>`;
+    return `<div class="seg" style="margin-top:10px">${[["hira", "Hiragana"], ["kata", "Katakana"]].map(([t, l]) => `<button data-kt="${t}" class="${t === kt ? "on" : ""}">${l}</button>`).join("")}</div>
+      ${tipBox("Tippe ein Zeichen an, um es zu hören.")}
+      <h2>Grundzeichen</h2>${grid(KANA_ROWS, 5)}
+      <h2>Mit ゛ und ゜ (Dakuten)</h2>${grid(KANA_DAK, 5)}
+      <h2>Zusammengesetzt (ゃ ゅ ょ)</h2>${grid([...KANA_YOON].map(c => c + "ゃ・" + c + "ゅ・" + c + "ょ").map(s => s.split("・")), 3)}
+      ${kt === "kata" ? tipBox(`Langer Vokal in Katakana: <span class="jp">ー</span> (z. B. <span class="jp">コーヒー</span> = koohii).`) : ""}`;
+  }
+
   // ---------- Spiele ----------
   const gstore = () => DB.games || (DB.games = {});
   const gpick = a => a[Math.floor(Math.random() * a.length)];
@@ -1668,10 +2231,12 @@
     current = { rerender: gamesView };
     const g = gstore();
     show("Spiele", `<div class="games-list">
-      ${wideTile("g-rain", "i-sakura", "🌸", "Kana-Regen", `Zeichen oder Wörter, bevor sie landen${g.rain ? ` · Rekord ${g.rain}` : ""}`)}
+      ${wideTile("g-rain", "i-sakura", "🌸", "Kana-Regen", `Zeichen oder Wörter, bevor sie landen${g.rain ? ` · Rekord ${g.rain}` : ""}`, "red")}
       ${wideTile("g-sushi", "s-sushi", "🍣", "Sushi-Band", `Nur die passenden Teller schnappen${g.sushi ? ` · Rekord ${g.sushi}` : ""}`)}
-      ${wideTile("g-puzzle", "s-bubble", "🧩", "Satz-Puzzle", `Sätze richtig zusammensetzen${g.puzzle ? ` · ${g.puzzle} gelöst` : ""}`)}
+      ${wideTile("g-puzzle", "s-bubble", "🧩", "Satz-Puzzle", `Sätze richtig zusammensetzen${g.puzzle ? ` · ${g.puzzle} gelöst` : ""}`, "red")}
+      ${wideTile("g-memory", "i-kanji", "🀄", "Kanji-Memory", `Kanji und Bedeutung finden${g.mem && g.mem.best && g.mem.best[g.mem.mode || "mean"] ? ` · Rekord ${g.mem.best[g.mem.mode || "mean"]} Züge` : ""}`)}
       </div>`, { back: home });
+    $("#g-memory").onclick = memoryStart;
     $("#g-rain").onclick = rainStart;
     $("#g-sushi").onclick = sushiStart;
     $("#g-puzzle").onclick = puzzleStart;
@@ -1956,6 +2521,72 @@
       ${tipBox(`Es kommen Sätze bis Lektion ${P.maxL} – je mehr Lektionen du einschaltest, desto mehr Sätze.`)}
       <button class="btn primary" id="pz-again">Nochmal</button><button class="btn" id="pz-games">Zu den Spielen</button></div>`, { back: gamesView });
     $("#pz-again").onclick = puzzleStart; $("#pz-games").onclick = gamesView;
+  }
+
+  // --- Kanji-Memory ---
+  const MEM_MODES = [["mean", "Bedeutung"], ["read", "Lesung"]];
+  function memoryStart() {
+    const g = gstore(), M = g.mem = g.mem || { mode: "mean", set: "learned", best: {} };
+    if (!MEM_MODES.some(m => m[0] === M.mode)) M.mode = "mean";
+    current = { rerender: memoryStart };
+    const sets = window.KanjiData.SETS.filter(s => s.kind === "kanji");
+    const learnedN = kanjiAll().filter(k => kstore()[k.c]).length;
+    if (M.set === "learned" && learnedN < 6) M.set = "n5";
+    show("Kanji-Memory", `<div class="card">
+        <h2 style="margin-top:0">Paare</h2>
+        <div class="seg" id="mmode">${MEM_MODES.map(([m, l]) => `<button data-m="${m}" class="${M.mode === m ? "on" : ""}">Kanji ↔ ${l}</button>`).join("")}</div>
+        <h2>Welche Kanji?</h2>
+        <div class="chip-row">${learnedN >= 6 ? `<button class="chip ${M.set === "learned" ? "on" : ""}" data-set="learned">Meine gelernten (${learnedN})</button>` : ""}${sets.map(s => `<button class="chip ${M.set === s.id ? "on" : ""}" data-set="${s.id}">${esc(s.name.replace("Kanji: ", ""))}</button>`).join("")}</div>
+        <button class="btn primary" id="mgo">Spielen</button>
+        ${M.best[M.mode] ? `<p class="center small muted">Rekord: ${M.best[M.mode]} Züge</p>` : ""}</div>
+        ${tipBox(`Decke zwei Karten auf. Passen Kanji und ${MEM_MODES.find(m => m[0] === M.mode)[1]} zusammen, bleiben sie offen. Schaffst du es mit wenigen Zügen?${learnedN < 6 ? "<br>Sobald du 6 Kanji gelernt hast, kannst du auch nur mit deinen gelernten spielen." : ""}`)}`, { back: gamesView });
+    $app.querySelectorAll("#mmode button").forEach(b => b.onclick = () => { M.mode = b.dataset.m; save(); memoryStart(); });
+    $app.querySelectorAll("[data-set]").forEach(b => b.onclick = () => { M.set = b.dataset.set; save(); memoryStart(); });
+    $("#mgo").onclick = () => memoryRun();
+  }
+  function memoryRun() {
+    const g = gstore(), M = g.mem, all = kanjiAll();
+    const set = window.KanjiData.SETS.find(s => s.id === M.set);
+    let pool = M.set === "learned" ? all.filter(k => kstore()[k.c]) : all.filter(k => set && set.chars.some(x => x.c === k.c));
+    const mainRead = k => readSay(readList(k.kun)[0] || Kana.toHira(readList(k.on)[0] || ""));
+    if (M.mode === "pic") pool = pool.filter(k => kinfo(k.c)[0]);
+    if (pool.length < 6) pool = all.filter(k => M.mode !== "pic" || kinfo(k.c)[0]);
+    const pick = shuffle(uniqBy(shuffle(pool), k => M.mode === "mean" ? k.de : M.mode === "read" ? mainRead(k) : kinfo(k.c)[0])).slice(0, 6);
+    const face = k => M.mode === "mean" ? `<span class="mem-de">${esc(k.de.split(",")[0])}</span>` : M.mode === "pic" ? kanjiPic(kinfo(k.c)[0], "kpic mem-pic") : `<span class="jp mem-rd">${esc(readingText(mainRead(k)))}</span>`;
+    const cards = shuffle(pick.flatMap(k => [{ c: k.c, html: `<span class="jp mem-k">${k.c}</span>` }, { c: k.c, html: face(k) }]));
+    const S = { open: [], done: 0, moves: 0, lock: false };
+    current = null;
+    show("Kanji-Memory", `<div class="game-hud"><span>Züge: <b id="mmoves">0</b></span><span>Paare: <b id="mpairs">0</b>/6</span></div>
+      <div class="mem-grid">${cards.map((c, i) => `<button class="mem-card" data-i="${i}"><span class="mem-back"></span><span class="mem-front">${c.html}</span></button>`).join("")}</div>`, { back: memoryStart });
+    const els = [...$app.querySelectorAll(".mem-card")];
+    cleanup = () => { S.dead = true; };
+    els.forEach(el => el.onclick = () => {
+      const i = +el.dataset.i;
+      if (S.lock || S.dead || el.classList.contains("up")) return;
+      el.classList.add("up"); S.open.push(i);
+      if (S.open.length < 2) return;
+      S.moves++; $("#mmoves").textContent = S.moves;
+      const [a, b] = S.open; S.open = [];
+      if (cards[a].c === cards[b].c) {
+        S.done++; $("#mpairs").textContent = S.done;
+        [a, b].forEach(j => els[j].classList.add("match"));
+        const k = all.find(x => x.c === cards[a].c); say(mainRead(k));
+        if (S.done === 6) setTimeout(() => {
+          if (S.dead) return;
+          const best = M.best[M.mode], rec = !best || S.moves < best;
+          if (rec) { M.best[M.mode] = S.moves; save(); }
+          show("Kanji-Memory", `<div class="card center"><div class="big-emoji">${rec ? "🏆" : "🀄"}</div>
+            <h2>Geschafft in ${S.moves} Zügen</h2>${rec ? `<p><b>Neuer Rekord!</b></p>` : `<p class="muted">Rekord: ${best} Züge</p>`}
+            <div class="k-done jp">${pick.map(k => `<button class="chip jp" data-k="${k.c}">${k.c} <small>${esc(k.de.split(",")[0])}</small></button>`).join("")}</div>
+            <button class="btn primary" id="again">Nochmal</button><button class="btn" id="back">Zu den Spielen</button></div>`, { back: memoryStart });
+          $("#again").onclick = memoryRun; $("#back").onclick = gamesView;
+          $app.querySelectorAll("[data-k]").forEach(b => b.onclick = () => kanjiCard(b.dataset.k, memoryStart));
+        }, 700);
+      } else {
+        S.lock = true;
+        setTimeout(() => { [a, b].forEach(j => els[j].classList.remove("up")); S.lock = false; }, 1000);
+      }
+    });
   }
 
   // ---------- Start ----------

@@ -1,10 +1,44 @@
 # Übergabe – Stand 16.11.2026
 
 Online-Version **v35** (`sw.js`): https://bindochnichtbambi.github.io/nihongo-trainer/
+Lokal fertig, aber **noch nicht hochgeladen: v36** (siehe unten). Auf diesem Computer fehlte Git.
 
 Konzept, Technik und Konventionen stehen in `CLAUDE.md`.
 
-## Was fertig ist
+## Neu in v36 (Rückmeldungen nach ein paar Tagen Testen)
+
+- „Lesebücher“ heisst jetzt **„Bücher“**.
+- **Zählwörter**: Antwortmodus und Reihenfolge stehen oben. Alle Kategorie-Kacheln sind gleich hoch, das Bild steht links neben dem Zeichen.
+- **Gespräche**:
+  - Stimmen passend zur Figur (Mann, Frau, Kind, älterer Mann). Tonhöhe angepasst, bei mehreren Stimmen eine passende gewählt.
+  - Rollenspiel: Die Aufnahme stoppt nicht mehr zu früh. Pausen sind erlaubt; Ende durch nochmals Tippen.
+  - Neu: **Füllwörter & Reaktionen** (えっと, あのう, そうですか, なるほど …) mit Erklärung, Beispielen und Quiz.
+- **Wortschatz**: パートナー ersetzt durch かれし (彼氏), dazu かのじょ (彼女). Der Lernstand von パートナー wird übernommen. Familienwörter erklären jetzt, wann man welches Wort braucht (eigene Familie / Familie von anderen / Anrede).
+- **Neu: Familie** (Kachel): Stammbaum zum Antippen, Umschalter „Meine Familie“ / „Familie von anderen“, Erklärung zur Anrede, Sammelwörter, Quiz mit 10 Fragen.
+- **Neu: Kanji** (Kachel):
+  - Lernkarten für alle 114 Kanji: Merkbild, Eselsbrücke, kun-/on-Lesungen zum Anhören, Beispielwörter, Beispielsatz, Knopf „Schreiben üben“.
+  - Lernrunden: 5 neue Kanji kennenlernen, dann Bedeutung, Zeichen und Lesung abfragen. Wiederholung in wachsenden Abständen.
+  - Liste aller Kanji und **Kana-Tabelle** (Hiragana/Katakana mit ゛゜ und ゃゅょ, antippen = anhören).
+- **Neu: Kanji-Memory** bei den Spielen (Kanji ↔ Bedeutung, Bild oder Lesung; Rekord = wenigste Züge).
+- 14 neue selbst gezeichnete Merkbilder (`k-…`), Kachel-Symbole `i-kanji`, `i-sakuratree` (Familie, Kirschbaum), Avatar `av-oldwoman`. (`i-famtree` ist im Sprite, wird aber nicht mehr verwendet.)
+- Zählwörter: Bilder auch für Alter, Datum, Wochentage (`c-daynight`), Monate (`c-twelve`), Uhrzeit, Minuten (`c-stopwatch`), Zahlen (`c-zero`), Preise (`c-banknote`). „Üben“ steht direkt unter Antwortmodus und Reihenfolge.
+- Familie: „Üben“ steht zuoberst, der Tipp zuunterst.
+- Emojis in Knöpfen durch Symbole ersetzt („Mehr Bücher“, „Liste: alle der Reihe nach“, „Schreiben üben“).
+- Kanji-Merkbilder im Marugoto-Stil (eigene Zeichnungen, `km-…`): Bild + Striche des Kanji rot darübergelegt. Fertig für 21 Kanji: 一二三人大小山川木日月田上下中子女火水休金 (zweite, detailliertere Fassung mit eigenem Hintergrund).
+- Rückmeldung Merkbilder: 一二三 zeigen nur noch die Striche (Hand gefiel nicht), Mond jetzt zunehmend. Die Person ist mit den Bildern insgesamt noch nicht zufrieden und **sucht selbst passendere Vorlagen** – abwarten, bis sie sich meldet; nicht ungefragt weiterzeichnen.
+- Grammatik: neue Rubrik **Satzbau** (breite Kachel oben, `satzbauView()` in app.js): Verb am Ende, Partikeln als Etiketten, Baukasten zum Ein-/Ausschalten von Satzteilen, lockere Reihenfolge, Fragen mit か, A は B です, Beschreibung davor; Knopf zum Satz-Puzzle.
+- Grammatik: neue Rubrik **Fragewörter** (`QWORDS` in grammar.js, 24 Wörter mit Frage + Antwort, Quiz mit 10 Lückenfragen). Jedes Fragewort hat eine **geschätzte** Lektion (10. Feld); spätere sind ausgegraut, das Quiz nimmt nur Wörter bis zur höchsten eingeschalteten Lektion. **Die Person liefert die genauen Lektionen noch nach** – dann in `QWORDS` anpassen. Tipp-Kasten der Grammatik-Liste steht unten. Satzbau-Beispiel mit あさ statt まいあさ (Person kannte まいあさ nicht), と-Baustein orange.
+- Startseite: „Gelernte üben“ ist immer sichtbar (ohne gelernte Wörter kommt ein Hinweis).
+- Zählwörter und Schreiben üben: kompakte Auswahl-Karte (Modus/Reihenfolge + Üben/Liste nebeneinander). Schreiben: Gruppen als Kacheln, nur noch ein Tipp-Kasten.
+- Spiele-Kacheln abwechselnd weiss/blau.
+- Kanji-Memory: Modus „Bild“ entfernt (nur Bedeutung und Lesung).
+- Kanji-Karte: „Schreiben üben“ steht oben zwischen den Pfeilen.
+- Kanji-Karte: Blättern mit ‹ › Knöpfen, Pfeiltasten oder Wischen (Reihenfolge wie „Alle Kanji“).
+- Schreiben üben: Der Modus-Tipp steht jetzt unten. Der Rest hat noch die einfachen Themenbilder – nächster Schritt, falls der Person der Stil gefällt.
+- Alle ß in App-Texten durch ss ersetzt (Schweizer Schreibweise).
+- Romaji: Einzelwörter werden nie mit Partikel-Lesung umgewandelt (はは = haha, nicht „ha wa“); nur Beispielsätze.
+
+## Was fertig ist (vorher)
 
 **Vokabeln**
 - Trainer mit 5 Stufen und Wiederholung in wachsenden Abständen. Fehler beim Lernen bringen Extra-Wiederholungen.
@@ -12,7 +46,7 @@ Konzept, Technik und Konventionen stehen in `CLAUDE.md`.
 - Wortschatz:
   - Lektion 1–12 (aktiv)
   - Lektion 13–18 (ausgeschaltet)
-  - 99 häufige Katakana-Wörter, auf die Lektionen verteilt
+  - häufige Katakana-Wörter, auf die Lektionen verteilt
   - Zusatzgruppen Begrüssung, Reise, Grundwortschatz, Anime & Songs (aus)
   - eigene Wörter
 
@@ -22,7 +56,7 @@ Konzept, Technik und Konventionen stehen in `CLAUDE.md`.
 **Gespräche**
 - 9 Dialoge mit Lesen & Hören, Lückentext und Rollenspiel per Spracherkennung (mit „War doch richtig“-Knopf).
 
-**Lesebücher**
+**Bücher**
 - 8 eigene Bildergeschichten mit Szenen und Verständnisfragen.
 - 100 Tadoku-Bücher als Links, nach Stufen geordnet, abhakbar.
 
@@ -40,10 +74,7 @@ Konzept, Technik und Konventionen stehen in `CLAUDE.md`.
 - Modi: Nachzeichnen, Mit Hilfe, Aus dem Kopf.
 
 **Spiele**
-- Kana-Regen (Katakana, Hiragana, gemischt oder Wörter → deutsche Bedeutung)
-- Sushi-Band (Nigiri-Teller, 10 Themen)
-- Satz-Puzzle (35 Sätze, gefiltert nach den aktiven Lektionen)
-- Alle mit Rekorden.
+- Kana-Regen, Sushi-Band, Satz-Puzzle, Kanji-Memory. Alle mit Rekorden.
 
 **Bedienung & Design**
 - Japan-Design, Hell/Dunkel.
@@ -54,40 +85,37 @@ Konzept, Technik und Konventionen stehen in `CLAUDE.md`.
 
 ## Halbfertig / ungeprüft
 
-- **v31–v35 sind nicht auf dem Pixel getestet** (nur lokal in Handy-Grösse): Knöpfe nebeneinander, bewegter Hintergrund, Tipp-Kästen, Spiel-Ende ohne Scrollen.
-- **Wortschatz Lektion 13–18**:
-  - Romaji und Deutsch stammen aus dem Marugoto Starter Wordbook.
-  - Die japanische Schrift war im PDF-Text nicht lesbar. Kana und Kanji wurden deshalb aus Romaji und Bedeutung erschlossen.
-  - Sollte beim Erreichen der Lektionen mit dem Kurs abgeglichen werden.
-- **Eigene Inhalte**: Grammatik, Dialoge, Geschichten und Puzzle-Sätze sind selbst geschrieben und nicht von Muttersprachlern geprüft.
-- **README.md** listet nicht alle neuen Funktionen auf (Spiele, Grammatik, Kalender, Tadoku). Es sollte aktualisiert werden.
+- **v36 ist nur lokal in Handy-Grösse getestet**, nicht auf dem Pixel. Ungeprüft sind vor allem:
+  - Stimmen: Auf dem Pixel gibt es meist nur eine japanische Stimme; dann wird nur die Tonhöhe verändert. Ob das gut klingt, muss die Person sagen.
+  - Lange Aufnahme im Rollenspiel (Mikrofon geht im Vorschau-Browser nicht).
+- **v31–v35** waren ebenfalls noch nicht auf dem Pixel getestet.
+- **Wortschatz Lektion 13–18**: Kana und Kanji aus Romaji und Bedeutung erschlossen; beim Erreichen der Lektionen mit dem Kurs abgleichen.
+- **Eigene Inhalte**: Grammatik, Dialoge, Geschichten, Puzzle-Sätze, Füllwörter, Eselsbrücken und Kanji-Beispiele sind selbst geschrieben und nicht von Muttersprachlern geprüft. Die Eselsbrücken sind Merkhilfen, keine echte Herkunft der Zeichen.
 
 ## Offene Probleme / bekannte Bugs
 
-- **Daten nur lokal**: Der Fortschritt liegt nur im Browser-Speicher des Handys. Geht er verloren (App-Daten gelöscht, neues Handy), ist alles weg, ausser die Person hat exportiert.
+- **Daten nur lokal**: Der Fortschritt liegt nur im Browser-Speicher des Handys. Ohne Export ist bei Datenverlust alles weg.
 - **Spracherkennung** hängt vom Browser ab (Chrome/Android ok). Japanische Erkennung liefert manchmal Kanji oder Varianten. Dafür gibt es den „War doch richtig“-Knopf.
-- **Startseiten-Erkennung** über den Titeltext `日本語 Trainer` in `show()`. Das ist zerbrechlich, wenn der Titel geändert wird.
-- **Tadoku-Liste** ist ein fester Schnappschuss vom 13.11.2026. Neue Bücher erscheinen nicht automatisch, entfernte Links könnten ins Leere führen.
-- **KanjiVG** wird beim ersten Öffnen eines Zeichens aus dem Internet geladen. Offline geht es erst, wenn das Zeichen schon einmal geladen wurde.
+- **Startseiten-Erkennung** über den Titeltext `日本語 Trainer` in `show()`.
+- **Tadoku-Liste** ist ein fester Schnappschuss vom 13.11.2026.
+- **KanjiVG** wird beim ersten Öffnen eines Zeichens aus dem Internet geladen.
 - **Doppelte Lesungen**: きます (来ます/着ます) und とまります (止まります/泊まります) gibt es absichtlich zweimal.
-- Kleinere Unschönheit: Auf dem Handy verdecken die Kacheln einen Grossteil der Hintergrund-Deko. Das ist so gewollt und dezent.
+- Im Stammbaum sind lange Wörter (おとうとさん …) in der Breite etwas zusammengedrückt, damit sie nebeneinander passen.
 
 ## Nächste Schritte (Vorschlag)
 
-1. **Auf dem Pixel testen** (v35) und Rückmeldungen der Person einarbeiten.
-2. **README.md aktualisieren** (Funktionsliste).
-3. **Lektion 13–18 prüfen**, sobald die Person sie im Kurs erreicht: Wortschatz mit den Kurs-Unterlagen abgleichen und ggf. eigene Zusatzwörter ergänzen (wie bei Lektion 7–8).
-4. Passende **Gespräche und Lesebücher für Lektion 13–18** schreiben (Stadt/Wegbeschreibung, Einkaufen, Ferien/Reisen).
+1. **Git installieren**, dann v36 hochladen (nach „Ja, hochladen“).
+2. **Auf dem Pixel testen** (v36) und Rückmeldungen einarbeiten.
+3. **Lektion 13–18 prüfen**, sobald die Person sie im Kurs erreicht.
+4. Passende **Gespräche und Bücher für Lektion 13–18** schreiben (Stadt/Wegbeschreibung, Einkaufen, Ferien/Reisen).
 5. **Grammatik erweitern**, sobald der Kurs weiter ist (z. B. て-Form genauer, 〜ています, Vergleiche より/ほうが).
-6. Später **A2 in derselben App**: in „Lektionen“ eine Unterteilung A1/A2, A2-Wortschatz in eigener Datei (z. B. `js/vocab-a2.js`). Die Person liefert dann die Wortlisten ihres Kurses.
+6. Später **A2 in derselben App** (eigene Wortschatz-Datei `js/vocab-a2.js`).
 
 ## Besprochen, aber (noch) nicht umgesetzt
 
-- **Push-Erinnerungen** zum Lernen. Lösung wäre Web Push über einen GitHub-Actions-Zeitplan. Die Person hat **vorerst verzichtet**; nicht erneut anbieten, ausser sie fragt.
-- **Freie Gespräche mit KI.** Bräuchte einen API-Schlüssel und einen Server, das passt nicht zum aktuellen „nur statische Seite“-Ansatz.
+- **Push-Erinnerungen** zum Lernen. Die Person hat **vorerst verzichtet**; nicht erneut anbieten, ausser sie fragt.
+- **Freie Gespräche mit KI.** Bräuchte einen API-Schlüssel und einen Server.
 - **Tagesserie** (wie viele Tage in Folge gespielt oder gelernt).
-- **Weitere Spiel-Ideen**:
-  - Memory (Japanisch ↔ Deutsch, Kana ↔ Romaji)
-  - Shiritori (Wortkette gegen die App, optional mit Mikrofon)
+- **Weitere Spiel-Ideen**: Memory auch für Wörter / Kana ↔ Romaji, Shiritori.
 - **Satz-Puzzle „Profi“-Modus** mit einem falschen Zusatz-Partikel.
-- Sichtbarerer Deko-Streifen auf der Startseite. Angeboten, die Person hat es nicht weiterverfolgt.
+- Sichtbarerer Deko-Streifen auf der Startseite.

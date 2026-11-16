@@ -6,11 +6,11 @@ window.GLOSS = {
   "は": "Themenpartikel (gesprochen „wa“)", "が": "Subjektpartikel", "を": "Objektpartikel (gesprochen „o“)",
   "に": "Ziel / Zeitpunkt: nach, um, in", "で": "Ort der Handlung / Mittel: in, mit", "へ": "Richtung: nach (gesprochen „e“)",
   "の": "verbindet: von, -s (Besitz)", "と": "und / mit", "も": "auch", "か": "Fragepartikel", "ね": "…, nicht wahr?",
-  "よ": "Betonung: weißt du", "から": "von, ab / weil", "まで": "bis", "や": "und (Aufzählung)",
+  "よ": "Betonung: weisst du", "から": "von, ab / weil", "まで": "bis", "や": "und (Aufzählung)",
   "です": "sein (höflich)", "ですか": "…? (höfliche Frage)", "ですね": "…, nicht wahr?", "ですよ": "ist (betont)",
   "さん": "Herr/Frau (Anrede)", "ください": "bitte (geben Sie)", "ええ": "ja", "でも": "aber",
   "そうですか": "Ach so.", "あのう": "Ähm …", "あ": "Ah!", "ありがとうございます": "Vielen Dank.", "ありがとう": "Danke.",
-  "どうぞ": "bitte (anbieten)", "よろしく": "auf gute Zusammenarbeit (Gruß)", "けっこうです": "Nein, danke. / Nicht nötig.",
+  "どうぞ": "bitte (anbieten)", "よろしく": "auf gute Zusammenarbeit (Gruss)", "けっこうです": "Nein, danke. / Nicht nötig.",
   "いいですね": "Gute Idee! / Schön!", "バナナ": "Banane", "うち": "Zuhause, zu Hause", "さんぽ": "Spaziergang", "散歩": "Spaziergang", "かいしゃ": "Firma", "会社": "Firma", "たのしみ": "Vorfreude (ich freue mich)", "楽しみ": "Vorfreude (ich freue mich)", "います": "es gibt / sein (Lebewesen)", "あります": "es gibt (Dinge)",
 };
 
@@ -96,7 +96,7 @@ window.DIALOGS = [
     roles: { A: ["りょこうしゃ", "av-traveler"], B: ["おまわりさん", "av-police"] },
     lines: [
       ["A", "すみません、|_えき=駅|は|どこ|ですか。", "Entschuldigung, wo ist der Bahnhof?"],
-      ["B", "えき=駅|ですか。|この==dieser|みち=道|を|_まっすぐ|いって=行って=gehen Sie|ください。", "Zum Bahnhof? Gehen Sie diese Straße geradeaus."],
+      ["B", "えき=駅|ですか。|この==dieser|みち=道|を|_まっすぐ|いって=行って=gehen Sie|ください。", "Zum Bahnhof? Gehen Sie diese Strasse geradeaus."],
       ["A", "まっすぐ|ですね。", "Geradeaus, verstehe."],
       ["B", "はい。|それから==danach|しんごう=信号|を|_みぎ=右|に|まがって=曲がって=biegen Sie ab|ください。", "Ja. Dann biegen Sie an der Ampel rechts ab."],
       ["A", "_とおい=遠い|ですか。", "Ist es weit?"],
@@ -127,7 +127,7 @@ window.STORIES = [
       { pic: "📦 😺", lines: ["あ！|はこ=箱|の|なか=中|に|います。==ist (da)", "タマ|は|はこ=箱|が|すき=好き|です。"], de: "Ah! Sie ist in der Schachtel. Tama mag Schachteln." },
     ],
     questions: [
-      { q: "ねこ=猫|の|なまえ=名前|は|なん=何|ですか。", de: "Wie heißt die Katze?", a: ["タマ", "ポチ", "ハナ"] },
+      { q: "ねこ=猫|の|なまえ=名前|は|なん=何|ですか。", de: "Wie heisst die Katze?", a: ["タマ", "ポチ", "ハナ"] },
       { q: "タマ|は|あさ=朝|どこ|で|ねますか。=寝ますか。=schläft", de: "Wo schläft Tama morgens?", a: ["ソファ の うえ", "はこ の なか", "ベッド の した"] },
       { q: "タマ|は|なに=何|が|だいすき=大好き|ですか。", de: "Was liebt Tama?", a: ["さかな", "にく", "やさい"] },
       { q: "よる、|タマ|は|どこ|に|いましたか。==war", de: "Wo war Tama am Abend?", a: ["はこ の なか", "ソファ の うえ", "にわ"] },
@@ -151,7 +151,7 @@ window.STORIES = [
       { pic: "📅 🎆", lines: ["はちがつ=8月=August|に|まち=町|で|はなびたいかい=花火大会|が|あります。"], de: "Im August gibt es in der Stadt ein Feuerwerksfest." },
       { pic: "👧 👩", lines: ["ユミ==Yumi (Name)|は|ともだち=友だち|の|リサ==Lisa (Name)|と|いきます。=行きます。=geht"], de: "Yumi geht mit ihrer Freundin Lisa hin." },
       { pic: "👘 👘", lines: ["ふたり=二人=die beiden|は|ゆかた=浴衣=Yukata (Sommerkimono)|を|きます。=着ます。=ziehen an"], de: "Die beiden ziehen einen Yukata an." },
-      { pic: "🍢 🍧", lines: ["まつり=祭り|で|やきとり=焼き鳥=Hähnchenspieße|を|たべます。=食べます。=essen", "かきごおり=かき氷=geraspeltes Eis|も|たべます。=食べます。=essen"], de: "Auf dem Fest essen sie Yakitori. Sie essen auch Kakigori." },
+      { pic: "🍢 🍧", lines: ["まつり=祭り|で|やきとり=焼き鳥=Hähnchenspiesse|を|たべます。=食べます。=essen", "かきごおり=かき氷=geraspeltes Eis|も|たべます。=食べます。=essen"], de: "Auf dem Fest essen sie Yakitori. Sie essen auch Kakigori." },
       { pic: "🎆 🎇 ✨", lines: ["よる=夜|はちじ=8時=8 Uhr|に|はなび=花火|が|はじまります。=始まります。=beginnt", "とても==sehr|きれい|です。"], de: "Um 8 Uhr abends beginnt das Feuerwerk. Es ist wunderschön." },
       { pic: "😊 💬", lines: ["らいねん=来年|も|また==wieder|いきましょう。=行きましょう。=lass uns gehen"], de: "Lass uns nächstes Jahr wieder hingehen!" },
     ],
@@ -243,7 +243,7 @@ window.STORIES.push(
     ] },
   { id: "s-ame", title: "あめ の ひ", de: "Ein Regentag", lesson: "Lektion 9–12", cover: "☔", icon: "c-umbrella",
     pages: [
-      { lines: ["きょう=今日|は|あめ=雨=Regen|です。", "そと=外=draußen|は|さむい=寒い|です。"], de: "Heute regnet es. Draußen ist es kalt." },
+      { lines: ["きょう=今日|は|あめ=雨=Regen|です。", "そと=外=draussen|は|さむい=寒い|です。"], de: "Heute regnet es. Draussen ist es kalt." },
       { lines: ["わたし=私=ich|は|うち|に|います。==bin"], de: "Ich bin zu Hause." },
       { lines: ["おちゃ=お茶|を|のみます。=飲みます。=trinke", "そして==und dann|マンガ|を|よみます。=読みます。=lese"], de: "Ich trinke Tee. Und dann lese ich Manga." },
       { lines: ["ねこ=猫|も|うち|で|ねて います。=寝ています。=schläft gerade"], de: "Die Katze schläft auch zu Hause." },
@@ -257,9 +257,9 @@ window.STORIES.push(
     ] },
   { id: "s-onsen", title: "おんせん りょこう", de: "Ausflug ins Onsen", lesson: "Reise", cover: "♨️", icon: "s-onsen",
     pages: [
-      { lines: ["しゅうまつ=週末=Wochenende|に|おんせん=温泉=heiße Quelle|に|いきました。=行きました。=bin gefahren"], de: "Am Wochenende bin ich zu einer heißen Quelle gefahren." },
+      { lines: ["しゅうまつ=週末=Wochenende|に|おんせん=温泉=heisse Quelle|に|いきました。=行きました。=bin gefahren"], de: "Am Wochenende bin ich zu einer heissen Quelle gefahren." },
       { lines: ["でんしゃ=電車|から==aus, von|ふじさん=富士山=Berg Fuji|が|みえました。=見えました。=war zu sehen"], de: "Vom Zug aus konnte man den Fuji sehen." },
-      { lines: ["おんせん=温泉|は|とても==sehr|あつかった=熱かった=war heiß|です。", "でも、|きもち よかった=気持ちよかった=war angenehm|です。"], de: "Das Onsen war sehr heiß. Aber es war angenehm." },
+      { lines: ["おんせん=温泉|は|とても==sehr|あつかった=熱かった=war heiss|です。", "でも、|きもち よかった=気持ちよかった=war angenehm|です。"], de: "Das Onsen war sehr heiss. Aber es war angenehm." },
       { lines: ["ばんごはん=晩ご飯|に|さかな=魚|と|ごはん|を|たべました。=食べました。=habe gegessen"], de: "Zum Abendessen habe ich Fisch und Reis gegessen." },
       { lines: ["よる=夜|は|ふとん=布団=Futon|で|ねました。=寝ました。=habe geschlafen"], de: "Nachts habe ich auf einem Futon geschlafen." },
     ],
@@ -300,3 +300,30 @@ Object.assign(window.SCENES, {
     { bg: "night", items: [["s-moon", 152, 6, 32], ["s-futon", 40, 56, 112, 70]] },
   ],
 });
+
+// ---------- Füllwörter & Reaktionen (あいづち) ----------
+// [kana, kanji, Bedeutung, wann man es sagt, Beispiel (kana), Beispiel Deutsch, Situation fürs Quiz (optional)]
+window.FILLERS = [
+  ["えっと", "", "ähm, also …", "Kurz überlegen, bevor man antwortet. Sehr häufig.", "えっと、ちょっと まって ください。", "Ähm, einen Moment bitte.", "Du brauchst einen Moment, um zu überlegen."],
+  ["えーと", "", "äh, mal sehen …", "Wie えっと, etwas länger gezogen.", "えーと、さんじ です。", "Äh, mal sehen … um drei Uhr.", ""],
+  ["あのう", "", "ähm, entschuldigung …", "Jemanden vorsichtig ansprechen oder zögern, bevor man etwas fragt.", "あのう、すみません。えきは どこですか。", "Ähm, entschuldigen Sie. Wo ist der Bahnhof?", "Du willst eine fremde Person vorsichtig ansprechen."],
+  ["うーん", "", "hmm …", "Nachdenken oder unsicher sein.", "うーん、むずかしい ですね。", "Hmm, das ist schwierig.", "Du bist unsicher und denkst nach."],
+  ["そうですね", "", "stimmt / lass mich überlegen …", "Zustimmen – oder Zeit gewinnen, bevor man antwortet.", "そうですね…、すしが すきです。", "Lass mich überlegen … ich mag Sushi.", "Jemand fragt dich etwas und du willst kurz Zeit gewinnen."],
+  ["そうですか", "", "ach so / ach, wirklich?", "Man hat etwas Neues gehört und nimmt es auf.", "ドイツから きました。――そうですか。", "Ich komme aus Deutschland. – Ach so.", "Jemand erzählt dir etwas Neues."],
+  ["へえ", "", "oh, echt?", "Staunen oder Interesse zeigen.", "へえ、すごい ですね。", "Oh, echt? Das ist toll!", "Du staunst über etwas Interessantes."],
+  ["なるほど", "", "aha, verstehe", "Man hat eine Erklärung verstanden.", "なるほど、わかりました。", "Aha, verstanden.", "Jemand hat dir etwas erklärt und jetzt verstehst du es."],
+  ["ほんとうですか", "本当ですか", "wirklich?", "Überrascht nachfragen. Locker: ほんとう？", "ほんとうですか。うれしい です！", "Wirklich? Ich freue mich!", "Du kannst eine Neuigkeit kaum glauben."],
+  ["ええ", "", "ja (weich)", "Weiches Ja, etwas höflicher als うん.", "ええ、そうです。", "Ja, genau.", ""],
+  ["うん", "", "ja, mhm", "Lockeres Ja unter Freunden und in der Familie.", "うん、いいよ。", "Ja, klar.", "Ein Freund fragt dich etwas und du sagst locker Ja."],
+  ["はい", "", "ja / mhm (beim Zuhören)", "Japaner sagen beim Zuhören oft はい oder ええ, um zu zeigen: Ich höre zu.", "はい、はい。", "Mhm, mhm.", "Du hörst am Telefon zu und zeigst, dass du dabei bist."],
+  ["まあ", "", "na ja …", "Etwas abschwächen oder nicht ganz klar antworten.", "まあ、いい です。", "Na ja, geht schon.", ""],
+  ["じゃあ", "", "also dann …", "Ein Gespräch abschliessen oder etwas Neues vorschlagen.", "じゃあ、また あした。", "Also dann, bis morgen.", "Du willst dich verabschieden."],
+  ["ちょっと…", "", "das ist etwas … (schwierig)", "Höflich Nein sagen, ohne Nein zu sagen. Der Satz bleibt offen.", "あしたは ちょっと…。", "Morgen ist leider etwas …", "Jemand lädt dich ein, aber du kannst nicht."],
+  ["あ", "", "ah! / oh!", "Einem fällt plötzlich etwas ein.", "あ、わすれました！", "Oh, ich habe es vergessen!", "Dir fällt plötzlich etwas ein."],
+  ["えっ", "", "hä? / was?", "Überraschung, oder man hat nicht richtig verstanden.", "えっ？もう いちど おねがいします。", "Hä? Bitte noch einmal.", "Du hast etwas nicht verstanden."],
+  ["すごい", "", "wow! / toll!", "Begeisterung. Höflich: すごい ですね。", "すごい ですね！", "Wow, toll!", "Du bist begeistert."],
+  ["いいですね", "", "wie schön! / gute Idee!", "Auf einen Vorschlag positiv reagieren.", "いっしょに いきましょう。――いいですね！", "Gehen wir zusammen! – Gute Idee!", "Jemand macht einen Vorschlag, der dir gefällt."],
+  ["やっぱり", "", "doch / wie erwartet", "Man bleibt bei einer Meinung oder etwas war wie gedacht.", "やっぱり すしが いい です。", "Ich nehme doch lieber Sushi.", ""],
+  ["そっか", "", "ach so (locker)", "Lockere Form von そうですか. Hört man oft im Anime.", "そっか、わかった。", "Ach so, verstanden.", ""],
+  ["まじ", "", "echt jetzt?! (Umgangssprache)", "Sehr locker, nur unter Freunden. Häufig im Anime.", "まじで？", "Echt jetzt?", ""],
+];

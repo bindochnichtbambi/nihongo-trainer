@@ -50,7 +50,7 @@
       forms: ["ひとつ", "ふたつ", "みっつ", "よっつ", "いつつ", "むっつ", "ななつ", "やっつ", "ここのつ", "とお"],
       items: [["c-apple", "りんご", "Äpfel"], ["c-mandarin", "みかん", "Mandarinen"], ["c-onigiri", "おにぎり", "Reisbällchen"], ["c-cake", "ケーキ", "Kuchen"], ["c-gift", "プレゼント", "Geschenke"]] },
     nin: { label: "人", title: "Personen (〜にん)", base: "にん",
-      info: "Personen: 1 = ひとり, 2 = ふたり sind unregelmäßig, ab 3 regelmäßig mit 〜にん. Achtung: 4 = よにん.",
+      info: "Personen: 1 = ひとり, 2 = ふたり sind unregelmässig, ab 3 regelmässig mit 〜にん. Achtung: 4 = よにん.",
       forms: ["ひとり", "ふたり", "さんにん", "よにん", "ごにん", "ろくにん", ["しちにん", "ななにん"], "はちにん", ["きゅうにん", "くにん"], "じゅうにん"],
       items: [["s-woman", "ひと", "Personen"], ["s-girl", "おんなのこ", "Mädchen"], ["c-boy", "おとこのこ", "Jungen"], ["c-student", "がくせい", "Studierende"]] },
     hiki: { label: "匹", title: "Kleine Tiere (〜ひき)", base: "ひき",
@@ -62,7 +62,7 @@
       forms: ["いっぽん", "にほん", "さんぼん", "よんほん", "ごほん", "ろっぽん", "ななほん", ["はっぽん", "はちほん"], "きゅうほん", ["じゅっぽん", "じっぽん"]],
       items: [["c-pencil", "えんぴつ", "Bleistifte"], ["c-pen", "ペン", "Stifte"], ["c-bottle", "ワイン", "Flaschen Wein"], ["c-umbrella", "かさ", "Regenschirme"], ["c-banana", "バナナ", "Bananen"]] },
     mai: { label: "枚", title: "Flache Dinge (〜まい)", base: "まい",
-      info: "Papier, Fotos, T-Shirts, Tickets, Teller. Ganz regelmäßig – nur 4 = よんまい, 7 = ななまい.",
+      info: "Papier, Fotos, T-Shirts, Tickets, Teller. Ganz regelmässig – nur 4 = よんまい, 7 = ななまい.",
       forms: ["いちまい", "にまい", "さんまい", "よんまい", "ごまい", "ろくまい", ["ななまい", "しちまい"], "はちまい", "きゅうまい", "じゅうまい"],
       items: [["c-paper", "かみ", "Blätter Papier"], ["c-tshirt", "Tシャツ", "T-Shirts"], ["c-ticket", "チケット", "Tickets"], ["c-photo", "しゃしん", "Fotos"], ["c-plate", "さら", "Teller"]] },
     hai: { label: "杯", title: "Getränke / Schüsseln (〜はい)", base: "はい",
@@ -78,7 +78,7 @@
       forms: ["いっさつ", "にさつ", "さんさつ", "よんさつ", "ごさつ", "ろくさつ", "ななさつ", "はっさつ", "きゅうさつ", ["じゅっさつ", "じっさつ"]],
       items: [["c-book", "ほん", "Bücher"], ["c-notebook", "ノート", "Hefte"], ["c-manga", "マンガ", "Mangas"]] },
     dai: { label: "台", title: "Maschinen, Fahrzeuge (〜だい)", base: "だい",
-      info: "Autos, Fahrräder, Fernseher, Computer. Ganz regelmäßig: いちだい, にだい, さんだい …",
+      info: "Autos, Fahrräder, Fernseher, Computer. Ganz regelmässig: いちだい, にだい, さんだい …",
       forms: ["いちだい", "にだい", "さんだい", "よんだい", "ごだい", "ろくだい", "ななだい", "はちだい", "きゅうだい", "じゅうだい"],
       items: [["c-car", "くるま", "Autos"], ["c-bike", "じてんしゃ", "Fahrräder"], ["s-tv", "テレビ", "Fernseher"], ["c-laptop", "パソコン", "Computer"]] },
   };
@@ -86,7 +86,7 @@
   // Spezial-Kategorien ohne Bilder
   const SPECIAL = {
     sai: { label: "歳", title: "Alter (〜さい)", info: "Alter: 1 いっさい, 8 はっさい, 10 じゅっさい. 20 Jahre = はたち (besonders!)." },
-    hi: { label: "日", title: "Datum (1.–31.)", info: "Die Tage 1–10, 14, 20 und 24 sind unregelmäßig: ついたち, ふつか, みっか, よっか, いつか, むいか, なのか, ようか, ここのか, とおか, じゅうよっか, はつか, にじゅうよっか." },
+    hi: { label: "日", title: "Datum (1.–31.)", info: "Die Tage 1–10, 14, 20 und 24 sind unregelmässig: ついたち, ふつか, みっか, よっか, いつか, むいか, なのか, ようか, ここのか, とおか, じゅうよっか, はつか, にじゅうよっか." },
     youbi: { label: "曜", title: "Wochentage", info: "げつ(月 Mond), か(火 Feuer), すい(水 Wasser), もく(木 Holz), きん(金 Gold), ど(土 Erde), にち(日 Sonne) + ようび." },
     gatsu: { label: "月", title: "Monate", info: "Monat = Zahl + がつ. Achtung: April = しがつ, Juli = しちがつ, September = くがつ." },
     ji: { label: "時", title: "Uhrzeit (Stunden)", info: "Stunde = Zahl + じ. Achtung: 4 = よじ, 7 = しちじ, 9 = くじ. Halb = はん (z. B. よじはん)." },
@@ -207,13 +207,13 @@
     }
     if (cat === "youbi") {
       const i = ordered ? k : rnd(0, 6), y = YOUBI[i];
-      return { cat, prompt: head("s-calendar") + `<div class="big-num small">${y[2]}</div>`, sub: `${y[1]} – wie heißt der Tag?`, answers: [y[0]],
-        wrong: YOUBI.filter((_, j) => j !== i).map(x => x[0]), info: SPECIAL.youbi.info, icon: "s-calendar", table: YOUBI.map(x => [x[2] + " " + x[1], x[0]]) };
+      return { cat, prompt: head("c-daynight") + `<div class="big-num small">${y[2]}</div>`, sub: `${y[1]} – wie heisst der Tag?`, answers: [y[0]],
+        wrong: YOUBI.filter((_, j) => j !== i).map(x => x[0]), info: SPECIAL.youbi.info, icon: "c-daynight", table: YOUBI.map(x => [x[2] + " " + x[1], x[0]]) };
     }
     if (cat === "gatsu") {
       const n = ordered ? k + 1 : rnd(1, 12);
-      return { cat, prompt: head("s-calendar") + `<div class="big-num">${n}月</div>`, sub: MONTHS_DE[n], answers: [GATSU[n]],
-        wrong: [numReading(n) + "がつ", GATSU[n === 12 ? 11 : n + 1], GATSU[n === 1 ? 2 : n - 1]], info: SPECIAL.gatsu.info, icon: "s-calendar",
+      return { cat, prompt: head("c-twelve") + `<div class="big-num">${n}月</div>`, sub: MONTHS_DE[n], answers: [GATSU[n]],
+        wrong: [numReading(n) + "がつ", GATSU[n === 12 ? 11 : n + 1], GATSU[n === 1 ? 2 : n - 1]], info: SPECIAL.gatsu.info, icon: "c-twelve",
         table: GATSU.slice(1).map((g, i) => [(i + 1) + "月 " + MONTHS_DE[i + 1], g]) };
     }
     if (cat === "ji") {
@@ -225,21 +225,21 @@
     if (cat === "fun") {
       const n = ordered ? SEQ.fun[k] : (Math.random() < 0.5 ? rnd(1, 10) : rnd(11, 59));
       const n2 = n === 59 ? 58 : n + 1;
-      return { cat, prompt: head("i-clock") + `<div class="big-num">${n}分</div>`, sub: `${n} Minuten`, answers: fun(n),
-        wrong: [numReading(n) + "ふん", numReading(n) + "ぷん", fun(n2)[0]], info: SPECIAL.fun.info, icon: "i-clock",
+      return { cat, prompt: head("c-stopwatch") + `<div class="big-num">${n}分</div>`, sub: `${n} Minuten`, answers: fun(n),
+        wrong: [numReading(n) + "ふん", numReading(n) + "ぷん", fun(n2)[0]], info: SPECIAL.fun.info, icon: "c-stopwatch",
         table: SEQ.fun.map(i => [i + "分", fun(i).join(" / ")]) };
     }
     if (cat === "num") {
       const n = ordered ? SEQ.num[k] : pick([rnd(11, 99), rnd(100, 999), rnd(100, 999), rnd(1000, 9999), rnd(10000, 99999), pick([300, 600, 800, 3000, 8000, 1000, 10000])]);
       const ans = numAlts(n);
       const wrong = [ans[0].replace("びゃく", "ひゃく").replace("ぴゃく", "ひゃく").replace("ぜん", "せん").replace("っせん", "ちせん"), numReading(n + 1), numReading(n + 10), numReading(n + 100)];
-      return { cat, prompt: `<div class="big-num">${n.toLocaleString("de-DE")}</div>`, sub: "Wie liest man die Zahl?", answers: ans, wrong, info: SPECIAL.num.info, icon: null,
+      return { cat, prompt: `<div class="big-num">${n.toLocaleString("de-DE")}</div>`, sub: "Wie liest man die Zahl?", answers: ans, wrong, info: SPECIAL.num.info, icon: "c-zero",
         table: SEQ.num.map(v => [v.toLocaleString("de-DE"), numReading(v)]) };
     }
     if (cat === "yen") {
       const n = ordered ? SEQ.yen[k] : pick([rnd(1, 9) * 100, rnd(1, 9) * 1000 + rnd(0, 9) * 100, rnd(100, 999), 4, 14, 104, rnd(1, 9) * 10000, 350, 1500, 2800]);
-      return { cat, prompt: head("c-yen") + `<div class="big-num">¥${n.toLocaleString("de-DE")}</div>`, sub: "Wie viel kostet es?", answers: [yen(n)],
-        wrong: [numReading(n) + "えん", yen(n + 100), yen(n > 100 ? n - 100 : n + 10)], info: SPECIAL.yen.info, icon: "c-yen",
+      return { cat, prompt: head("c-banknote") + `<div class="big-num">¥${n.toLocaleString("de-DE")}</div>`, sub: "Wie viel kostet es?", answers: [yen(n)],
+        wrong: [numReading(n) + "えん", yen(n + 100), yen(n > 100 ? n - 100 : n + 10)], info: SPECIAL.yen.info, icon: "c-banknote",
         table: SEQ.yen.map(v => ["¥" + v.toLocaleString("de-DE"), yen(v)]) };
     }
     if (cat === "kal") {
@@ -251,9 +251,11 @@
     }
   }
 
+  // Bilder für die Kategorien ohne Zählgegenstand
+  const SPECIAL_ICON = { sai: "c-cakebday", hi: "s-calendar", youbi: "c-daynight", gatsu: "c-twelve", ji: "i-clock", fun: "c-stopwatch", num: "c-zero", yen: "c-banknote" };
   const CATEGORIES = [
     ...Object.entries(C).map(([k, c]) => ({ id: k, label: c.label, title: c.title, icon: c.items[0][0] })),
-    ...Object.entries(SPECIAL).filter(([k]) => k !== "kal").map(([k, c]) => ({ id: k, label: c.label, title: c.title })),
+    ...Object.entries(SPECIAL).filter(([k]) => k !== "kal").map(([k, c]) => ({ id: k, label: c.label, title: c.title, icon: SPECIAL_ICON[k] })),
   ];
   window.Counters = { CATEGORIES, makeQuestion, numReading, seqLength, calendarSVG, HI, GATSU, YOUBI, MONTHS_DE };
 })();

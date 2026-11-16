@@ -4,7 +4,7 @@
 window.GRAMMAR = [
   {
     id: "desu", l: 1, title: "A は B です", sub: "„A ist B“ – und die Verneinung",
-    expl: `<p><b>は</b> (gesprochen <b>wa</b>) markiert das Thema: „Was dich betrifft …“. <b>です</b> am Ende macht den Satz höflich und heißt „ist / bin / sind“.</p>
+    expl: `<p><b>は</b> (gesprochen <b>wa</b>) markiert das Thema: „Was dich betrifft …“. <b>です</b> am Ende macht den Satz höflich und heisst „ist / bin / sind“.</p>
       <p>Verneinung: <b>じゃ ありません</b> (gesprochen) oder <b>では ありません</b> (geschrieben). Frage: einfach <b>か</b> ans Ende setzen.</p>`,
     ex: [["わたしは マリアです。", "私はマリアです。", "Ich bin Maria."],
       ["たなかさんは がくせいじゃ ありません。", "田中さんは学生じゃありません。", "Herr Tanaka ist kein Student."],
@@ -76,13 +76,13 @@ window.GRAMMAR = [
   },
   {
     id: "adj", l: 8, title: "い-Adjektive und な-Adjektive", sub: "Dinge beschreiben",
-    expl: `<p><b>い-Adjektive</b> enden auf い: おおきい いえ (großes Haus). Verneinung: い → <b>くない</b>です (おおきくないです). Achtung: いい → よくないです.</p>
+    expl: `<p><b>い-Adjektive</b> enden auf い: おおきい いえ (grosses Haus). Verneinung: い → <b>くない</b>です (おおきくないです). Achtung: いい → よくないです.</p>
       <p><b>な-Adjektive</b> bekommen vor einem Nomen ein <b>な</b>: しずかな へや (ruhiges Zimmer). Verneinung: しずか<b>じゃ ありません</b>. Bekannte な-Adjektive: きれい, しずか, げんき, ゆうめい, べんり, すき.</p>`,
     ex: [["あたらしい アパートです。", "新しいアパートです。", "Es ist eine neue Wohnung."],
       ["きれいな へやですね。", "きれいな部屋ですね。", "Was für ein schönes Zimmer!"],
       ["この カレーは からくないです。", "このカレーは辛くないです。", "Dieses Curry ist nicht scharf."]],
     quiz: [{ q: "しずか＿ まちです。", o: ["な", "い", "の"], de: "Es ist eine ruhige Stadt." },
-      { q: "へやは ひろ＿ないです。", o: ["く", "い", "な"], de: "Das Zimmer ist nicht groß (weit)." },
+      { q: "へやは ひろ＿ないです。", o: ["く", "い", "な"], de: "Das Zimmer ist nicht gross (weit)." },
       { q: "てんきが ＿ないです。", o: ["よく", "いく", "いい"], de: "Das Wetter ist nicht gut." },
       { q: "ここは べんり＿ ありません。", o: ["じゃ", "く", "な"], de: "Hier ist es nicht praktisch." }],
   },
@@ -101,7 +101,7 @@ window.GRAMMAR = [
   {
     id: "ni-de-he", l: 10, title: "に・へ・で bei Orten", sub: "Wohin? Wo? Womit?",
     expl: `<p><b>に / へ</b> (へ gesprochen <b>e</b>) = Ziel/Richtung bei いきます, きます, かえります: がっこうに いきます.</p>
-      <p><b>で</b> = Ort, an dem etwas <i>getan</i> wird: としょかんで べんきょうします. Außerdem <b>で</b> = Mittel: でんしゃで, はしで (mit Stäbchen). <b>と</b> = zusammen mit: ともだちと.</p>`,
+      <p><b>で</b> = Ort, an dem etwas <i>getan</i> wird: としょかんで べんきょうします. Ausserdem <b>で</b> = Mittel: でんしゃで, はしで (mit Stäbchen). <b>と</b> = zusammen mit: ともだちと.</p>`,
     ex: [["でんしゃで かいしゃに いきます。", "電車で会社に行きます。", "Ich fahre mit dem Zug zur Firma."],
       ["レストランで ばんごはんを たべました。", "レストランで晩ご飯を食べました。", "Ich habe im Restaurant zu Abend gegessen."],
       ["ともだちと にほんへ いきます。", "友達と日本へ行きます。", "Ich reise mit Freunden nach Japan."]],
@@ -126,7 +126,7 @@ window.GRAMMAR = [
     id: "past-adj", l: 12, title: "Adjektive in der Vergangenheit", sub: "Wie war es?",
     expl: `<p><b>い-Adjektive</b>: い → <b>かったです</b>: たのしい → たのし<b>かった</b>です (es war lustig). Verneint: <b>くなかったです</b>. Achtung: いい → <b>よかった</b>です.</p>
       <p><b>な-Adjektive und Nomen</b>: <b>でした</b>: しずか<b>でした</b>, あめ<b>でした</b>. Verneint: <b>じゃ ありませんでした</b>. Frage: <b>どうでしたか</b> = Wie war es?</p>`,
-    ex: [["コンサートは たのしかったです。", "コンサートは楽しかったです。", "Das Konzert hat Spaß gemacht."],
+    ex: [["コンサートは たのしかったです。", "コンサートは楽しかったです。", "Das Konzert hat Spass gemacht."],
       ["りょこうは どうでしたか。", "旅行はどうでしたか。", "Wie war die Reise?"],
       ["てんきは あまり よくなかったです。", "天気はあまりよくなかったです。", "Das Wetter war nicht so gut."]],
     quiz: [{ q: "えいがは おもしろ＿です。", o: ["かった", "い", "でした"], de: "Der Film war interessant." },
@@ -166,8 +166,36 @@ window.GRAMMAR = [
       ["きょうは なにも したくないです。", "今日は何もしたくないです。", "Heute möchte ich gar nichts tun."],
       ["あかい セーターが ほしいです。", "赤いセーターが欲しいです。", "Ich hätte gern einen roten Pullover."]],
     quiz: [{ q: "にほんへ いき＿です。", o: ["たい", "ます", "たく"], de: "Ich möchte nach Japan reisen." },
-      { q: "おんせんに はいり＿ないです。", o: ["たく", "たい", "たかった"], de: "Ich möchte nicht in die heiße Quelle." },
+      { q: "おんせんに はいり＿ないです。", o: ["たく", "たい", "たかった"], de: "Ich möchte nicht in die heisse Quelle." },
       { q: "あたらしい くつが ＿です。", o: ["ほしい", "たい", "すき"], de: "Ich hätte gern neue Schuhe." },
       { q: "なにが たべ＿ですか。", o: ["たい", "ます", "て"], de: "Was möchtest du essen?" }],
   },
+];
+
+// Fragewörter: [kana, kanji, Bedeutung, Frage kana, Frage kanji, Frage deutsch, Antwort kana, Antwort kanji, Antwort deutsch, Lektion (geschätzt)]
+window.QWORDS = [
+  ["なに", "何", "was", "なにを たべますか。", "何を食べますか。", "Was isst du?", "すしを たべます。", "寿司を食べます。", "Ich esse Sushi.", 5],
+  ["なん", "何", "was (vor です, の und Zählwörtern)", "これは なんですか。", "これは何ですか。", "Was ist das?", "ペンです。", "", "Das ist ein Stift.", 2],
+  ["なんじ", "何時", "wie viel Uhr", "いま なんじですか。", "今何時ですか。", "Wie spät ist es?", "さんじです。", "三時です。", "Drei Uhr.", 9],
+  ["なんぷん", "何分", "wie viele Minuten", "えきまで なんぷんですか。", "駅まで何分ですか。", "Wie viele Minuten bis zum Bahnhof?", "ごふんです。", "五分です。", "Fünf Minuten.", 9],
+  ["なんようび", "何曜日", "welcher Wochentag", "きょうは なんようびですか。", "今日は何曜日ですか。", "Welcher Wochentag ist heute?", "げつようびです。", "月曜日です。", "Montag.", 9],
+  ["なんがつ", "何月", "welcher Monat", "たんじょうびは なんがつですか。", "誕生日は何月ですか。", "In welchem Monat hast du Geburtstag?", "しがつです。", "四月です。", "Im April.", 11],
+  ["なんにち", "何日", "welcher Tag (Datum)", "きょうは なんにちですか。", "今日は何日ですか。", "Der Wievielte ist heute?", "とおかです。", "十日です。", "Der 10.", 11],
+  ["なんさい", "何歳", "wie alt", "なんさいですか。", "何歳ですか。", "Wie alt bist du?", "にじゅうごさいです。", "二十五歳です。", "Ich bin 25.", 3],
+  ["なんにん", "何人", "wie viele Personen", "かぞくは なんにんですか。", "家族は何人ですか。", "Wie viele seid ihr in der Familie?", "よにんです。", "四人です。", "Vier.", 3],
+  ["なにご", "何語", "welche Sprache", "なにごを はなしますか。", "何語を話しますか。", "Welche Sprache sprichst du?", "ドイツごを はなします。", "ドイツ語を話します。", "Ich spreche Deutsch.", 3],
+  ["なにじん", "何人", "welche Nationalität", "なにじんですか。", "何人ですか。", "Woher kommst du? (Nationalität)", "スイスじんです。", "スイス人です。", "Ich bin Schweizer/in.", 3],
+  ["いつ", "", "wann", "たんじょうびは いつですか。", "誕生日はいつですか。", "Wann hast du Geburtstag?", "ごがつ みっかです。", "五月三日です。", "Am 3. Mai.", 9],
+  ["どこ", "", "wo", "トイレは どこですか。", "", "Wo ist die Toilette?", "あそこです。", "", "Dort drüben.", 2],
+  ["だれ", "誰", "wer", "あの ひとは だれですか。", "あの人は誰ですか。", "Wer ist diese Person?", "たなかさんです。", "田中さんです。", "Das ist Frau Tanaka.", 3],
+  ["いくら", "", "wie viel (Preis)", "これは いくらですか。", "", "Wie viel kostet das?", "ごひゃくえんです。", "五百円です。", "500 Yen.", 11],
+  ["いくつ", "", "wie viele (Stück); bei Kindern auch: wie alt", "りんごは いくつですか。", "", "Wie viele Äpfel sind es?", "みっつです。", "三つです。", "Drei.", 7],
+  ["どれ", "", "welches (von mehreren)", "どれが いいですか。", "", "Welches möchtest du?", "これが いいです。", "", "Das hier.", 2],
+  ["どの", "", "welcher / welche + Nomen", "どの かばんですか。", "", "Welche Tasche ist es?", "あの あかい かばんです。", "あの赤いかばんです。", "Die rote dort.", 2],
+  ["どちら", "", "welches von zweien; höflich auch: wo", "コーヒーと おちゃと どちらが いいですか。", "コーヒーとお茶とどちらがいいですか。", "Kaffee oder Tee – was möchtest du?", "おちゃが いいです。", "お茶がいいです。", "Lieber Tee.", 15],
+  ["どう", "", "wie (ist es)", "にほんは どうですか。", "日本はどうですか。", "Wie ist es in Japan?", "たのしいです。", "楽しいです。", "Es macht Spass.", 11],
+  ["どんな", "", "was für ein", "どんな おんがくが すきですか。", "どんな音楽が好きですか。", "Was für Musik magst du?", "ロックが すきです。", "ロックが好きです。", "Ich mag Rock.", 7],
+  ["どうして", "", "warum", "どうして にほんごを べんきょうしますか。", "どうして日本語を勉強しますか。", "Warum lernst du Japanisch?", "アニメが すきですから。", "アニメが好きですから。", "Weil ich Anime mag.", 13],
+  ["どのくらい", "", "wie lange / wie viel", "どのくらい かかりますか。", "", "Wie lange dauert es?", "いちじかんぐらいです。", "一時間ぐらいです。", "Etwa eine Stunde.", 13],
+  ["なんで", "何で", "womit (Verkehrsmittel); locker auch: warum", "なんで いきますか。", "何で行きますか。", "Womit fährst du hin?", "でんしゃで いきます。", "電車で行きます。", "Mit dem Zug.", 13],
 ];
