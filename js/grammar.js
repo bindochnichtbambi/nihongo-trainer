@@ -135,6 +135,32 @@ window.GRAMMAR = [
       { q: "りょこうは とても ＿です。", o: ["よかった", "いかった", "いいでした"], de: "Die Reise war sehr gut." }],
   },
   {
+    id: "kara-made", l: 13, title: "から・まで・で・のります", sub: "Von wo bis wo, womit – einsteigen und aussteigen",
+    expl: `<p><b>A から B まで</b> = „von A bis B“. <b>Verkehrsmittel + で</b> = „mit“: バスで, でんしゃで. Zu Fuss heisst <b>あるいて</b> – ohne で.</p>
+      <p><b>Ort で + Verkehrsmittel に のります</b> = „an … steige ich in … ein“. <b>Ort で + Verkehrsmittel を おります</b> = „an … steige ich aus …“. Merke: einsteigen mit <b>に</b> (hinein), aussteigen mit <b>を</b>.</p>
+      <p>Fragen: <b>どうやって いきますか</b> = „Wie kommst du hin?“ · <b>なんで いきますか</b> = „Womit fährst du?“</p>`,
+    ex: [["うちから かいしゃまで でんしゃで いきます。", "家から会社まで電車で行きます。", "Von zu Hause bis zur Firma fahre ich mit dem Zug."],
+      ["えきで ちかてつに のります。", "駅で地下鉄に乗ります。", "Am Bahnhof steige ich in die U-Bahn."],
+      ["つぎの えきで バスを おります。", "次の駅でバスを降ります。", "An der nächsten Station steige ich aus dem Bus."]],
+    quiz: [{ q: "えき＿ くうこうまで バスで いきます。", o: ["から", "まで", "を"], de: "Vom Bahnhof bis zum Flughafen fahre ich mit dem Bus." },
+      { q: "がっこうまで じてんしゃ＿ いきます。", o: ["で", "に", "を"], de: "Ich fahre mit dem Velo zur Schule." },
+      { q: "えきで でんしゃ＿ のります。", o: ["に", "を", "で"], de: "Am Bahnhof steige ich in den Zug." },
+      { q: "さくらえきで ちかてつ＿ おります。", o: ["を", "に", "から"], de: "An der Station Sakura steige ich aus der U-Bahn." }],
+  },
+  {
+    id: "ga-ii-kara", l: 13, title: "〜が いいです・〜から", sub: "Etwas empfehlen und einen Grund nennen",
+    expl: `<p><b>Ziel は + Verkehrsmittel が いいです</b> = „Für … ist … am besten“. Mit <b>よ</b> am Ende klingt es wie ein freundlicher Tipp: こうえんは バスが いいですよ.</p>
+      <p>Den Grund hängt man mit <b>から</b> an: <b>〜ですから</b> = „weil es … ist“. Er kann auch als eigener Satz danach kommen: はやいですから。</p>
+      <p>Passende Wörter: はやい (schnell) · おそい (langsam) · やすい (billig) · たかい (teuer) · らく (bequem) · べんり (praktisch) · ふべん (unpraktisch) · ちかい (nah) · とおい (weit).</p>`,
+    ex: [["くうこうは でんしゃが いいですよ。", "空港は電車がいいですよ。", "Zum Flughafen nimmst du am besten den Zug."],
+      ["はやいですから。", "速いですから。", "Weil er schnell ist."],
+      ["タクシーは らくですが、たかいです。", "タクシーは楽ですが、高いです。", "Das Taxi ist bequem, aber teuer."]],
+    quiz: [{ q: "こうえんは バス＿ いいですよ。", o: ["が", "を", "で"], de: "Zum Park nimmst du am besten den Bus." },
+      { q: "やすいです＿。", o: ["から", "まで", "が"], de: "Weil es günstig ist." },
+      { q: "でんしゃは ＿です。 えきが ちかいですから。", o: ["べんり", "ふべん", "とおい"], de: "Der Zug ist praktisch. Weil der Bahnhof nah ist." },
+      { q: "バスは ＿です。 じかんが かかりますから。", o: ["おそい", "はやい", "ちかい"], de: "Der Bus ist langsam. Weil er lange braucht." }],
+  },
+  {
     id: "te-kudasai", l: 13, title: "〜て ください", sub: "Höflich bitten",
     expl: `<p><b>て-Form + ください</b> = „Bitte tun Sie …“. Die て-Form bildet man aus der ます-Form, z. B.: たべます → たべて, みます → みて, まがります → まがって, いきます → いって (Ausnahme!), まちます → まって, よみます → よんで, かきます → かいて, します → して.</p>
       <p>Für Dinge reicht <b>Nomen + を + ください</b>: みずを ください.</p>`,
@@ -172,7 +198,8 @@ window.GRAMMAR = [
   },
 ];
 
-// Fragewörter: [kana, kanji, Bedeutung, Frage kana, Frage kanji, Frage deutsch, Antwort kana, Antwort kanji, Antwort deutsch, Lektion (geschätzt)]
+// Fragewörter: [kana, kanji, Bedeutung, Frage kana, Frage kanji, Frage deutsch, Antwort kana, Antwort kanji, Antwort deutsch, Lektion]
+// Lektion: soweit möglich aus dem Kurs-Inhaltsverzeichnis (Marugoto A1), sonst geschätzt – die Person liefert die genauen Lektionen noch nach
 window.QWORDS = [
   ["なに", "何", "was", "なにを たべますか。", "何を食べますか。", "Was isst du?", "すしを たべます。", "寿司を食べます。", "Ich esse Sushi.", 5],
   ["なん", "何", "was (vor です, の und Zählwörtern)", "これは なんですか。", "これは何ですか。", "Was ist das?", "ペンです。", "", "Das ist ein Stift.", 2],
@@ -185,17 +212,18 @@ window.QWORDS = [
   ["なんにん", "何人", "wie viele Personen", "かぞくは なんにんですか。", "家族は何人ですか。", "Wie viele seid ihr in der Familie?", "よにんです。", "四人です。", "Vier.", 3],
   ["なにご", "何語", "welche Sprache", "なにごを はなしますか。", "何語を話しますか。", "Welche Sprache sprichst du?", "ドイツごを はなします。", "ドイツ語を話します。", "Ich spreche Deutsch.", 3],
   ["なにじん", "何人", "welche Nationalität", "なにじんですか。", "何人ですか。", "Woher kommst du? (Nationalität)", "スイスじんです。", "スイス人です。", "Ich bin Schweizer/in.", 3],
-  ["いつ", "", "wann", "たんじょうびは いつですか。", "誕生日はいつですか。", "Wann hast du Geburtstag?", "ごがつ みっかです。", "五月三日です。", "Am 3. Mai.", 9],
+  ["いつ", "", "wann", "たんじょうびは いつですか。", "誕生日はいつですか。", "Wann hast du Geburtstag?", "ごがつ みっかです。", "五月三日です。", "Am 3. Mai.", 10],
   ["どこ", "", "wo", "トイレは どこですか。", "", "Wo ist die Toilette?", "あそこです。", "", "Dort drüben.", 2],
-  ["だれ", "誰", "wer", "あの ひとは だれですか。", "あの人は誰ですか。", "Wer ist diese Person?", "たなかさんです。", "田中さんです。", "Das ist Frau Tanaka.", 3],
-  ["いくら", "", "wie viel (Preis)", "これは いくらですか。", "", "Wie viel kostet das?", "ごひゃくえんです。", "五百円です。", "500 Yen.", 11],
-  ["いくつ", "", "wie viele (Stück); bei Kindern auch: wie alt", "りんごは いくつですか。", "", "Wie viele Äpfel sind es?", "みっつです。", "三つです。", "Drei.", 7],
+  ["だれ", "誰", "wer", "あの ひとは だれですか。", "あの人は誰ですか。", "Wer ist diese Person?", "たなかさんです。", "田中さんです。", "Das ist Frau Tanaka.", 4],
+  ["いくら", "", "wie viel (Preis)", "これは いくらですか。", "", "Wie viel kostet das?", "ごひゃくえんです。", "五百円です。", "500 Yen.", 13],
+  ["いくつ", "", "wie viele (Stück); bei Kindern auch: wie alt", "りんごは いくつですか。", "", "Wie viele Äpfel sind es?", "みっつです。", "三つです。", "Drei.", 4],
   ["どれ", "", "welches (von mehreren)", "どれが いいですか。", "", "Welches möchtest du?", "これが いいです。", "", "Das hier.", 2],
   ["どの", "", "welcher / welche + Nomen", "どの かばんですか。", "", "Welche Tasche ist es?", "あの あかい かばんです。", "あの赤いかばんです。", "Die rote dort.", 2],
-  ["どちら", "", "welches von zweien; höflich auch: wo", "コーヒーと おちゃと どちらが いいですか。", "コーヒーとお茶とどちらがいいですか。", "Kaffee oder Tee – was möchtest du?", "おちゃが いいです。", "お茶がいいです。", "Lieber Tee.", 15],
-  ["どう", "", "wie (ist es)", "にほんは どうですか。", "日本はどうですか。", "Wie ist es in Japan?", "たのしいです。", "楽しいです。", "Es macht Spass.", 11],
-  ["どんな", "", "was für ein", "どんな おんがくが すきですか。", "どんな音楽が好きですか。", "Was für Musik magst du?", "ロックが すきです。", "ロックが好きです。", "Ich mag Rock.", 7],
+  ["どちら", "", "welches von zweien; höflich auch: wo", "コーヒーと おちゃと どちらが いいですか。", "コーヒーとお茶とどちらがいいですか。", "Kaffee oder Tee – was möchtest du?", "おちゃが いいです。", "お茶がいいです。", "Lieber Tee.", 3],
+  ["どう", "", "wie (ist es)", "にほんは どうですか。", "日本はどうですか。", "Wie ist es in Japan?", "たのしいです。", "楽しいです。", "Es macht Spass.", 17],
+  ["どんな", "", "was für ein", "どんな おんがくが すきですか。", "どんな音楽が好きですか。", "Was für Musik magst du?", "ロックが すきです。", "ロックが好きです。", "Ich mag Rock.", 11],
   ["どうして", "", "warum", "どうして にほんごを べんきょうしますか。", "どうして日本語を勉強しますか。", "Warum lernst du Japanisch?", "アニメが すきですから。", "アニメが好きですから。", "Weil ich Anime mag.", 13],
   ["どのくらい", "", "wie lange / wie viel", "どのくらい かかりますか。", "", "Wie lange dauert es?", "いちじかんぐらいです。", "一時間ぐらいです。", "Etwa eine Stunde.", 13],
   ["なんで", "何で", "womit (Verkehrsmittel); locker auch: warum", "なんで いきますか。", "何で行きますか。", "Womit fährst du hin?", "でんしゃで いきます。", "電車で行きます。", "Mit dem Zug.", 13],
+  ["どうやって", "", "wie, auf welchem Weg", "えきまで どうやって いきますか。", "駅までどうやって行きますか。", "Wie kommst du zum Bahnhof?", "バスで いきます。", "バスで行きます。", "Mit dem Bus.", 13],
 ];

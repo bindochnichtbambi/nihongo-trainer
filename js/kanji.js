@@ -56,11 +56,19 @@
     ["画", "", "ガ", "Bild", "ding"], ["音", "おと", "オン", "Ton, Klang", "ding"],
     // ergänzt aus der JLPT-N5-Liste
     ["長", "なが(い)", "チョウ", "lang; Chef", "adj"], ["校", "", "コウ", "Schule", "mensch"], ["間", "あいだ・ま", "カン・ケン", "Zwischenraum, Zeitspanne", "zeit"],
+    // ergänzt aus den Kurs-Lektionen (Marugoto)
+    ["口", "くち", "コウ", "Mund; Eingang/Ausgang", "ort"], ["卵", "たまご", "ラン", "Ei", "ding"], ["京", "", "キョウ・ケイ", "Hauptstadt", "ort"],
   ];
+  // Kanji in der Reihenfolge des Kurses (Marugoto A1, Teil „Rikai“): [Lektion, Zeichen]
+  const COURSE = [[5, "魚肉卵水"], [6, "食飲"], [8, "大小新古"], [9, "時分半"], [10, "月火水木金土日"], [11, "言話読見聞書"],
+    [12, "一二三四五六七八九十年"], [13, "東西南北口"], [16, "買百千万円"], [18, "行来会休本京"]];
 
   const SETS = [
     { id: "hira", name: "Hiragana", kind: "kana", chars: hira.map(([c, r]) => ({ c, r })) },
     { id: "kata", name: "Katakana", kind: "kana", chars: kata.map(([c, r]) => ({ c, r })) },
+    // eine Gruppe pro Kurs-Lektion (course: true, l = Lektion)
+    ...COURSE.map(([l, cs]) => ({ id: "kurs" + l, name: "Kanji: Lektion " + l, kind: "kanji", course: true, l,
+      chars: [...cs].map(c => K.find(k => k[0] === c)).filter(Boolean).map(([c, kun, on, de]) => ({ c, kun, on, de })) })),
     ...[["zahl", "Kanji: Zahlen & Geld"], ["zeit", "Kanji: Zeit & Wochentage"], ["mensch", "Kanji: Menschen & Lernen"],
       ["ort", "Kanji: Orte & Richtungen"], ["verb", "Kanji: Verben"], ["adj", "Kanji: Eigenschaften & Farben"], ["ding", "Kanji: Dinge & Natur"]]
       .map(([id, name]) => ({ id, name, kind: "kanji", chars: K.filter(k => k[4] === id).map(([c, kun, on, de]) => ({ c, kun, on, de })) })),

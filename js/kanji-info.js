@@ -124,5 +124,8 @@ window.KANJI_INFO = {
   "映": ["s-tv", "Links die Sonne 日, rechts 央 (Mitte): Licht fällt in die Mitte – ein Bild wird gezeigt.", "えいが|映画|Film; えいがかん|映画館|Kino", "えいがを みに いきませんか。|映画を見に行きませんか。|Wollen wir ins Kino gehen?"],
   "画": ["s-tv", "Ein Rahmen um ein Feld 田 – ein Bild.", "えいが|映画|Film; まんが|漫画|Manga", "まんがを よみます。|漫画を読みます。|Ich lese Manga."],
   "音": ["k-note", "Oben 立 (stehen), unten 日: Jemand steht auf und gibt einen Ton von sich.", "おと|音|Ton, Geräusch; おんがく|音楽|Musik", "おんがくを ききましょう。|音楽を聞きましょう。|Lass uns Musik hören."],
+  "口": ["", "Ein offener Mund – ein Quadrat. Am Bahnhof heisst 口 auch Ausgang oder Eingang: 東口 = Ostausgang.", "くち|口|Mund; ひがしぐち|東口|Ostausgang; いりぐち|入口|Eingang; でぐち|出口|Ausgang", "ひがしぐちで あいましょう。|東口で会いましょう。|Treffen wir uns am Ostausgang."],
+  "卵": ["c-egg", "Zwei Eier liegen nebeneinander im Nest – jedes mit einem Punkt als Dotter.", "たまご|卵|Ei", "あさ たまごを たべます。|朝卵を食べます。|Am Morgen esse ich ein Ei."],
+  "京": ["i-tower", "Ein Dach, darunter ein Mund und ein kleiner Turm – die grosse Stadt, die Hauptstadt.", "とうきょう|東京|Tokio; きょうと|京都|Kyoto", "きょうとに いきたいです。|京都に行きたいです。|Ich möchte nach Kyoto fahren."],
   "間": ["k-gate", "Die Sonne 日 scheint durchs Tor 門 – durch die Lücke dazwischen.", "あいだ|間|zwischen; じかん|時間|Zeit; にんげん|人間|Mensch", "じかんが ありません。|時間がありません。|Ich habe keine Zeit."],
 };

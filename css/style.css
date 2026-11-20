@@ -742,3 +742,22 @@ h1, h2, .tile b, .btn, .stat b { font-family: var(--sans); }
 .wset-c { font-size: 17px; letter-spacing: -1px; flex: none; min-width: 44px; }
 .wset-t b { display: block; font-size: 13px; line-height: 1.2; }
 .wset-t small { font-size: 11px; color: var(--muted); }
+
+/* Zählwörter, Kanji, Schreiben: gleicher Aufbau und gleiche Kacheln */
+.page-tabs { margin-bottom: 10px; }
+.opt-v { font-size: 14px; }
+.cat-grid, .wset-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; grid-auto-rows: 1fr; }
+.cat, .wset { border: 2px solid var(--line); background: var(--surface); border-radius: 12px; padding: 7px 8px; min-height: 58px; }
+.cat.on, .wset.on { border-color: var(--accent); background: var(--accent-soft); }
+.cat { grid-template-columns: 30px 1fr; column-gap: 8px; }
+.cat .cat-ic { width: 30px; height: 30px; }
+.cat b { font-size: 17px; }
+.cat small, .wset-t small { font-size: 11px; color: var(--muted); line-height: 1.25; }
+.wset-c { min-width: 30px; max-width: 44px; overflow: hidden; }
+.wset-t b { font-size: 13px; }
+.wset-c { white-space: nowrap; font-size: 15px; min-width: 44px; max-width: none; }
+.opt-btns .btn { font-size: 15px; white-space: nowrap; display: flex; align-items: center; justify-content: center; }
+
+/* Abschnitte bei den Auswahl-Kacheln (Kana / Kurs-Lektion / Thema) */
+.tile-sec { font: 600 13px var(--sans); color: var(--muted); margin: 12px 2px 6px; }
+.wset.later { opacity: .55; }

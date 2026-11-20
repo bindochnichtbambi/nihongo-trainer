@@ -5,6 +5,21 @@ Git ist auf diesem Computer installiert (`C:\Program Files\Git\cmd\git.exe`), An
 
 Konzept, Technik und Konventionen stehen in `CLAUDE.md`.
 
+## Neu in v37 (20.11.2026, lokal – noch nicht hochgeladen)
+
+- Vorlesen: Fragewörter, Kanji-Karten, Kanji-Quiz und Satzbau lesen die Kana vor (何 wurde als „ka“ gelesen). In Gesprächen werden Wörter mit 何 aus den Kana gelesen (`sayForm`).
+- Vokabeln, Stufe Aussprechen: Bei sehr kurzen Wörtern (z. B. え) gibt es einen Hinweis, sie in einem kleinen Satz zu sagen („え です“). Ein Rahmen wie これは … です wird beim Vergleich entfernt.
+- Zählwörter, Kanji (Lernen) und Schreiben haben denselben Aufbau: Auswahl-Karte oben, Kacheln „Was willst du üben?“, Tipp unten. Kanji hat dort einen Memory-Knopf.
+- Offen: Die Stimmen gefallen der Person nicht. Optionen besprochen (Stimme auf dem Handy wählen oder fertige Aufnahmen, z. B. mit VOICEVOX), noch nicht entschieden.
+- Kursunterlagen liegen in `C:\Users\Admin\Claude\Kursunterlagen` (nur lokal, nie hochladen, nicht abschreiben): Inhaltsverzeichnisse Rikai + Katsudoo (alle 18 Lektionen: Themen, Sätze, Kanji je Lektion) und Lektion 13 aus beiden Heften. Die Person ist bei **Lektion 13**.
+- Danach angepasst:
+  - Wortschatz: Gruppe „L13-14“ geteilt in `L13-13` (neu nach Kursbuch, dazu トラム/ケーブルカー der Person) und `L14-14` (vorläufig, gekürzt). Migration in app.js übernimmt Auswahl und Lernstand.
+  - Kanji: Gruppen „nach Kurs-Lektion“ (`COURSE` in kanji.js, `course: true`), neue Kanji 口 卵 京. Kacheln in Kanji und Schreiben in Abschnitte geteilt (Kana / Kurs-Lektion / Thema).
+  - Grammatik: neu „から・まで・で・のります“ und „〜が いいです・〜から“ (beide L13). 〜て ください bleibt bei L13 (kommt im Katsudoo-Heft L13 vor).
+  - Fragewörter: どうやって neu; Lektionen von いつ, だれ, いくら, いくつ, どちら, どう, どんな nach Inhaltsverzeichnis.
+  - Gespräche: „Mit dem Taxi“ und „Wie kommst du zum Flughafen?“ (Lektion 13, selbst geschrieben).
+- Nächster Schritt: Lektion 14 fertig machen, sobald die Person dort ist (Scans anfragen).
+
 ## Neu in v36 (Rückmeldungen nach ein paar Tagen Testen)
 
 - „Lesebücher“ heisst jetzt **„Bücher“**.

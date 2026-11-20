@@ -22,7 +22,7 @@ Persönliche Lern-App für Japanisch, gebaut für **eine Person**:
 - Vokabeln lernen / Gelernte üben (Extra-Übung, ändert den Lernplan nicht)
 - Lektionen (Wortgruppen ein- und ausschalten)
 - Wortliste mit eigenen Wörtern
-- Grammatik (14 A1-Themen mit Übung)
+- Grammatik (16 A1-Themen mit Übung, dazu Satzbau und Fragewörter)
 - Gespräche (Lesen, Lückentext, Rollenspiel per Sprache; Stimmen passend zur Figur) + Füllwörter & Reaktionen mit Quiz
 - Bücher (eigene Bildergeschichten mit Quiz und Links zu Tadoku; hiess früher „Lesebücher“)
 - Zählwörter
@@ -58,7 +58,7 @@ Persönliche Lern-App für Japanisch, gebaut für **eine Person**:
 | `js/kanji-info.js` | `KANJI_INFO`: je Kanji Merkbild (Sprite-Symbol oder gezeichnet: `n:`, `dir:`, `col:`, `pos:`), Eselsbrücke, Beispielwörter, Beispielsatz (alles selbst geschrieben) |
 | `js/family.js` | `FAMILY` (Stammbaum: mein Wort / Wort für andere / Anrede, Position) und `FAMILY_WORDS` |
 | `js/dialogs.js` | 9 Dialoge, 8 Bücher (`STORIES`), Szenen (`SCENES`), Glossar (`GLOSS`), Füllwörter (`FILLERS`). Rollen: `[Name, Avatar, Stimme?]`, Stimme m/f/g/b/o, sonst nach Avatar |
-| `js/grammar.js` | 14 Grammatik-Themen (eigene Erklärungen, Beispiele, Lückensätze; erste Antwort = richtig) |
+| `js/grammar.js` | 16 Grammatik-Themen (`GRAMMAR`) und Fragewörter (`QWORDS`) (eigene Erklärungen, Beispiele, Lückensätze; erste Antwort = richtig) |
 | `js/games-data.js` | Daten für die Spiele: Kana-Listen und Verwechslungspaare, Sushi-Kategorien, Satz-Puzzles |
 | `js/tadoku.js` | Linkliste zu kostenlosen Tadoku-Büchern (nur Titel und ID) |
 | `sw.js` | Service Worker mit `VERSION` und `FILES` |
@@ -142,7 +142,8 @@ Es braucht keine Installation, keine Abhängigkeiten, keine Umgebungsvariablen u
 
 **Technik**
 - **Romaji**: は/へ werden nur in Sätzen (`p`) als wa/e gelesen (Bug „はは → hawa“ früher behoben).
-- **Lektion 13–18** haben `off: true`. Die Person schaltet sie selbst ein, sobald sie im Kurs drankommen.
+- **Lektion 13–18** haben `off: true`. Lektion 13 und 14 sind getrennte Gruppen (`L13-13`, `L14-14`), danach wieder Paare (`L15-16` …). Die Person schaltet sie selbst ein, sobald sie im Kurs drankommen.
+- **Kursunterlagen** (Scans, nur lokal, nie hochladen): `C:\Users\Admin\Claude\Kursunterlagen`. Die Scans sind Bilder in PDFs; zum Lesen die JPEGs herausziehen (pdftoppm ist nicht installiert).
 - **Doppelte Wörter**: Gleiche Kana und Kanji in mehreren aktiven Gruppen werden in `activeWords()` nur einmal abgefragt. Homographen mit anderem Kanji (来ます/着ます) bleiben getrennt.
 - **Zurück-Geste (Android)**: Pro Unterseite gibt es einen History-Eintrag (`syncHistory`). Antippen des Titels wirkt wie „Zurück“.
 - Die Startseite wird in `show()` am Titel `日本語 Trainer` erkannt. Bei einer Titeländerung dort mit anpassen.
