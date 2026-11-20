@@ -1,11 +1,11 @@
 # Übergabe – Stand 20.11.2026
 
-Online-Version **v44** (`sw.js`): https://bindochnichtbambi.github.io/nihongo-trainer/
+Online-Version **v45** (`sw.js`): https://bindochnichtbambi.github.io/nihongo-trainer/
 Git ist auf diesem Computer installiert (`C:\Program Files\Git\cmd\git.exe`), Anmeldung bei GitHub läuft über den Browser. Hochladen am besten im Terminal-Tab des Benutzers (`git push`), weil die Anmeldung dort ein Fenster öffnen kann.
 
 Konzept, Technik und Konventionen stehen in `CLAUDE.md`.
 
-## Neu in v45 (20.11.2026)
+## Neu in v45 (20.11.2026, online)
 
 - **Sicherung**: Erinnerung auf der Startseite (nach 14 Tagen bzw. nie gesichert nach 7 Tagen und 3 Lerntagen), „Später“ = 3 Tage Ruhe. In den Einstellungen „Sicherung speichern (z. B. Google Drive)“ über das Teilen-Menü des Handys, dazu „Letzte Sicherung: vor X Tagen“.
 - **Lern-Serie**: in der Statistik-Karte 7 Trittsteine (letzte 7 Tage). Der Kranich steht auf dem letzten Lerntag und springt beim ersten Öffnen nach dem Lernen auf den heutigen Stein. Rekord in `DB.streakBest`. Tage wie `DB.log` (UTC-Datum).
