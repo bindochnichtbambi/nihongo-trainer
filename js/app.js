@@ -1155,8 +1155,8 @@
     // Zeichen-Gruppen als kompakte Kacheln zum An- und Abwählen
     const sets = groupedTiles(allSets(), s => {
       const done = s.chars.filter(x => charScore(x.c) >= 2).length;
-      return `<button class="wset ${W.sets.includes(s.id) ? "on" : ""}${s.course && s.l > maxLesson() ? " later" : ""}" data-s="${s.id}"><span class="jp wset-c">${esc(s.chars.slice(0, 3).map(x => x.c).join(""))}</span>
-        <span class="wset-t"><b>${esc(s.name.replace("Kanji: ", ""))}</b><small>${done}/${s.chars.length} sicher</small></span></button>`;
+      return `<button class="wset has-badge ${W.sets.includes(s.id) ? "on" : ""}${s.course && s.l > maxLesson() ? " later" : ""}" data-s="${s.id}">${setBadge(s)}<span class="jp wset-c">${esc(s.chars.slice(0, 3).map(x => x.c).join(""))}</span>
+        <span class="wset-t"><b>${esc(setName(s))}</b><small>${done}/${s.chars.length} sicher</small></span></button>`;
     });
     show("Schreiben üben", `
       <div class="card opt-card">
@@ -2068,6 +2068,13 @@
 
   // ---------- Kanji (Lernkarten, Üben, Liste) & Kana-Tabelle ----------
   // Kacheln in Abschnitte teilen: Kana · Kanji nach Kurs-Lektion · Kanji nach Thema
+  // Kanji-Gruppen nach Kurs-Lektion: rotes L-Feld und als Name das Thema der Lektion (aus dem Wortschatz)
+  const setBadge = s => s.course ? lessonBadge("Lektion " + s.l) : "";
+  const setName = s => {
+    if (!s.course) return s.name.replace("Kanji: ", "");
+    const g = GROUPS.find(x => x.id === `L${s.l}-${s.l}`);
+    return g ? g.name.replace(/^Lektion \d+ · /, "") : "Lektion " + s.l;
+  };
   function groupedTiles(sets, tile) {
     const part = (title, list) => list.length ? `<h3 class="tile-sec">${title}</h3><div class="wset-grid">${list.map(tile).join("")}</div>` : "";
     return part("Kana", sets.filter(s => s.kind === "kana"))
@@ -2135,8 +2142,8 @@
           <div class="opt-btns"><button class="btn primary" id="klearn">${due ? "Wiederholen" : "Lernen (5 neue)"}</button><button class="btn" id="kmem"><svg class="btn-ic"><use href="#i-daruma"/></svg>Memory</button></div>
         </div>
         <h2>Was willst du üben?</h2>
-        ${groupedTiles(sets, s => { const n = s.chars.filter(c => K[c.c]).length; return `<button class="wset ${s.id === setSel ? "on" : ""}${s.course && s.l > maxLesson() ? " later" : ""}" data-set="${s.id}"><span class="jp wset-c">${esc(s.chars.slice(0, 3).map(x => x.c).join(""))}</span>
-          <span class="wset-t"><b>${esc(s.name.replace("Kanji: ", ""))}</b><small>${n}/${s.chars.length} gelernt</small></span></button>`; })}
+        ${groupedTiles(sets, s => { const n = s.chars.filter(c => K[c.c]).length; return `<button class="wset has-badge ${s.id === setSel ? "on" : ""}${s.course && s.l > maxLesson() ? " later" : ""}" data-set="${s.id}">${setBadge(s)}<span class="jp wset-c">${esc(s.chars.slice(0, 3).map(x => x.c).join(""))}</span>
+          <span class="wset-t"><b>${esc(setName(s))}</b><small>${n}/${s.chars.length} gelernt</small></span></button>`; })}
         ${tipBox(`Pro Runde lernst du 5 neue Kanji mit Bild und Eselsbrücke. Danach fragt die App Bedeutung, Zeichen und Lesung ab. Was sitzt, kommt nach und nach in grösseren Abständen wieder.<br>Mit <b>Memory</b> kannst du die Kanji spielerisch wiederholen.`)}`;
     } else if (tab === "list") {
       body = `${tipBox("Tippe ein Kanji an, um die Lernkarte zu sehen. Grün = schon gelernt.")}

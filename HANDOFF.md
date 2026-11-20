@@ -1,6 +1,6 @@
 # Übergabe – Stand 20.11.2026
 
-Online-Version **v42** (`sw.js`): https://bindochnichtbambi.github.io/nihongo-trainer/
+Online-Version **v43** (`sw.js`): https://bindochnichtbambi.github.io/nihongo-trainer/
 Git ist auf diesem Computer installiert (`C:\Program Files\Git\cmd\git.exe`), Anmeldung bei GitHub läuft über den Browser. Hochladen am besten im Terminal-Tab des Benutzers (`git push`), weil die Anmeldung dort ein Fenster öffnen kann.
 
 Konzept, Technik und Konventionen stehen in `CLAUDE.md`.
@@ -54,6 +54,11 @@ Regel für gelernte Lektionen: nur ergänzen und korrigieren, nichts löschen; G
 - `splitPairs()` in app.js (direkt nach der L13/14-Migration) übernimmt `DB.groups` und `DB.progress` von den alten Paar-IDs. Getestet mit Beispieldaten.
 - Lektionen-Seite: Topic-Überschriften (rotes „Topic N“-Feld + japanischer/deutscher Name), darunter jede Lektion mit eigenem Häkchen.
 - Gespräche und Bücher: eine Lektion je Eintrag, rotes „L5“-Feld oben rechts (ausgegraut, wenn die Lektion noch nicht eingeschaltet ist), Listen nach Lektion sortiert.
+
+## Kanji mit L-Feld (v43, online)
+
+- Kanji- und Schreiben-Seite: Kacheln „Kanji nach Kurs-Lektion“ haben das rote L-Feld (als Etikett auf der oberen Kante) und als Namen das Thema der Lektion aus dem Wortschatz (z. B. „Essen & Trinken“) statt „Lektion 5“. Helfer `setBadge` / `setName` in app.js.
+- `.wset-grid` hat jetzt zwei gleich breite Spalten (vorher ragte die rechte Spalte über den Rand).
 
 ## Bücher zu den Lektionen (v42, online)
 

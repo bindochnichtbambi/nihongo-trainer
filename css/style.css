@@ -771,3 +771,13 @@ h1, h2, .tile b, .btn, .stat b { font-family: var(--sans); }
 .has-badge { position: relative; }
 .l-badge { position: absolute; top: 8px; right: 8px; z-index: 2; }
 .l-badge.later { opacity: .55; }
+/* L-Feld auf den kleinen Kanji-Kacheln */
+.wset.has-badge { position: relative; }
+.wset .l-badge { top: -8px; right: 8px; font-size: 10px; padding: 2px 6px; border-radius: 6px; }
+.wset .l-badge.later { opacity: 1; }
+.wset-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.wset { min-width: 0; }
+.wset-t { min-width: 0; overflow-wrap: anywhere; }
+.wset-t { overflow-wrap: normal; }
+.wset-t b { overflow-wrap: break-word; }
+.wset-grid:has(.l-badge) { row-gap: 14px; padding-top: 6px; }
