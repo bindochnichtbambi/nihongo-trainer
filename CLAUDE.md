@@ -22,13 +22,15 @@ Persönliche Lern-App für Japanisch, gebaut für **eine Person**:
 - Vokabeln lernen / Gelernte üben (Extra-Übung, ändert den Lernplan nicht)
 - Lektionen (Wortgruppen ein- und ausschalten)
 - Wortliste mit eigenen Wörtern
-- Grammatik (23 A1-Themen mit Übung, nach Kurs-Lektion geordnet, dazu Satzbau und Fragewörter)
-- Gespräche (Lesen, Lückentext, Rollenspiel per Sprache; Stimmen passend zur Figur) + Füllwörter & Reaktionen mit Quiz
+- Grammatik (A1-Themen mit Übung, nach Kurs-Lektion geordnet, dazu Satzbau, Fragewörter und Verb-Formen-Trainer)
+- Gespräche (Hören ohne Text mit Fragen, Lesen, Lückentext, Rollenspiel per Sprache; Stimmen passend zur Figur) + Füllwörter & Reaktionen mit Quiz
 - Bücher (eigene Bildergeschichten mit Quiz und Links zu Tadoku; hiess früher „Lesebücher“)
 - Zählwörter
 - Kalender (Entdecken und Üben)
 - Familie (Stammbaum, bescheidene/höfliche Wörter, Anrede, Quiz)
 - Test (Kranich-Kachel: 10 oder 25 gemischte Fragen aus Wortschatz, Hören, Grammatik, Satzbau, Lesen, Kanji, Zahlen; Auswertung nach Bereichen, Origami-Kranich fliegt / hüpft / faltet sich zum Papier)
+- Reise-Spickzettel (breite Kachel unten, `js/travel.js`): Sätze nach Situation, „Zeigen“ = gross auf dem Bildschirm, ★ = „Meine“
+- Startseite: Lern-Serie (Kranich springt auf Trittsteinen der letzten 7 Tage) und Sicherungs-Erinnerung
 - Haus (Bild von aussen mit Stockwerken, Grundriss 3LDK, Zimmer mit Möbeln; Wohnformen, Stockwerk-Lesungen, Quiz)
 - Kanji (Lernkarten mit Merkbild, Eselsbrücke, Lesungen, Beispielen; Lernrunden mit Wiederholung; Liste aller Kanji; Kana-Tabelle)
 - Schreiben (Kana und Kanji mit Strichprüfung)
@@ -60,6 +62,7 @@ Persönliche Lern-App für Japanisch, gebaut für **eine Person**:
 | `js/kanji-info.js` | `KANJI_INFO`: je Kanji Merkbild (Sprite-Symbol oder gezeichnet: `n:`, `dir:`, `col:`, `pos:`), Eselsbrücke, Beispielwörter, Beispielsatz (alles selbst geschrieben) |
 | `js/family.js` | `FAMILY` (Stammbaum: mein Wort / Wort für andere / Anrede, Position) und `FAMILY_WORDS` |
 | `js/house.js` | `HOUSE` (3 Bilder: `out`, `rooms`, `in`, je `art` + `items` mit Tipp-Fläche `box`), `HOUSE_TYPES`, `HOUSE_PLANS`, `HOUSE_FLOORS` |
+| `js/travel.js` | `TRAVEL`: Reise-Spickzettel, je Situation `items` `[kana, Japanisch zum Zeigen, deutsch, Hinweis?]` |
 | `js/dialogs.js` | 22 Dialoge (Lektion 1–18 und Reise), 13 Bücher (`STORIES`, nach Lektion sortiert), Szenen (`SCENES`), Glossar (`GLOSS`), Füllwörter (`FILLERS`). Rollen: `[Name, Avatar, Stimme?]`, Stimme m/f/g/b/o, sonst nach Avatar |
 | `js/grammar.js` | 23 Grammatik-Themen (`GRAMMAR`, Reihenfolge nach `l`) und Fragewörter (`QWORDS`) (eigene Erklärungen, Beispiele, Lückensätze; erste Antwort = richtig) |
 | `js/games-data.js` | Daten für die Spiele: Kana-Listen und Verwechslungspaare, Sushi-Kategorien, Satz-Puzzles |
@@ -78,6 +81,10 @@ Persönliche Lern-App für Japanisch, gebaut für **eine Person**:
 - `dlg` – Ergebnisse der Gespräche
 - `gram` – Ergebnisse der Grammatik-Übungen
 - `test` – Test: `len` (10/25), `best` je Länge in %, `count`
+- `backupAt` / `backupSnooze` – letzte Sicherung / „Später“ (Erinnerung nach 14 Tagen)
+- `streakBest`, `streakSeen` – Rekord der Lern-Serie, Tag an dem der Kranich-Sprung gezeigt wurde
+- `tripFav`, `tripTab` – gemerkte Sätze und letzte Situation im Spickzettel
+- `dlg[id].listen` – bestes Ergebnis „Hören“ eines Gesprächs
 - `games` – Rekorde und Spiel-Einstellungen (`games.mem` = Kanji-Memory: Modus, Gruppe, Bestwerte)
 - `kanji` – Lernstand der Kanji je Zeichen `{ b: Box, d: fällig }`; dazu `kanjiSet`, `kanjiTab`, `kanaTab`
 - `tadoku` – gelesene Tadoku-Bücher
@@ -139,6 +146,7 @@ Es braucht keine Installation, keine Abhängigkeiten, keine Umgebungsvariablen u
   1. Statistik + „Vokabeln lernen“ und „Gelernte üben“ nebeneinander
   2. breite Lektionen-Kachel
   3. 12 Kacheln: Wortliste | Grammatik, Gespräche | Bücher, Zählwörter | Kalender, Familie | Haus, Kanji | Schreiben, Spiele | Test
+  4. breite Kachel Reise-Spickzettel
 - Die Einstellungen sind ein blauer Knopf in der Kopfzeile (keine Kachel).
 - Hinweise immer mit `tipBox(html)` (weisser Kasten, roter Streifen, Glühbirne `#i-bulb`), nicht als kleine graue Schrift.
 - Hintergrund-Animation nur auf der Startseite (`body.on-home`). Sie ist abschaltbar (`settings.decoAnim`) und respektiert `prefers-reduced-motion`.

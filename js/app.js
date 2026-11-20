@@ -116,6 +116,7 @@
     if (cleanup) { cleanup(); cleanup = null; }
     hideGloss(); playRun++;
     try { speechSynthesis.cancel(); } catch (e) { }
+    const big = document.querySelector(".show-big"); if (big) big.remove();
     // Wolken & Blüten bewegen sich nur auf der Startseite (abschaltbar in den Einstellungen)
     document.body.classList.toggle("on-home", title === "日本語 Trainer" && DB.settings.decoAnim !== false);
     $title.textContent = title;
@@ -260,6 +261,34 @@
   const wideTile = (id, ic, emo, t, sub, cls = "beige") => `<button class="tile wide ${cls}" id="${id}">
       <span class="ico"><i class="emo">${emo}</i><svg class="pic"><use href="#${/^[a-z]-/.test(ic) ? ic : "i-" + ic}"/></svg></span>
       <span class="wide-txt"><b>${t}</b><small>${sub}</small></span></button>`;
+  // Lern-Serie: 7 Trittsteine (letzte 7 Tage), der Kranich springt von Tag zu Tag.
+  // Ein Tag zählt, wenn an ihm etwas gelernt wurde (DB.log). DB.streakSeen = Tag, an dem der Sprung schon gezeigt wurde.
+  const dayKey = t => new Date(t).toISOString().slice(0, 10);   // gleiche Tages-Schlüssel wie DB.log
+  function streakInfo() {
+    const on = k => (DB.log[k] || 0) > 0, now = Date.now();
+    const today = dayKey(now), learnedToday = on(today);
+    let n = 0, t = learnedToday ? now : now - DAY;
+    while (on(dayKey(t))) { n++; t -= DAY; }
+    if (n > (DB.streakBest || 0)) { DB.streakBest = n; save(); }
+    return { n, learnedToday, today, best: DB.streakBest || 0 };
+  }
+  function streakStrip() {
+    const S = streakInfo(), now = Date.now(), WD = ["日", "月", "火", "水", "木", "金", "土"];
+    const days = Array.from({ length: 7 }, (_, i) => { const t = now - (6 - i) * DAY; return { k: dayKey(t), wd: WD[new Date(t).getDay()], on: (DB.log[dayKey(t)] || 0) > 0, today: i === 6 }; });
+    const x = i => 25 + i * 50;
+    // Kranich steht auf dem letzten Lerntag der Serie (heute oder gestern), sonst am Anfang des heutigen Steins
+    const at = S.learnedToday ? 6 : S.n ? 5 : -1;
+    const hop = S.learnedToday && S.n >= 2 && DB.streakSeen !== S.today;
+    if (S.learnedToday && DB.streakSeen !== S.today) { DB.streakSeen = S.today; save(); }
+    const stones = days.map((d, i) => `<ellipse class="st-stone${d.on ? " on" : ""}${d.today ? " today" : ""}" cx="${x(i)}" cy="56" rx="19" ry="7"/>
+      <text class="st-wd${d.today ? " today" : ""}" x="${x(i)}" y="76" text-anchor="middle">${d.today ? "きょう" : d.wd}</text>`).join("");
+    const crane = at >= 0 ? `<use href="#i-crane" class="st-crane${hop ? " hop" : " pop"}" x="${x(at) - 22}" y="18" width="44" height="34"/>` : "";
+    const msg = S.learnedToday ? `<b>${S.n} ${S.n === 1 ? "Tag" : "Tage"} am Stück</b> gelernt${S.n >= 2 ? " – der Kranich springt weiter!" : "."}`
+      : S.n ? `<b>${S.n} ${S.n === 1 ? "Tag" : "Tage"} am Stück</b> – lerne heute, dann springt der Kranich weiter.`
+      : `Lerne heute, dann landet der Kranich auf dem ersten Stein.`;
+    return `<div class="streak"><svg class="st-svg" viewBox="0 0 350 82">${stones}${crane}</svg>
+      <p class="small center" style="margin:2px 0 0">${msg}${S.best > 1 ? ` <span class="muted">· Rekord ${S.best}</span>` : ""}</p></div>`;
+  }
   function home() {
     current = { rerender: home };
     const act = activeWords(), now = Date.now();
@@ -279,7 +308,9 @@
         <div class="row home-btns"><button class="btn primary" id="go">${due + learning + fresh ? "Vokabeln lernen" : "Alles erledigt 🎉"}</button>
         <button class="btn" id="practice">Gelernte üben</button></div>
         <p class="small muted center" style="margin:8px 0 0">${fresh} neue Wörter verfügbar · heute ${todayCount} Karten</p>
+        ${streakStrip()}
       </div>
+      ${backupBanner()}
       ${wideTile("m-groups", "torii", "📚", "Lektionen", `${DB.groups.length} von ${GROUPS.length} aktiv`)}
       <div class="tiles">${[
         // Nachschlagen → Sprechen & Lesen → Zahlen & Zeit → Schreiben & Spielen
@@ -298,6 +329,7 @@
       ].map(([id, ic, emo, t, sub], i) => `<button class="tile ${(Math.floor(i / 2) + i % 2) % 2 ? "beige" : "red"}" id="${id}">
           <span class="ico"><i class="emo">${emo}</i><svg class="pic"><use href="#${ic.startsWith("s-") ? ic : "i-" + ic}"/></svg></span>
           <b>${t}</b><small>${sub}</small></button>`).join("")}</div>
+      ${wideTile("m-trip", "s-map", "🗺️", "Reise-Spickzettel", "Wichtige Sätze für Japan – auch offline")}
     `);
     document.getElementById("m-grammar").onclick = grammarList;
     document.getElementById("m-games").onclick = gamesView;
@@ -307,6 +339,9 @@
     document.getElementById("m-family").onclick = () => familyView();
     document.getElementById("m-house").onclick = () => houseView();
     document.getElementById("m-test").onclick = () => testHome();
+    document.getElementById("m-trip").onclick = () => travelView();
+    if ($("#bk-go")) $("#bk-go").onclick = () => doBackup(canShareFile()).then(home);
+    if ($("#bk-later")) $("#bk-later").onclick = () => { DB.backupSnooze = Date.now() + 3 * DAY; save(); home(); };
     document.getElementById("m-kanji").onclick = () => kanjiView();
     document.getElementById("m-groups").onclick = groupsView;
     document.getElementById("m-counters").onclick = countersView;
@@ -991,6 +1026,40 @@
   }
 
   // ---------- Einstellungen ----------
+  // ---------- Sicherung ----------
+  // DB.backupAt = Zeitpunkt der letzten Sicherung, DB.backupSnooze = „Später“ bis zu diesem Zeitpunkt
+  const backupFile = () => new File([JSON.stringify(DB, null, 1)], "nihongo-sicherung-" + new Date().toISOString().slice(0, 10) + ".json", { type: "application/json" });
+  const canShareFile = () => { try { return !!(navigator.canShare && navigator.canShare({ files: [backupFile()] })); } catch (e) { return false; } };
+  async function doBackup(share) {
+    const f = backupFile();
+    if (share) {
+      try { await navigator.share({ files: [f], title: "Nihongo-Sicherung" }); }
+      catch (e) { if (e && e.name === "AbortError") return; toast("Teilen ging nicht – die Datei wird heruntergeladen"); share = false; }
+    }
+    if (!share) { const a = document.createElement("a"); a.href = URL.createObjectURL(f); a.download = f.name; a.click(); }
+    DB.backupAt = Date.now(); delete DB.backupSnooze; save(); toast("Sicherung gespeichert ✓");
+  }
+  const daysSince = t => Math.floor((Date.now() - t) / DAY);
+  function backupAgeText() {
+    if (!DB.backupAt) return "Noch keine Sicherung gemacht.";
+    const d = daysSince(DB.backupAt);
+    return `Letzte Sicherung: ${d === 0 ? "heute" : d === 1 ? "gestern" : `vor ${d} Tagen`}.`;
+  }
+  // Erinnerung auf der Startseite: wenn gelernt wird und die letzte Sicherung > 14 Tage her ist (oder nie, nach 7 Lerntagen)
+  function backupDue() {
+    if (DB.backupSnooze && DB.backupSnooze > Date.now()) return false;
+    const days = Object.keys(DB.log || {}).filter(d => DB.log[d] > 0).sort();
+    if (!days.length) return false;
+    if (DB.backupAt) return daysSince(DB.backupAt) >= 14 && days[days.length - 1] > new Date(DB.backupAt).toISOString().slice(0, 10);
+    return days.length >= 3 && daysSince(new Date(days[0]).getTime()) >= 7;
+  }
+  function backupBanner() {
+    if (!backupDue()) return "";
+    return `<div class="tip-box backup-box"><svg class="tip-ic"><use href="#i-bulb"/></svg><div><b class="tip-h">Zeit für eine Sicherung</b><br>
+      ${DB.backupAt ? `Deine letzte Sicherung ist ${daysSince(DB.backupAt)} Tage alt.` : "Du hast noch nie eine Sicherung gemacht."} Dein Lernstand liegt nur auf diesem Handy.
+      <div class="row" style="margin-top:8px"><button class="btn primary" id="bk-go">Jetzt sichern</button><button class="btn" id="bk-later">Später</button></div></div></div>`;
+  }
+
   function settingsView() {
     current = null;
     const s = DB.settings;
@@ -1017,7 +1086,9 @@
       </div>
       <h2>Sicherung</h2>
       <div class="card">
-        ${tipBox(`Dein Fortschritt liegt nur auf diesem Gerät. Speichere ab und zu eine Sicherung.`)}
+        ${tipBox(`Dein Fortschritt liegt nur auf diesem Gerät. Speichere ab und zu eine Sicherung – am besten in Google Drive, dann ist sie auch bei einem neuen Handy noch da.`)}
+        <p class="small center" style="margin:10px 0 0">${backupAgeText()}</p>
+        ${canShareFile() ? `<button class="btn primary" id="exps">Sicherung speichern (z. B. Google Drive)</button>` : ""}
         <button class="btn" id="exp">Sicherung herunterladen</button>
         <label class="btn" style="cursor:pointer">Sicherung laden<input type="file" id="imp" accept="application/json" hidden></label>
         <button class="btn bad" id="reset">Lernfortschritt zurücksetzen</button>
@@ -1032,11 +1103,8 @@
     }));
     $app.querySelectorAll("[data-bool]").forEach(cb => cb.onchange = () => { s[cb.dataset.bool] = cb.checked; save(); });
     $("#testv").onclick = () => say("こんにちは。にほんごを べんきょうしましょう。");
-    $("#exp").onclick = () => {
-      const blob = new Blob([JSON.stringify(DB, null, 1)], { type: "application/json" });
-      const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
-      a.download = "nihongo-sicherung-" + new Date().toISOString().slice(0, 10) + ".json"; a.click();
-    };
+    $("#exp").onclick = () => doBackup(false).then(() => settingsView());
+    if ($("#exps")) $("#exps").onclick = () => doBackup(true).then(() => settingsView());
     $("#imp").onchange = async e => {
       const f = e.target.files[0]; if (!f) return;
       try {
@@ -1532,7 +1600,7 @@
     TOKS = [];
     const lines = d.lines.map(([who, s, de]) => ({ who, toks: parseLine(s), de }));
     const showDe = !!DB.showDe;
-    const tabs = `<div class="seg" id="dmode">${[["read", "Lesen"], ["gap", "Lücken"], ["role", "Rollenspiel"]].map(([m, l]) => `<button data-m="${m}" class="${m === mode ? "on" : ""}">${l}</button>`).join("")}</div>`;
+    const tabs = `<div class="seg dlg-tabs" id="dmode">${[["listen", "Hören"], ["read", "Lesen"], ["gap", "Lücken"], ["role", "Rollenspiel"]].map(([m, l]) => `<button data-m="${m}" class="${m === mode ? "on" : ""}">${l}</button>`).join("")}</div>`;
     const bubble = (l, i, inner) => `<div class="bubble-row ${l.who === "A" ? "left" : "right"}" data-line="${i}">
         <div class="avatar" title="${esc(d.roles[l.who][0])}">${avHTML(d.roles[l.who][1])}</div>
         <div class="bubble"><div class="who">${roleName(d, l.who)}</div><div class="line jp">${inner}</div>
@@ -1540,7 +1608,25 @@
         <button class="mini" data-say="${i}" aria-label="Vorlesen">🔊</button></div></div>`;
     const deToggle = `<label class="de-toggle"><input type="checkbox" id="detog" ${showDe ? "checked" : ""}> Übersetzung zeigen</label>`;
 
-    if (mode === "read") {
+    if (mode === "listen") {
+      // Nur hören: Text versteckt, danach Fragen zu einzelnen Sätzen
+      const hidden = l => `<div class="bubble-row ${l.who === "A" ? "left" : "right"}" data-line="${lines.indexOf(l)}">
+          <div class="avatar">${avHTML(d.roles[l.who][1])}</div>
+          <div class="bubble listen-bubble"><div class="who">${roleName(d, l.who)}</div><div class="dots"><i></i><i></i><i></i></div></div></div>`;
+      show(d.title, `${tabs}
+        <div class="card center listen-card">
+          <p style="margin:0 0 10px">Hör das Gespräch an, ohne mitzulesen. Danach kommen ${Math.min(4, new Set(lines.map(l => l.de)).size)} Fragen.</p>
+          <button class="btn primary" id="lplay">▶ Gespräch anhören</button>
+          <button class="btn" id="lquiz">Fragen beantworten</button>
+          ${(DB.dlg && DB.dlg[d.id] && DB.dlg[d.id].listen != null) ? `<p class="small muted" style="margin:6px 0 0">Bestes Ergebnis: ${DB.dlg[d.id].listen} %</p>` : ""}
+        </div>
+        <div class="chat">${lines.map(hidden).join("")}</div>
+        ${tipBox(`Zu schnell? Unter Einstellungen → „Sprechtempo“ kannst du die Stimme langsamer machen. Erst hören, dann unter „Lesen“ nachschauen.`)}`, { back: dialogList });
+      $("#lplay").onclick = () => playSeq(lines.map(l => lineSay(l.toks)), i => {
+        $app.querySelectorAll(".bubble-row").forEach(r => r.classList.toggle("speaking", +r.dataset.line === i));
+      }, lines.map(l => roleVoice(d, l.who)));
+      $("#lquiz").onclick = () => listenQuiz(d, lines);
+    } else if (mode === "read") {
       show(d.title, `${tabs}<div class="dlg-head">${deToggle}<button class="speak-btn" id="playall">▶ Alles vorlesen</button></div>
         <div class="chat">${lines.map((l, i) => bubble(l, i, lineHTML(l.toks))).join("")}</div>
         ${tipBox(`Kurz tippen = Wort anhören · lange drücken = Übersetzung`)}`, { back: dialogList });
@@ -1598,6 +1684,37 @@
     $app.querySelectorAll("#dmode button").forEach(b => b.onclick = () => dialogView(d, b.dataset.m, {}));
     const dt = $("#detog"); if (dt) dt.onchange = () => { DB.showDe = dt.checked; save(); $app.querySelectorAll(".de-line").forEach(x => x.hidden = !dt.checked); };
     $app.querySelectorAll("[data-say]").forEach(b => b.onclick = () => say(lineSay(lines[+b.dataset.say].toks), roleVoice(d, lines[+b.dataset.say].who)));
+  }
+
+  // Hör-Fragen: ein Satz wird vorgelesen, man wählt die Bedeutung (andere Sätze des Gesprächs als falsche Antworten)
+  function listenQuiz(d, lines, st) {
+    if (!st) {
+      const pool = uniqBy(lines.filter((l, i) => i > 0 || lines.length < 5), l => l.de);
+      st = { qs: shuffle(pool).slice(0, 4).map(l => ({ l, opts: mkOpts(l.de, lines.map(x => x.de)) })), i: 0, right: 0 };
+    }
+    current = { rerender: () => listenQuiz(d, lines, st) };
+    TOKS = [];
+    if (st.i >= st.qs.length) {
+      const pct = Math.round(100 * st.right / st.qs.length);
+      saveDlg(d.id, "listen", pct); logCard();
+      show(d.title, `<div class="card center"><div class="big-emoji">${pct === 100 ? "🎧" : "💪"}</div><h2>${st.right} von ${st.qs.length} richtig verstanden</h2>
+        <button class="btn primary" id="lr">Text dazu lesen</button><button class="btn" id="la">Nochmal hören</button></div>`, { back: dialogList });
+      $("#lr").onclick = () => dialogView(d, "read"); $("#la").onclick = () => dialogView(d, "listen"); return;
+    }
+    const q = st.qs[st.i], speak = () => say(lineSay(q.l.toks), roleVoice(d, q.l.who));
+    show(d.title, `<div class="progress"><i style="width:${Math.round(100 * st.i / st.qs.length)}%"></i></div>
+      <div class="stage-label"><span>Hören · Was sagt ${esc(scriptText(d.roles[q.l.who][0], ""))}?</span><span>${st.i + 1}/${st.qs.length}</span></div>
+      <div class="card"><button class="t-ear" id="lsay"><span class="avatar big">${avHTML(d.roles[q.l.who][1])}</span><span>🔊 Nochmal anhören</span></button>
+        <div class="options">${q.opts.map((o, i) => `<button class="option" data-o="${i}">${esc(o.v)}</button>`).join("")}</div><div id="area"></div></div>`, { back: () => dialogView(d, "listen") });
+    $("#lsay").onclick = speak; speak();
+    $app.querySelectorAll("[data-o]").forEach(b => b.onclick = () => {
+      const ok = q.opts[+b.dataset.o].ok; if (ok) st.right++;
+      $app.querySelectorAll("[data-o]").forEach((x, i) => { x.disabled = true; if (q.opts[i].ok) x.classList.add("correct"); });
+      if (!ok) b.classList.add("wrong");
+      $("#area").innerHTML = `<div class="feedback ${ok ? "ok" : "no"}">${ok ? "✓ Richtig!" : "✗ Richtig wäre die grüne Antwort."}<div class="t-sum jp">${lineHTML(q.l.toks)}</div></div>
+        <button class="btn primary" id="ln">Weiter</button>`;
+      $("#ln").onclick = () => { st.i++; listenQuiz(d, lines, st); };
+    });
   }
 
   function roleplay(d, lines, st, tabs, bubble, deToggle) {
@@ -1780,6 +1897,7 @@
     show("Grammatik", `
       ${wideTile("g-satzbau", "i-scroll", "🧱", "Satzbau", "Wie ein japanischer Satz aufgebaut ist")}
       ${wideTile("g-frage", "s-question", "❓", "Fragewörter", "なに, なんじ, どこ, いつ, だれ …")}
+      ${wideTile("g-verb", "s-runner", "🏃", "Verb-Formen", "〜ます・〜ません・〜ました・〜ませんでした")}
       <div class="card gram-list">${window.GRAMMAR.map(g => `<button class="gram-row${g.l > maxL ? " later" : ""}" data-g="${g.id}">
           <span class="gram-l">L${g.l}</span>
           <span class="gram-t"><b class="jp">${esc(g.title)}</b><small>${esc(g.sub)}</small></span>
@@ -1788,6 +1906,85 @@
     $app.querySelectorAll("[data-g]").forEach(b => b.onclick = () => grammarPoint(window.GRAMMAR.find(g => g.id === b.dataset.g)));
     $("#g-satzbau").onclick = () => satzbauView();
     $("#g-frage").onclick = () => questionView();
+    $("#g-verb").onclick = () => verbView();
+  }
+
+  // ---------- Verb-Formen (aus den Verben der eingeschalteten Lektionen) ----------
+  // [Endung, Name, Bedeutung, ab Lektion]
+  const VFORMS = [
+    ["ます", "Gegenwart / Zukunft", "ich esse / ich werde essen", 1],
+    ["ません", "verneint", "ich esse nicht", 1],
+    ["ました", "Vergangenheit", "ich habe gegessen", 9],
+    ["ませんでした", "Vergangenheit, verneint", "ich habe nicht gegessen", 9],
+    ["ませんか", "Einladung", "Wollen wir (nicht) essen?", 12],
+    ["ましょう", "Vorschlag", "Lass uns essen!", 12],
+    ["たいです", "Wunsch", "ich möchte essen", 18],
+  ];
+  const vForms = () => { const L = maxLesson(); return VFORMS.filter(f => f[3] <= L); };
+  // Verben: Wörter auf 〜ます ohne Leerzeichen, jedes nur einmal
+  const verbList = () => uniqBy(activeWords().filter(w => !w.p && /ます$/.test(w.kana) && !/\s/.test(w.kana)), w => w.kana);
+  const vForm = (w, f) => ({ kana: w.kana.replace(/ます$/, f[0]), kanji: (w.kanji || w.kana).replace(/ます$/, f[0]) });
+  const vText = v => esc(scriptText(v.kana, v.kanji));
+  function verbView() {
+    current = { rerender: verbView };
+    const F = vForms(), ex = verbList().find(w => w.kana === "たべます") || { kana: "たべます", kanji: "食べます", de: "essen" };
+    show("Verb-Formen", `
+      <button class="btn primary" id="vq" style="margin-top:0">Üben: Welche Form?</button>
+      <div class="card"><table class="tbl fam-tbl verb-tbl">${F.map(f => { const v = vForm(ex, f); return `<tr data-say="${esc(v.kana)}"><td class="jp"><b>${vText(v)}</b> 🔊</td><td><b>${esc(f[1])}</b><br><span class="small muted">${esc(f[2])}</span></td></tr>`; }).join("")}</table></div>
+      ${tipBox(`Japanische Verben ändern sich nicht nach der Person: <span class="jp">${vText(vForm(ex, VFORMS[0]))}</span> heisst „ich esse“, „du isst“, „wir essen“ … Man tauscht nur die Endung <b>〜ます</b> aus.<br>
+        Ob Gegenwart oder Zukunft, zeigt das Zeitwort: <span class="jp">${esc(scriptText("あした たべます", "明日食べます", true))}</span> = Ich esse morgen.${F.length < VFORMS.length ? `<br>Weitere Formen (Einladung, Wunsch) kommen dazu, sobald du die passende Lektion einschaltest.` : ""}`)}`, { back: grammarList });
+    $app.querySelectorAll("[data-say]").forEach(r => r.onclick = () => say(r.dataset.say));
+    $("#vq").onclick = () => verbQuiz();
+  }
+  // eine Frage: a = Form wählen, b = Bedeutung der Form wählen, c = Form schreiben
+  // Verben ohne eigenen Willen (es gibt, können, verstehen …): keine Einladung / kein Vorschlag / kein Wunsch
+  const VNOVOL = /^(あります|います|できます|わかります|いります|かかります|みえます|きこえます|ふります|はれます|くもります)$/;
+  const vFormsFor = (w, F) => VNOVOL.test(w.kana) ? F.filter(f => f[3] <= 9) : F;
+  function verbQuestion(w, F0) {
+    const F = vFormsFor(w, F0), r = Math.random();
+    // bei „Form wählen/schreiben“ nie die Grundform ます als Ziel (die steht ja schon da)
+    const targets = r < 0.45 || r >= 0.75 ? F.slice(1) : F;
+    const f = targets[Math.floor(Math.random() * targets.length)], v = vForm(w, f);
+    if (r < 0.45) return { kind: "a", w, f, v, opts: shuffle(F.length >= 4 ? [f, ...shuffle(F.filter(x => x !== f)).slice(0, 3)] : F).map(x => ({ v: vForm(w, x), ok: x === f })) };
+    if (r < 0.75) return { kind: "b", w, f, v, opts: shuffle([f, ...shuffle(F.filter(x => x !== f)).slice(0, 3)]).map(x => ({ v: x, ok: x === f })) };
+    return { kind: "c", w, f, v };
+  }
+  function verbQuiz(st) {
+    const verbs = verbList(), F = vForms();
+    if (verbs.length < 3) { toast("Zu wenige Verben – schalte mehr Lektionen ein."); return; }
+    if (!st) { const vs = shuffle(verbs); st = { qs: Array.from({ length: 10 }, (_, i) => verbQuestion(vs[i % vs.length], F)), i: 0, right: 0 }; }
+    current = { rerender: () => verbQuiz(st) };
+    if (st.i >= st.qs.length) {
+      show("Verb-Formen", `<div class="card center"><div class="big-emoji">${st.right >= 8 ? "🎉" : "💪"}</div><h2>${st.right} von ${st.qs.length} richtig</h2>
+        <button class="btn primary" id="again">Nochmal</button><button class="btn" id="back">Zur Übersicht</button></div>`, { back: verbView });
+      $("#again").onclick = () => verbQuiz(); $("#back").onclick = verbView; return;
+    }
+    const q = st.qs[st.i], romaji = DB.settings.script === "romaji";
+    const prompt = q.kind === "b" ? `<div class="t-big">${vText(q.v)}</div><p class="muted center">${esc(q.w.de)} – welche Form ist das?</p>`
+      : `<div class="prompt" style="font-size:19px"><span class="jp">${vText(q.w)}</span> <span class="muted">(${esc(q.w.de)})</span></div>
+         <p class="center" style="margin:4px 0 12px">→ <b>${esc(q.f[1])}</b></p>`;
+    const body = q.kind === "c"
+      ? `<form id="vf"><input class="answer-input" id="vinp" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" lang="${romaji ? "en" : "ja"}" placeholder="${romaji ? "z. B. tabemashita" : "例：たべました"}"><button class="btn primary">Prüfen</button></form>`
+      : `<div class="options">${q.opts.map((o, i) => `<button class="option${q.kind === "a" ? " jp" : ""}" data-i="${i}">${q.kind === "a" ? vText(o.v) : `<b>${esc(o.v[1])}</b>`}</button>`).join("")}</div>`;
+    show("Verb-Formen", `<div class="progress"><i style="width:${Math.round(100 * st.i / st.qs.length)}%"></i></div>
+      <div class="stage-label"><span>${q.kind === "b" ? "Welche Form?" : q.kind === "c" ? "Schreib die Form" : "Wähle die Form"}</span><span>${st.i + 1}/${st.qs.length}</span></div>
+      <div class="card">${prompt}${body}<div id="area"></div></div>`, { back: verbView });
+    const done = ok => {
+      if (ok) st.right++;
+      say(q.v.kana);
+      $("#area").innerHTML = `<div class="feedback ${ok ? "ok" : "no"}">${ok ? "✓ Richtig!" : "✗ Richtig wäre:"} <span class="jp">${vText(q.v)}</span><div class="small">${esc(q.f[1])} von ${esc(scriptText(q.w.kana, q.w.kanji))} (${esc(q.w.de)})</div></div>
+        <button class="btn primary" id="next">Weiter</button>`;
+      $("#next").onclick = () => { st.i++; verbQuiz(st); };
+    };
+    if (q.kind === "c") {
+      setTimeout(() => $("#vinp") && $("#vinp").focus(), 50);
+      $("#vf").onsubmit = e => { e.preventDefault(); const val = $("#vinp").value; if (!val.trim() || $("#vinp").disabled) return; $("#vinp").disabled = true; done(Kana.matches(val, q.v.kana, q.v.kanji, false)); };
+    } else $app.querySelectorAll(".option").forEach(b => b.onclick = () => {
+      const ok = q.opts[+b.dataset.i].ok;
+      $app.querySelectorAll(".option").forEach((x, i) => { x.disabled = true; if (q.opts[i].ok) x.classList.add("correct"); });
+      if (!ok) b.classList.add("wrong");
+      done(ok);
+    });
   }
 
   // ---------- Fragewörter ----------
@@ -2073,6 +2270,49 @@
     });
   }
 
+  // ---------- Reise-Spickzettel ----------
+  // DB.tripFav = Liste von Schlüsseln „situation|kana“ (★ Meine Sätze), DB.tripTab = zuletzt gewählte Situation
+  const tripKey = (t, it) => t.id + "|" + it[0];
+  const tripSay = it => say(it[0].replace(/〜/g, "").replace(/・/g, "、"));
+  function tripShow(it) {
+    const el = document.createElement("div");
+    el.className = "show-big";
+    el.innerHTML = `<div class="sb-jp">${esc(it[1])}</div><div class="sb-kana">${esc(it[0])}</div><div class="sb-de">${esc(it[2])}</div>
+      <div class="sb-row"><button class="btn" id="sb-say">🔊 Vorlesen</button><button class="btn primary" id="sb-x">Schliessen</button></div>`;
+    document.body.appendChild(el);
+    el.querySelector("#sb-say").onclick = e => { e.stopPropagation(); tripSay(it); };
+    el.onclick = () => el.remove();
+  }
+  function travelView(tab) {
+    const T = window.TRAVEL, fav = DB.tripFav || [];
+    const favItems = T.flatMap(t => t.items.filter(it => fav.includes(tripKey(t, it))).map(it => ({ t, it })));
+    tab = tab || DB.tripTab || (favItems.length ? "fav" : T[0].id);
+    if (tab === "fav" && !favItems.length) tab = T[0].id;
+    if (DB.tripTab !== tab) { DB.tripTab = tab; save(); }
+    current = { rerender: () => travelView(tab) };
+    const list = tab === "fav" ? favItems : T.find(t => t.id === tab).items.map(it => ({ t: T.find(t => t.id === tab), it }));
+    const chip = (id, ic, label) => `<button class="trip-tab${id === tab ? " on" : ""}" data-tab="${id}">${ic ? `<svg><use href="#${ic}"/></svg>` : "★"}<span>${esc(label)}</span></button>`;
+    show("Reise-Spickzettel", `
+      <div class="trip-tabs">${favItems.length ? chip("fav", "", "Meine") : ""}${T.map(t => chip(t.id, t.icon, t.title)).join("")}</div>
+      <div class="trip-list">${list.map(({ t, it }, i) => `<div class="card trip-card">
+          <button class="trip-main" data-say="${i}"><span class="jp trip-jp">${esc(scriptText(it[0], it[1], true))}</span><span class="trip-de">${esc(it[2])}</span>
+            ${it[3] ? `<span class="small muted trip-note">${esc(it[3])}</span>` : ""}</button>
+          <div class="trip-btns"><button class="trip-b" data-show="${i}" aria-label="Gross zeigen">Zeigen</button>
+            <button class="trip-b star${fav.includes(tripKey(t, it)) ? " on" : ""}" data-fav="${i}" aria-label="Merken">★</button></div>
+        </div>`).join("")}</div>
+      ${tipBox(`<b>Antippen</b> = vorlesen · <b>Zeigen</b> = gross auf dem Bildschirm, zum Hinhalten · <b>★</b> = unter „Meine“ merken.<br>〜 heisst: hier ein Wort einsetzen, z. B. <span class="jp">${esc(scriptText("とうきょうに いきたいです。", "東京に行きたいです。", true))}</span><br>Funktioniert auch ohne Internet.`)}`, { back: home });
+    $app.querySelectorAll("[data-tab]").forEach(b => b.onclick = () => travelView(b.dataset.tab));
+    $app.querySelectorAll("[data-say]").forEach(b => b.onclick = () => tripSay(list[+b.dataset.say].it));
+    $app.querySelectorAll("[data-show]").forEach(b => b.onclick = () => tripShow(list[+b.dataset.show].it));
+    $app.querySelectorAll("[data-fav]").forEach(b => b.onclick = () => {
+      const { t, it } = list[+b.dataset.fav], k = tripKey(t, it);
+      DB.tripFav = fav.includes(k) ? fav.filter(x => x !== k) : [...fav, k]; save();
+      b.classList.toggle("on"); toast(b.classList.contains("on") ? "Unter „Meine“ gemerkt" : "Nicht mehr gemerkt");
+      const y = scrollY; travelView(tab); scrollTo(0, y);
+    });
+    const on = $(".trip-tab.on"); if (on) on.scrollIntoView({ inline: "center", block: "nearest" });
+  }
+
   // ---------- Haus (von aussen, Räume, im Zimmer) ----------
   const HOUSE_TABS = [["out", "Von aussen"], ["rooms", "Räume"], ["in", "Im Zimmer"]];
   const hBoxes = it => Array.isArray(it.box[0]) ? it.box : [it.box];
@@ -2237,6 +2477,14 @@
           hint: () => `${esc(q[5])}<br><span class="jp">→ ${esc(scriptText(q[6], q[7], true))}</span>`, jpOpts: true,
           opts: mkOpts(q[0], Q.map(x => x[0])), optH: o => esc(tKana(o, false)), sum: () => `<span class="jp">${esc(scriptText(q[3], q[4], true))}</span> – ${esc(q[5])}`, after: q[3] };
       },
+      verb() {      // Verb-Form wählen
+        const verbs = verbList(), F = vForms(); if (verbs.length < 3 || F.length < 3) return null;
+        const w = pickU(verbs, x => "v" + x.kana); if (!w) return null;
+        const FF = vFormsFor(w, F), f = FF[1 + Math.floor(Math.random() * (FF.length - 1))], v = vForm(w, f);
+        return { cat: "gram", label: "Verb-Form", head: () => `<div class="prompt" style="font-size:19px"><span class="jp">${vText(w)}</span> <span class="muted">(${esc(w.de)})</span></div>`,
+          hint: () => `→ <b>${esc(f[1])}</b>`, jpOpts: true, opts: shuffle([f, ...shuffle(FF.filter(x => x !== f)).slice(0, 3)].map(x => ({ v: x, ok: x === f }))),
+          optH: x => vText(vForm(w, x)), sum: () => `<span class="jp">${vText(v)}</span> (${esc(f[1])})`, after: v.kana };
+      },
       satz() {      // Satz-Puzzle
         const p = pickU(window.PUZZLES.filter(x => x.l <= maxL), x => "p" + x.de); if (!p) return null;
         let order; do { order = shuffle(p.k.map((_, i) => i)); } while (p.k.length > 1 && order.map(i => p.k[i]).join("|") === p.k.join("|"));
@@ -2291,7 +2539,7 @@
   }
   function testBuild(n) {
     const used = new Set(), G = testGens(maxLesson(), used);
-    const kinds = { vok: ["vok1", "vok2", "schreib"], hor: ["hor"], gram: ["gram", "frage"], satz: ["satz"], text: ["story", "dlg"], kanji: ["kanji"], zahl: ["zahl"] };
+    const kinds = { vok: ["vok1", "vok2", "schreib"], hor: ["hor"], gram: ["gram", "frage", "verb"], satz: ["satz"], text: ["story", "dlg"], kanji: ["kanji"], zahl: ["zahl"] };
     const qs = [];
     // Bereiche reihum (jede Runde gemischt), damit alles drankommt
     for (let round = 0; qs.length < n && round < n; round++) {

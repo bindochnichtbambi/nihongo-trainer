@@ -911,3 +911,57 @@ h1, h2, .tile b, .btn, .stat b { font-family: var(--sans); }
 @media (prefers-reduced-motion: reduce) {
   .crane-stage *, .t-stamp { animation-duration: .01ms !important; animation-iteration-count: 1 !important; animation-delay: 0s !important; }
 }
+
+/* Sicherungs-Erinnerung */
+.backup-box { margin-bottom: 10px; }
+.backup-box .row .btn { margin: 0; padding: 9px 12px; font-size: 14px; }
+
+/* Lern-Serie: Kranich auf Trittsteinen */
+.streak { border-top: 1px solid var(--line); margin-top: 10px; padding-top: 6px; }
+.st-svg { width: 100%; height: auto; display: block; overflow: visible; }
+.st-stone { fill: var(--surface-2); stroke: var(--line); stroke-width: 1.5; }
+.st-stone.on { fill: var(--d); stroke: var(--b); }
+.st-stone.today { stroke-dasharray: 4 3; stroke: var(--b); }
+.st-stone.today.on { stroke-dasharray: none; fill: var(--b); }
+.st-wd { font: 600 11px var(--jp); fill: var(--muted); }
+.st-wd.today { fill: var(--accent); }
+.st-crane { transform-box: view-box; }
+.st-crane.hop { animation: st-hop .9s cubic-bezier(.4,0,.3,1) .4s both; }
+.st-crane.pop { animation: st-pop .4s ease-out both; }
+@keyframes st-hop { 0% { transform: translate(-50px, 0); } 45% { transform: translate(-25px, -26px); } 85% { transform: translate(0, 2px); } 100% { transform: translate(0, 0); } }
+@keyframes st-pop { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .st-crane { animation: none !important; } }
+
+/* Gespräche: Nur hören */
+.dlg-tabs button { font-size: 13px; padding: 9px 2px; }
+.listen-card .btn { margin-top: 8px; }
+.listen-bubble .dots { display: flex; gap: 5px; padding: 6px 2px 2px; }
+.listen-bubble .dots i { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); opacity: .45; }
+.speaking .listen-bubble .dots i { background: var(--accent); opacity: 1; animation: dot-bounce .9s ease-in-out infinite; }
+.speaking .listen-bubble .dots i:nth-child(2) { animation-delay: .15s; } .speaking .listen-bubble .dots i:nth-child(3) { animation-delay: .3s; }
+@keyframes dot-bounce { 0%, 100% { transform: translateY(0); } 40% { transform: translateY(-5px); } }
+.t-ear .avatar.big { width: 64px; height: 64px; }
+
+/* Reise-Spickzettel */
+#m-trip { margin-top: 0; }
+.trip-tabs { display: flex; gap: 8px; overflow-x: auto; padding: 2px 2px 10px; margin: 0 -2px; scrollbar-width: none; }
+.trip-tabs::-webkit-scrollbar { display: none; }
+.trip-tab { flex: none; display: flex; flex-direction: column; align-items: center; gap: 3px; width: 78px; padding: 8px 4px; border: 2px solid var(--line); background: var(--surface); color: var(--text); border-radius: 14px; cursor: pointer; font: 600 11.5px var(--sans); line-height: 1.15; text-align: center; }
+.trip-tab svg { width: 34px; height: 34px; }
+.trip-tab.on { border-color: var(--accent); background: var(--accent-soft); }
+.trip-tab:first-child:not(:has(svg)) { font-size: 12px; }
+.trip-card { display: flex; gap: 8px; align-items: stretch; padding: 10px 10px 10px 14px; margin-bottom: 8px; }
+.trip-main { flex: 1; min-width: 0; border: 0; background: none; color: var(--text); text-align: left; padding: 0; cursor: pointer; display: flex; flex-direction: column; gap: 3px; font: inherit; }
+.trip-jp { font-size: 19px; line-height: 1.4; }
+.trip-de { font-size: 14px; color: var(--muted); }
+.trip-note { margin-top: 2px; color: var(--accent) !important; }
+.trip-btns { display: flex; flex-direction: column; gap: 6px; flex: none; }
+.trip-b { border: 0; background: var(--surface-2); color: var(--text); border-radius: 10px; padding: 7px 9px; font: 600 12px var(--sans); cursor: pointer; }
+.trip-b.star { font-size: 16px; color: var(--muted); padding: 4px 9px; }
+.trip-b.star.on { color: var(--accent); background: var(--accent-soft); }
+.show-big { position: fixed; inset: 0; z-index: 100; background: #fff; color: #1b2240; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px 20px; text-align: center; gap: 14px; }
+.sb-jp { font: 700 clamp(30px, 10vw, 54px)/1.35 var(--jp); word-break: break-word; }
+.sb-kana { font: 500 20px/1.4 var(--jp); color: #555; }
+.sb-de { font-size: 16px; color: #777; }
+.sb-row { display: flex; gap: 10px; margin-top: 18px; }
+.sb-row .btn { margin: 0; }

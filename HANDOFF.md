@@ -5,6 +5,15 @@ Git ist auf diesem Computer installiert (`C:\Program Files\Git\cmd\git.exe`), An
 
 Konzept, Technik und Konventionen stehen in `CLAUDE.md`.
 
+## Neu in v45 (20.11.2026)
+
+- **Sicherung**: Erinnerung auf der Startseite (nach 14 Tagen bzw. nie gesichert nach 7 Tagen und 3 Lerntagen), „Später“ = 3 Tage Ruhe. In den Einstellungen „Sicherung speichern (z. B. Google Drive)“ über das Teilen-Menü des Handys, dazu „Letzte Sicherung: vor X Tagen“.
+- **Lern-Serie**: in der Statistik-Karte 7 Trittsteine (letzte 7 Tage). Der Kranich steht auf dem letzten Lerntag und springt beim ersten Öffnen nach dem Lernen auf den heutigen Stein. Rekord in `DB.streakBest`. Tage wie `DB.log` (UTC-Datum).
+- **Verb-Formen** (Grammatik-Seite): ます / ません / ました / ませんでした, ab L12 ませんか / ましょう, ab L18 たいです; Quiz mit Form wählen, Form erkennen, Form schreiben. Verben ohne Willen (あります, できます …) ohne Einladung/Wunsch. Auch im Test (Bereich Grammatik).
+- **Gespräche „Hören“**: Text versteckt, Gespräch abspielen, danach 4 Fragen (Satz anhören → Bedeutung wählen).
+- **Reise-Spickzettel** (`js/travel.js`, breite Kachel unten): 7 Situationen inkl. Allergien und Notfall (110/119), „Zeigen“ als Vollbild zum Hinhalten, ★ für eigene Liste.
+- Nächste Idee aus der Liste: bessere Stimmen (z. B. VOICEVOX-Aufnahmen).
+
 ## Neu in v44 (20.11.2026, online)
 
 - **Lektionen** kompakt: pro Topic beide Lektionen nebeneinander („L5 49“ + Name, grün = gelernt).
