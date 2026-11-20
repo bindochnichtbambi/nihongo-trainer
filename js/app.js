@@ -290,9 +290,11 @@
         ["m-counters", "soroban", "三", "Zählwörter", "ひとつ, さんぼん …"],
         ["m-cal", "s-calendar", "📅", "Kalender", "きょう, らいしゅう …"],
         ["m-family", "sakuratree", "👪", "Familie", "Stammbaum & Anrede"],
+        ["m-house", "s-house", "🏠", "Haus", "Räume & Stockwerke"],
         ["m-kanji", "kanji", "漢", "Kanji", "Eselsbrücken & Lesungen"],
         ["m-write", "brush", "✍️", "Schreiben", "Kanji & Kana zeichnen"],
         ["m-games", "daruma", "🎮", "Spiele", "Kana-Regen, Sushi, Puzzle"],
+        ["m-test", "crane", "📝", "Test", "Alles gemischt prüfen"],
       ].map(([id, ic, emo, t, sub], i) => `<button class="tile ${(Math.floor(i / 2) + i % 2) % 2 ? "beige" : "red"}" id="${id}">
           <span class="ico"><i class="emo">${emo}</i><svg class="pic"><use href="#${ic.startsWith("s-") ? ic : "i-" + ic}"/></svg></span>
           <b>${t}</b><small>${sub}</small></button>`).join("")}</div>
@@ -303,6 +305,8 @@
     document.getElementById("practice").onclick = () => learned ? startPractice() : toast("Noch keine Wörter gelernt – zuerst „Vokabeln lernen“");
     document.getElementById("m-cal").onclick = () => calendarView();
     document.getElementById("m-family").onclick = () => familyView();
+    document.getElementById("m-house").onclick = () => houseView();
+    document.getElementById("m-test").onclick = () => testHome();
     document.getElementById("m-kanji").onclick = () => kanjiView();
     document.getElementById("m-groups").onclick = groupsView;
     document.getElementById("m-counters").onclick = countersView;
@@ -318,8 +322,11 @@
     const row = g => {
       const ws = WORDS.filter(w => w.g === g.id);
       const done = ws.filter(w => { const p = prog(w); return p && p.s >= 5; }).length;
-      return `<label class="check"><input type="checkbox" data-g="${g.id}" ${DB.groups.includes(g.id) ? "checked" : ""}>
-        <span class="main">${esc(g.name)}<br><span class="small muted">${ws.length} Einträge · ${done} gelernt</span></span></label>`;
+      // kompakt: eine Zeile pro Lektion („Lektion 5 · Essen“ → „L5 Essen“), rechts gelernt / Wörter
+      const m = /^Lektion (\d+) · (.*)$/.exec(g.name);
+      const n = `<span class="grp-n">${done ? `<b>${done}</b> / ` : ""}${ws.length}</span>`;
+      return `<label class="check grp-row"><input type="checkbox" data-g="${g.id}" ${DB.groups.includes(g.id) ? "checked" : ""}>
+        ${m ? `<span class="main"><span class="grp-l">L${m[1]} ${n}</span>${esc(m[2])}</span>` : `<span class="main">${esc(g.name)}</span>${n}`}</label>`;
     };
     const block = kind => GROUPS.filter(g => g.kind === kind).map(row).join("");
     // Kurs: nach Topic gegliedert, jede Lektion einzeln wählbar
@@ -327,13 +334,13 @@
     const kurs = topics.map(t => {
       const [nr, jpT, deT] = t.split(" · ");
       return `<div class="topic-head"><span class="gram-l">Topic ${esc(nr)}</span><b class="jp">${esc(jpT || "")}</b><span class="muted">${esc(deT || "")}</span></div>
-        ${GROUPS.filter(g => g.kind === "kurs" && (g.topic || "") === t).map(row).join("")}`;
+        <div class="grp-pair">${GROUPS.filter(g => g.kind === "kurs" && (g.topic || "") === t).map(row).join("")}</div>`;
     }).join("");
     show("Lektionen", `
       <h2>Kurs (Marugoto A1)</h2><div class="card topic-card">${kurs}</div>
       <h2>Zusatzwortschatz</h2><div class="card">${block("extra")}</div>
       <h2>Eigene</h2><div class="card">${block("custom")}</div>
-      ${tipBox(`Jede Lektion lässt sich einzeln ein- und ausschalten. Neue Wörter kommen in der Reihenfolge der Lektionen dran. Lektion 13–18 sind zu Beginn ausgeschaltet – einfach einschalten, sobald ihr sie im Kurs habt.`)}
+      ${tipBox(`Die Zahl zeigt, wie viele Wörter eine Lektion hat (grün: wie viele davon schon gelernt sind). Jede Lektion lässt sich einzeln ein- und ausschalten. Neue Wörter kommen in der Reihenfolge der Lektionen dran. Lektion 13–18 sind zu Beginn ausgeschaltet – einfach einschalten, sobald ihr sie im Kurs habt.`)}
     `, { back: home });
     $app.querySelectorAll("input[data-g]").forEach(cb => cb.onchange = () => {
       const id = cb.dataset.g;
@@ -1456,8 +1463,8 @@
   const roleVoice = (d, who) => voiceFor(d.roles[who][2] || VOICE_KIND[d.roles[who][1]]);
 
   // ---------- Gespräche ----------
-  // rotes Lektions-Feld (wie bei der Grammatik): „L5“ oder z. B. „Reise“
-  const lessonBadge = lesson => { const m = /\d+/.exec(lesson || ""); return `<span class="gram-l l-badge${m && +m[0] > maxLesson() ? " later" : ""}">${m ? "L" + m[0] : esc(lesson || "")}</span>`; };
+  // rotes Lektions-Feld (wie bei der Grammatik): „L5“; ohne Lektion (z. B. „Reise“) kein Feld
+  const lessonBadge = lesson => { const m = /\d+/.exec(lesson || ""); return m ? `<span class="gram-l l-badge${+m[0] > maxLesson() ? " later" : ""}">L${m[0]}</span>` : ""; };
   function dialogList() {
     current = { rerender: dialogList };
     const st = DB.dlg || {};
@@ -1777,7 +1784,7 @@
           <span class="gram-l">L${g.l}</span>
           <span class="gram-t"><b class="jp">${esc(g.title)}</b><small>${esc(g.sub)}</small></span>
           <span class="gram-s">${done[g.id] != null ? `${done[g.id]}/4 ✓` : "›"}</span></button>`).join("")}</div>
-      ${tipBox(`Kurze Erklärungen zu den wichtigsten A1-Punkten, mit Beispielen zum Anhören und einer kleinen Übung. Die Lektionsnummer zeigt, wann es ungefähr im Kurs drankommt.`)}`, { back: home });
+      ${tipBox(`Kurze Erklärungen zu den wichtigsten A1-Punkten, mit Beispielen zum Anhören und einer kleinen Übung. Die Lektionsnummer zeigt, wann es ungefähr im Kurs drankommt. Themen aus Lektionen, die du unter „Lektionen“ noch nicht eingeschaltet hast, sind etwas blasser – sie kommen erst später dran, du kannst sie aber trotzdem schon anschauen.`)}`, { back: home });
     $app.querySelectorAll("[data-g]").forEach(b => b.onclick = () => grammarPoint(window.GRAMMAR.find(g => g.id === b.dataset.g)));
     $("#g-satzbau").onclick = () => satzbauView();
     $("#g-frage").onclick = () => questionView();
@@ -2064,6 +2071,362 @@
         <button class="btn primary" id="next">Weiter</button>`;
       $("#next").onclick = () => { st.i++; familyQuiz(st); };
     });
+  }
+
+  // ---------- Haus (von aussen, Räume, im Zimmer) ----------
+  const HOUSE_TABS = [["out", "Von aussen"], ["rooms", "Räume"], ["in", "Im Zimmer"]];
+  const hBoxes = it => Array.isArray(it.box[0]) ? it.box : [it.box];
+  // Text auf maximale Breite zusammendrücken (grob geschätzt: Kana 11 px, Latein 6 px)
+  const hFit = (t, mw, fs = 11) => { const w = [...t].reduce((s, ch) => s + (/[　-鿿]/.test(ch) ? fs : fs * .56), 0); return w > mw ? ` textLength="${mw}" lengthAdjust="spacingAndGlyphs"` : ""; };
+  // Bild mit Namen, markiertem Teil (mark = Quiz, ohne Namen) und unsichtbaren Tipp-Flächen
+  function houseSVG(sc, sel, quiz) {
+    const H = window.HOUSE[sc], tx = it => scriptText(it.k, it.j);
+    const labs = quiz ? "" : H.items.map(it => {
+      if (it.col) { const t = tx(it); return `<text class="hs-col" x="2" y="${it.col + 4}"${hFit(t, 54)}>${esc(t)}</text>`; }
+      if (Array.isArray(it.lab)) return `<text class="hs-title" x="${it.lab[0]}" y="${it.lab[1]}" text-anchor="middle">${esc(tx(it))}</text>`;
+      if (it.lab) {
+        const [x, y, w, h] = it.box, t = tx(it), cx = x + w / 2, cy = y + h / 2;
+        return `<text class="hs-lab" x="${cx}" y="${cy}" text-anchor="middle"${hFit(t, w - 8, 12)}>${esc(t)}</text><text class="hs-de" x="${cx}" y="${cy + 12}" text-anchor="middle"${hFit(it.de, w - 8, 9.5)}>${esc(it.de)}</text>`;
+      }
+      return "";
+    }).join("");
+    const marks = sel == null ? "" : hBoxes(H.items[sel]).map(b => `<rect class="hs-mark" x="${b[0] - 2}" y="${b[1] - 2}" width="${b[2] + 4}" height="${b[3] + 4}" rx="6"/>`).join("");
+    const hits = quiz ? "" : H.items.map((it, i) => hBoxes(it).map(b => `<rect class="hs-hit" data-i="${i}" x="${b[0]}" y="${b[1]}" width="${b[2]}" height="${b[3]}"/>`).join("")).join("");
+    return `<svg class="hs-svg" viewBox="0 0 ${H.vb[0]} ${H.vb[1]}">${H.art}${labs}${marks}${hits}</svg>`;
+  }
+  function houseInfo(it) {
+    if (!it) return tipBox("Tippe im Bild auf etwas – oder unten auf ein Wort.");
+    return `<div class="card fam-info hs-info">
+      <button class="fam-row" data-say="${esc(it.k)}"><b class="jp">${esc(scriptText(it.k, it.j))}</b> 🔊<br><span class="muted">${esc(it.de)}</span></button>
+      ${it.note ? `<p class="small" style="margin:6px 2px">${esc(it.note)}</p>` : ""}
+      ${it.ex ? `<button class="fam-row" data-say="${esc(it.ex[0])}"><span class="jp">${esc(scriptText(it.ex[0], it.ex[1], true))}</span> 🔊<br><span class="small muted">${esc(it.ex[2])}</span></button>` : ""}
+    </div>`;
+  }
+  function houseView(sc) {
+    sc = sc || "out";
+    current = { rerender: () => houseView(sc) };
+    const H = window.HOUSE[sc], j = (k, kj) => esc(scriptText(k, kj));
+    show("Haus", `
+      <button class="btn primary" id="hq" style="margin-top:0">Üben: Was ist das?</button>
+      <div class="seg" id="hmode" style="margin-top:10px">${HOUSE_TABS.map(([id, t]) => `<button data-m="${id}" class="${id === sc ? "on" : ""}">${t}</button>`).join("")}</div>
+      <div class="card fam-card" id="hs-pic">${sc === "rooms" ? `<div class="hs-plan">3LDK</div>` : ""}${houseSVG(sc)}</div>
+      <div id="hs-info">${houseInfo()}</div>
+      <div class="hs-chips">${H.items.map((it, i) => `<button class="hs-chip" data-c="${i}"><span class="jp">${j(it.k, it.j)}</span><small>${esc(it.de)}</small></button>`).join("")}</div>
+      <h2>Wohnformen</h2>
+      <div class="card">${window.HOUSE_TYPES.map(t => `<button class="hs-type" data-say="${esc(t[0])}"><b class="jp">${j(t[0], t[1])}</b> <span class="spk">🔊</span> <span class="muted">· ${esc(t[2])}</span><br><span class="small">${esc(t[3])}</span></button>`).join("")}</div>
+      <h2>Stockwerke</h2>
+      <div class="card"><div class="hs-floors">${window.HOUSE_FLOORS.map(f => `<button class="hs-floor${f[2] ? " irr" : ""}" data-say="${f[1]}"><b>${f[0]}階</b><span class="jp">${esc(scriptText(f[1], ""))}</span></button>`).join("")}</div>
+        <p class="small" style="margin:10px 2px 0">Fragen: <span class="jp">${j("なんがいですか。", "何階ですか。")}</span> – Untergeschoss: <span class="jp">${j("ちか いっかい", "地下1階")}</span>. <span class="hs-irr-key">Rot</span> = besondere Lesung.</p></div>
+      <h2>Wohnungs-Anzeigen lesen</h2>
+      <div class="card"><table class="tbl fam-tbl">${window.HOUSE_PLANS.map(p => `<tr><td><b>${p[0]}</b></td><td>${esc(p[1])}</td></tr>`).join("")}</table>
+        <p class="small" style="margin:8px 2px 0">Die Grösse steht oft in <span class="jp">${j("じょう", "畳")}</span> (Tatami-Matten, je etwa 1,6 m²): ${j("ろくじょう", "6畳")} ≈ 10 m².</p></div>
+      ${tipBox(`<b>Erdgeschoss = <span class="jp">${j("いっかい", "1階")}</span>!</b> In Japan zählt man den Boden schon als 1. Etage. Der 1. Stock bei uns ist also <span class="jp">${j("にかい", "2階")}</span>.`)}`, { back: home });
+    let sel = null;
+    const pick = i => {
+      sel = i;
+      $("#hs-pic svg").outerHTML = houseSVG(sc, i);
+      bindHits();
+      $("#hs-info").innerHTML = houseInfo(H.items[i]);
+      $("#hs-info").querySelectorAll("[data-say]").forEach(b => b.onclick = () => say(b.dataset.say));
+      $app.querySelectorAll(".hs-chip").forEach(c => c.classList.toggle("on", +c.dataset.c === i));
+      say(H.items[i].k);
+    };
+    const bindHits = () => $app.querySelectorAll(".hs-hit").forEach(r => r.onclick = () => {
+      pick(+r.dataset.i);
+      $("#hs-info").scrollIntoView({ behavior: "smooth", block: "nearest" });
+    });
+    bindHits();
+    $app.querySelectorAll(".hs-chip").forEach(c => c.onclick = () => { pick(+c.dataset.c); $("#hs-pic").scrollIntoView({ behavior: "smooth", block: "start" }); });
+    $app.querySelectorAll("#hmode button").forEach(b => b.onclick = () => houseView(b.dataset.m));
+    $app.querySelectorAll("[data-say]").forEach(b => b.onclick = () => say(b.dataset.say));
+    $("#hq").onclick = () => houseQuiz();
+  }
+  function houseQuiz(st) {
+    if (!st) {
+      // 7 Bild-Fragen (markierter Teil) + 3 Wissensfragen
+      const pics = shuffle(Object.keys(window.HOUSE).flatMap(sc => window.HOUSE[sc].items.map((it, i) => ({ sc, i })))).slice(0, 7).map(({ sc, i }) => {
+        const items = window.HOUSE[sc].items, it = items[i];
+        const others = shuffle(items.filter(x => x.k !== it.k)).slice(0, 3);
+        return { sc, i, a: [it.k, it.j], de: it.de, opts: shuffle([it, ...others].map(x => [x.k, x.j])) };
+      });
+      const facts = shuffle([
+        { q: "Das Erdgeschoss heisst auf Japanisch …", a: ["いっかい", "1階"], o: [["にかい", "2階"], ["ちか いっかい", "地下1階"], ["おくじょう", "屋上"]], de: "In Japan ist das Erdgeschoss die 1. Etage." },
+        { q: "Du wohnst bei uns im 2. Stock. Auf Japanisch ist das …", a: ["さんがい", "3階"], o: [["にかい", "2階"], ["よんかい", "4階"], ["いっかい", "1階"]], de: "Man zählt eins dazu: 2. Stock → 3階." },
+        { q: "Wie liest man 6階?", a: ["ろっかい", ""], o: [["ろくかい", ""], ["ろくがい", ""], ["むっかい", ""]], de: "6 + かい → ろっかい" },
+        { q: "Wie liest man 8階?", a: ["はっかい", ""], o: [["はちかい", ""], ["はちがい", ""], ["やっかい", ""]], de: "8 + かい → はっかい" },
+        { q: "Ein grosses Wohnhaus aus Beton mit Lift heisst …", a: ["マンション", ""], o: [["アパート", ""], ["いっこだて", "一戸建て"], ["りょう", "寮"]], de: "マンション = Wohnung im Wohnblock" },
+        { q: "Wo zieht man die Schuhe aus?", a: ["げんかん", "玄関"], o: [["ろうか", "廊下"], ["リビング", ""], ["ベランダ", ""]], de: "In der げんかん (Eingangsbereich)." },
+        { q: "Ein Zimmer mit Tatami-Matten heisst …", a: ["わしつ", "和室"], o: [["ようしつ", "洋室"], ["しんしつ", "寝室"], ["こどもべや", "子ども部屋"]], de: "わしつ = japanisches Zimmer" },
+        { q: "Ein Einfamilienhaus heisst …", a: ["いっこだて", "一戸建て"], o: [["マンション", ""], ["アパート", ""], ["シェアハウス", ""]], de: "いっこだて = eigenes Haus" },
+      ]).slice(0, 3).map(f => ({ ...f, opts: shuffle([f.a, ...f.o]) }));
+      st = { qs: shuffle([...pics, ...facts]), i: 0, right: 0 };
+    }
+    current = { rerender: () => houseQuiz(st) };
+    if (st.i >= st.qs.length) {
+      show("Haus", `<div class="card center"><div class="big-emoji">${st.right >= st.qs.length * 0.8 ? "🎉" : "💪"}</div><h2>${st.right} von ${st.qs.length} richtig</h2>
+        <button class="btn primary" id="again">Nochmal</button><button class="btn" id="back">Zum Haus</button></div>`, { back: () => houseView() });
+      $("#again").onclick = () => houseQuiz(); $("#back").onclick = () => houseView(); return;
+    }
+    const q = st.qs[st.i];
+    show("Haus", `<div class="progress"><i style="width:${Math.round(100 * st.i / st.qs.length)}%"></i></div>
+      <div class="stage-label"><span>${q.sc ? "Was ist rot markiert?" : "Wie sagt man?"}</span><span>${st.i + 1}/${st.qs.length}</span></div>
+      <div class="card">${q.sc ? `<div class="hs-quiz-pic">${houseSVG(q.sc, q.i, true)}</div>` : `<div class="prompt" style="font-size:19px">${esc(q.q)}</div>`}
+      <div class="options">${q.opts.map((o, i) => `<button class="option jp" data-i="${i}">${esc(scriptText(o[0], o[1]))}</button>`).join("")}</div><div id="area"></div></div>`, { back: () => houseView() });
+    $app.querySelectorAll(".option").forEach(b => b.onclick = () => {
+      const ok = q.opts[+b.dataset.i][0] === q.a[0]; if (ok) st.right++;
+      $app.querySelectorAll(".option").forEach((x, i) => { x.disabled = true; if (q.opts[i][0] === q.a[0]) x.classList.add("correct"); });
+      if (!ok) b.classList.add("wrong");
+      say(q.a[0]);
+      $("#area").innerHTML = `<div class="feedback ${ok ? "ok" : "no"}">${ok ? "✓ Richtig!" : "✗ Richtig wäre:"} <span class="jp">${esc(scriptText(q.a[0], q.a[1]))}</span><div class="small">${esc(q.de)}</div></div>
+        <button class="btn primary" id="next">Weiter</button>`;
+      $("#next").onclick = () => { st.i++; houseQuiz(st); };
+    });
+  }
+
+  // ---------- Test (alle Bereiche gemischt, bis zur höchsten eingeschalteten Lektion) ----------
+  // Ändert den Lernplan nicht. Fragen speichern nur Daten; Texte werden beim Anzeigen erzeugt (Schrift-Umschalter wirkt).
+  const TEST_CAT = { vok: "Wortschatz", hor: "Hören", gram: "Grammatik", satz: "Satzbau", text: "Lesen", kanji: "Kanji", zahl: "Zahlen & Zeit" };
+  const CNT_L = { nin: 4, sai: 4, tsu: 5, ji: 9, fun: 9, youbi: 10, kal: 10, hi: 12, gatsu: 12 };   // ab welcher Lektion; übrige Zählwörter ab L15
+  const lessonNr = s => { const m = /\d+/.exec(s || ""); return m ? +m[0] : 0; };
+  const tKana = (s, sentence = true) => DB.settings.script === "romaji" ? Kana.kanaToRomaji(s, sentence) : s;
+  const wSay = w => w.kanji && !/何/.test(w.kanji) ? w.kanji : w.kana;
+  // richtige Antwort + 3 andere, ohne Doppelte
+  const mkOpts = (right, wrong, key = x => x) => shuffle([{ v: right, ok: true },
+    ...shuffle(uniqBy(wrong.filter(x => key(x) !== key(right)), key)).slice(0, 3).map(v => ({ v, ok: false }))]);
+  const gapSentence = (q, fill) => { const [a, b] = q.split("＿"); return `${esc(tKana(a))}<span class="gap${fill ? " filled" : ""}">${fill ? esc(optText(fill === "（nichts）" ? "—" : fill)) : "　"}</span>${esc(tKana(b || ""))}`; };
+
+  function testGens(maxL, used) {
+    const words = activeWords(), single = words.filter(w => !w.p);
+    const pickU = (arr, key) => { const c = shuffle(arr).find(x => !used.has(key(x))); if (c) used.add(key(c)); return c; };
+    const deOpt = v => esc(v), jpOpt = w => jp(w);
+    return {
+      vok1() {      // Wort → Bedeutung
+        const w = pickU(single, x => "w" + x.kana); if (!w) return null;
+        return { cat: "vok", label: "Was bedeutet das?", head: () => `<div class="t-big">${jp(w)}</div>`, say: wSay(w),
+          opts: mkOpts(w.de, single.map(x => x.de)), optH: deOpt, sum: () => `${jp(w)} = ${esc(w.de)}` };
+      },
+      vok2() {      // Bedeutung → Wort
+        const w = pickU(single, x => "w" + x.kana); if (!w) return null;
+        return { cat: "vok", label: "Wie sagt man?", head: () => `<div class="t-de">${esc(w.de)}</div>`, jpOpts: true,
+          opts: mkOpts(w, single, x => x.kana), optH: jpOpt, sum: () => `${esc(w.de)} = ${jp(w)}`, after: wSay(w) };
+      },
+      schreib() {   // Bedeutung → selbst schreiben
+        const w = pickU(single.filter(x => [...x.kana].length <= 8), x => "w" + x.kana); if (!w) return null;
+        return { cat: "vok", label: "Schreib es auf Japanisch", kind: "type", w, head: () => `<div class="t-de">${esc(w.de)}</div>`,
+          sum: () => `${esc(w.de)} = ${jp(w)}`, after: wSay(w) };
+      },
+      hor() {       // Hören → Bedeutung (auch kurze Sätze)
+        const pool = words.filter(x => [...x.kana].length <= 22);
+        const w = pickU(pool, x => "w" + x.kana); if (!w) return null;
+        return { cat: "hor", label: "Was hörst du?", head: () => `<button class="t-ear" id="tear"><svg><use href="#s-bubble"/></svg><span>Nochmal anhören</span></button>`,
+          say: wSay(w), auto: true, opts: mkOpts(w.de, pool.filter(x => x.p === w.p).map(x => x.de)), optH: deOpt, sum: () => `${jp(w)} = ${esc(w.de)}` };
+      },
+      gram() {      // Lückensatz aus der Grammatik
+        const items = window.GRAMMAR.filter(g => g.l <= maxL).flatMap(g => g.quiz.map((q, i) => ({ g, q, k: "g" + g.id + i })));
+        const it = pickU(items, x => x.k); if (!it) return null;
+        const q = it.q;
+        return { cat: "gram", label: it.g.title, head: () => `<div class="gram-q jp">${gapSentence(q.q)}</div>`, hint: () => esc(q.de), jpOpts: true,
+          opts: shuffle(q.o.map((o, i) => ({ v: o, ok: i === 0 }))), optH: o => esc(optText(o)), sum: () => `<span class="jp">${gapSentence(q.q, q.o[0])}</span>`,
+          after: q.q.replace(/（.*?）/g, "").replace("＿", q.o[0] === "（nichts）" ? "" : q.o[0]) };
+      },
+      frage() {     // Fragewort einsetzen
+        const Q = window.QWORDS.filter(x => x[9] <= maxL && x[3].includes(x[0]));
+        const q = pickU(Q, x => "q" + x[0]); if (!q) return null;
+        const s = q[3].replace(q[0], "＿");
+        return { cat: "gram", label: "Welches Fragewort?", head: () => `<div class="gram-q jp">${gapSentence(s)}</div>`,
+          hint: () => `${esc(q[5])}<br><span class="jp">→ ${esc(scriptText(q[6], q[7], true))}</span>`, jpOpts: true,
+          opts: mkOpts(q[0], Q.map(x => x[0])), optH: o => esc(tKana(o, false)), sum: () => `<span class="jp">${esc(scriptText(q[3], q[4], true))}</span> – ${esc(q[5])}`, after: q[3] };
+      },
+      satz() {      // Satz-Puzzle
+        const p = pickU(window.PUZZLES.filter(x => x.l <= maxL), x => "p" + x.de); if (!p) return null;
+        let order; do { order = shuffle(p.k.map((_, i) => i)); } while (p.k.length > 1 && order.map(i => p.k[i]).join("|") === p.k.join("|"));
+        return { cat: "satz", label: "Bilde den Satz", kind: "puzzle", p, order, picked: [], head: () => `<div class="t-de">${esc(p.de)}</div>`,
+          sum: () => `<span class="jp">${esc(p.k.map((_, i) => pzTok(p, i)).join(DB.settings.script === "kanji" ? "" : " "))}</span>`, after: p.k.join("") };
+      },
+      story() {     // Bildergeschichte lesen, eine Frage
+        const items = window.STORIES.filter(s => lessonNr(s.lesson) && lessonNr(s.lesson) <= maxL).flatMap(s => s.questions.map((q, i) => ({ s, q, k: "s" + s.id })));
+        const it = pickU(items, x => x.k); if (!it) return null;
+        const { s, q } = it;
+        return { cat: "text", label: "Lies den Text", head: () => `<div class="t-story jp">${s.pages.map(p => p.lines.map(l => `<div>${lineHTML(parseLine(l))}</div>`).join("")).join("")}</div>
+            <div class="t-q jp">${lineHTML(parseLine(q.q))}</div>`, hint: () => esc(q.de), jpOpts: true,
+          opts: shuffle(q.a.map((a, i) => ({ v: a, ok: i === 0 }))), optH: a => esc(tKana(a)), sum: () => `<span class="jp">${esc(tKana(q.a[0]))}</span> (${esc(s.title)})` };
+      },
+      dlg() {       // Ausschnitt aus einem Gespräch: Was bedeutet der markierte Satz?
+        const ds = window.DIALOGS.filter(d => lessonNr(d.lesson) && lessonNr(d.lesson) <= maxL && new Set(d.lines.map(l => l[2])).size >= 4);
+        const d = pickU(ds, x => "d" + x.id); if (!d) return null;
+        const i = 1 + Math.floor(Math.random() * (d.lines.length - 1)), from = Math.max(0, i - 2), to = Math.min(d.lines.length, i + 2);
+        const L = d.lines[i];
+        return { cat: "text", label: "Gespräch verstehen", head: () => `<div class="t-dlg">${d.lines.slice(from, to).map((l, n) => `<div class="t-line${from + n === i ? " on" : ""}">
+            <b>${esc(tKana(d.roles[l[0]][0], false))}:</b> <span class="jp">${lineHTML(parseLine(l[1]))}</span></div>`).join("")}</div>`,
+          hint: () => "Was bedeutet der markierte Satz?", say: lineSay(parseLine(L[1])),
+          opts: mkOpts(L[2], d.lines.map(l => l[2])), optH: deOpt, sum: () => `${esc(L[2])} (${esc(d.title)})` };
+      },
+      kanji() {     // Kanji: Bedeutung oder Lesung eines Beispielworts
+        const chars = window.KanjiData.SETS.filter(s => s.course && s.l <= maxL).flatMap(s => s.chars);
+        if (chars.length < 4) return null;
+        const ex = chars.flatMap(c => kex(c.c).filter(e => e.kanji && Kana.hasKanji(e.kanji)).map(e => ({ ...e, c: c.c })));
+        if (ex.length >= 4 && Math.random() < 0.5) {
+          const e = pickU(ex, x => "k" + x.kanji); if (!e) return null;
+          return { cat: "kanji", label: "Wie liest man das?", head: () => `<div class="t-big jp">${esc(e.kanji)}</div>`, jpOpts: true,
+            opts: mkOpts(e.kana, ex.map(x => x.kana)), optH: o => esc(tKana(o, false)), sum: () => `<span class="jp">${esc(e.kanji)}</span> = <span class="jp">${esc(tKana(e.kana, false))}</span> (${esc(e.de)})`, after: e.kana };
+        }
+        const c = pickU(chars, x => "k" + x.c); if (!c) return null;
+        return { cat: "kanji", label: "Was bedeutet das Kanji?", head: () => `<div class="t-big jp t-kanji">${esc(c.c)}</div>`,
+          opts: mkOpts(c.de, chars.map(x => x.de)), optH: deOpt, sum: () => `<span class="jp">${esc(c.c)}</span> = ${esc(c.de)}` };
+      },
+      zahl() {      // Zählwörter, Uhrzeit, Datum, Preise
+        const cats = window.Counters.CATEGORIES.map(c => c.id).concat("kal").filter(id => (CNT_L[id] || 15) <= maxL);
+        if (!cats.length) return null;
+        for (let t = 0; t < 6; t++) {
+          const q = window.Counters.makeQuestion(cats[Math.floor(Math.random() * cats.length)]);
+          if (!q || used.has("z" + q.answers[0])) continue;
+          used.add("z" + q.answers[0]);
+          return { cat: "zahl", label: q.sub.replace(/<[^>]+>/g, ""), head: () => `<div class="t-cnt">${q.prompt}</div>`, jpOpts: true,
+            opts: mkOpts(q.answers[0], q.wrong.filter(x => !q.answers.includes(x))), optH: o => esc(tKana(o, false)),
+            sum: () => `<span class="jp">${esc(q.answers.map(a => tKana(a, false)).join(" / "))}</span>`, after: q.answers[0] };
+        }
+        return null;
+      },
+    };
+  }
+  function testBuild(n) {
+    const used = new Set(), G = testGens(maxLesson(), used);
+    const kinds = { vok: ["vok1", "vok2", "schreib"], hor: ["hor"], gram: ["gram", "frage"], satz: ["satz"], text: ["story", "dlg"], kanji: ["kanji"], zahl: ["zahl"] };
+    const qs = [];
+    // Bereiche reihum (jede Runde gemischt), damit alles drankommt
+    for (let round = 0; qs.length < n && round < n; round++) {
+      for (const c of shuffle(Object.keys(kinds))) {
+        if (qs.length >= n) break;
+        for (const g of shuffle(kinds[c])) { const q = G[g](); if (q) { qs.push(q); break; } }
+      }
+    }
+    return shuffle(qs);
+  }
+  let TT = null;
+  function testHome(len) {
+    len = len || (DB.test && DB.test.len) || 10;
+    current = { rerender: () => testHome(len) };
+    const T = DB.test || {}, best = (T.best || {})[len], maxL = maxLesson();
+    show("Test", `
+      <div class="card center t-start">
+        <svg class="t-crane-ic"><use href="#i-crane"/></svg>
+        <h2 style="margin:2px 0 4px">Wie fit bist du?</h2>
+        <p class="small muted" style="margin:0 0 12px">Fragen aus allen Bereichen, bis Lektion ${maxL}</p>
+        <div class="seg" id="tlen"><button data-n="10" class="${len === 10 ? "on" : ""}">Kurz · 10 Fragen</button><button data-n="25" class="${len === 25 ? "on" : ""}">Lang · 25 Fragen</button></div>
+        <button class="btn primary" id="tgo">Test starten</button>
+        ${best != null ? `<p class="small muted" style="margin:8px 0 0">Bestes Ergebnis: <b>${best} %</b>${T.count ? ` · ${T.count} Tests gemacht` : ""}</p>` : ""}
+      </div>
+      <h2>Das kommt dran</h2>
+      <div class="hs-chips t-cats">${[["Wortschatz", "Bedeutung, Wort wählen, selbst schreiben"], ["Hören", "Wort oder Satz verstehen"], ["Grammatik", "Lückensätze & Fragewörter"],
+        ["Satzbau", "Satzteile ordnen"], ["Lesen", "Geschichten & Gespräche"], ["Kanji", "Bedeutung & Lesung"], ["Zahlen & Zeit", "Zählwörter, Uhrzeit, Datum"]]
+        .map(([t, s]) => `<span class="hs-chip"><span><b>${t}</b></span><small>${s}</small></span>`).join("")}</div>
+      ${tipBox(`Es kommt nur, was in deinen eingeschalteten Lektionen vorkommt. Der Test ändert deinen Lernplan nicht. Am Schluss siehst du, wie gut du in jedem Bereich warst – und was der Origami-Kranich davon hält.`)}`, { back: home });
+    $app.querySelectorAll("#tlen button").forEach(b => b.onclick = () => testHome(+b.dataset.n));
+    $("#tgo").onclick = () => {
+      DB.test = DB.test || {}; DB.test.len = len; save();
+      TT = { qs: testBuild(len), i: 0, len };
+      if (!TT.qs.length) { toast("Zu wenig Stoff – schalte mehr Lektionen ein."); return; }
+      testQ();
+    };
+  }
+  function testQ() {
+    const T = TT;
+    if (T.i >= T.qs.length) return testEnd();
+    const q = T.qs[T.i], last = T.i === T.qs.length - 1, answered = q.res !== undefined;
+    current = { rerender: testQ };
+    TOKS = [];
+    const romaji = DB.settings.script === "romaji";
+    const body = q.kind === "type"
+      ? `<form id="tf"><input class="answer-input" id="tinp" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" lang="${romaji ? "en" : "ja"}" placeholder="${romaji ? "z. B. taberu" : "例：たべます"}" ${answered ? "disabled" : ""} value="${esc(q.input || "")}">
+          <button class="btn primary" ${answered ? "disabled" : ""}>Prüfen</button></form>${answered ? "" : `<button class="btn" id="tskip">Weiss ich nicht</button>`}`
+      : q.kind === "puzzle" ? `<div id="tpz"></div>`
+      : `<div class="options">${q.opts.map((o, i) => `<button class="option${q.jpOpts ? " jp" : ""}" data-o="${i}">${q.optH(o.v)}</button>`).join("")}</div>`;
+    show("Test", `<div class="progress"><i style="width:${Math.round(100 * T.i / T.qs.length)}%"></i></div>
+      <div class="stage-label"><span>${esc(TEST_CAT[q.cat])} · ${esc(q.label)}</span><span>${T.i + 1}/${T.qs.length}</span></div>
+      <div class="card">${q.head()}${q.hint ? `<p class="muted center t-hint">${q.hint()}</p>` : ""}
+        ${q.say && !q.auto ? `<div class="center" style="margin-bottom:10px"><button class="speak-btn" id="tsay">🔊</button></div>` : ""}
+        ${body}<div id="area"></div></div>`, { back: () => testHome() });
+    if (q.say) { const b = $("#tsay") || $("#tear"); if (b) b.onclick = () => say(q.say); if (q.auto && !answered) say(q.say); }
+    const feedback = () => {
+      $("#area").innerHTML = `<div class="feedback ${q.res ? "ok" : "no"}">${q.res ? "✓ Richtig!" : "✗ Richtig wäre:"}<div class="t-sum">${q.sum()}</div></div>
+        <button class="btn primary" id="tn">${last ? "Zur Auswertung" : "Weiter"}</button>`;
+      $("#tn").onclick = () => { T.i++; testQ(); };
+    };
+    const done = ok => { q.res = ok; feedback(); if (q.after) say(q.after); else if (q.say && !q.auto) say(q.say); };
+    if (q.kind === "type") {
+      $("#tf").onsubmit = e => {
+        e.preventDefault(); if (answered || q.res !== undefined) return;
+        const v = $("#tinp").value; if (!v.trim()) return;
+        q.input = v; $("#tinp").disabled = true;
+        done(Kana.matches(v, q.w.kana, q.w.kanji, q.w.p));
+      };
+      if ($("#tskip")) $("#tskip").onclick = () => { if (q.res === undefined) { $("#tskip").remove(); done(false); } };
+      if (!answered) setTimeout(() => $("#tinp") && $("#tinp").focus(), 50);
+    } else if (q.kind === "puzzle") {
+      const p = q.p, joiner = romaji ? " roman" : "";
+      const draw = () => {
+        const fin = q.res !== undefined;
+        $("#tpz").innerHTML = `<div class="pz-line${fin ? (q.res ? " ok" : " bad-line") : ""}${joiner}">${q.picked.length ? q.picked.map((ti, n) => `<button class="pz-chip in" data-n="${n}">${esc(pzTok(p, ti))}</button>`).join("") : `<span class="muted small">Tippe die Teile in der richtigen Reihenfolge an</span>`}</div>
+          <div class="pz-pool${joiner}">${q.order.map(ti => `<button class="pz-chip" data-t="${ti}" ${q.picked.includes(ti) || fin ? "disabled" : ""}>${esc(pzTok(p, ti))}</button>`).join("")}</div>`;
+        if (fin) return;
+        $app.querySelectorAll("#tpz [data-t]").forEach(b => b.onclick = () => {
+          q.picked.push(+b.dataset.t);
+          if (q.picked.length === p.k.length) {
+            const txt = q.picked.map(i => p.k[i]).join("|");
+            const ok = [p.k, ...p.alt.map(a => a.map(i => p.k[i]))].some(g => g.join("|") === txt);
+            q.res = ok; draw(); done(ok);
+          } else draw();
+        });
+        $app.querySelectorAll("#tpz [data-n]").forEach(b => b.onclick = () => { q.picked.splice(+b.dataset.n, 1); draw(); });
+      };
+      draw();
+    } else {
+      const mark = () => $app.querySelectorAll("[data-o]").forEach((x, i) => {
+        x.disabled = true; if (q.opts[i].ok) x.classList.add("correct"); if (i === q.pick && !q.opts[i].ok) x.classList.add("wrong");
+      });
+      $app.querySelectorAll("[data-o]").forEach(b => b.onclick = () => {
+        if (q.res !== undefined) return;
+        q.pick = +b.dataset.o; mark(); done(q.opts[q.pick].ok);
+      });
+      if (answered) mark();
+    }
+    if (answered) feedback();
+  }
+  // Origami-Kranich für die Auswertung: fly = fliegt hoch, hop = hüpft fröhlich, fold = faltet sich wieder zum Papier
+  const craneStage = mood => `<div class="crane-stage ${mood}"><svg viewBox="0 0 200 172" aria-hidden="true">
+      <g class="cr-paper"><path class="cr-b" d="M100 92 L136 128 L100 164 L64 128 Z"/><path class="cr-crease" d="M100 92V164M64 128H136M82 110L118 146M118 110L82 146"/></g>
+      <g class="cr-move"><g class="cr-hover"><g transform="translate(0 44)">
+        <g class="cr-wing far"><path class="cr-d" d="M92 92 L112 92 L70 20 Z"/></g>
+        <path class="cr-b" d="M82 95 L96 92 L44 40 Z M112 92 L126 96 L172 46 Z M76 96 L100 110 L126 96 L100 86 Z"/>
+        <path class="cr-a" d="M44 40 L30 52 L50 46 Z"/><path class="cr-d" d="M76 96 L100 110 L100 99 Z"/>
+        <g class="cr-wing"><path class="cr-b" d="M88 94 L116 92 L140 14 Z"/><path class="cr-line" d="M103 93 L140 14"/></g>
+      </g></g></g>
+      ${mood === "fly" ? [[40, 30], [160, 20], [24, 80], [176, 70], [70, 8]].map(([x, y], i) => `<ellipse class="petal ${i % 2 ? "cr-b" : "cr-d"}" cx="${x}" cy="${y}" rx="4" ry="2.6"/>`).join("") : ""}
+    </svg></div>`;
+  function testEnd() {
+    const T = TT, n = T.qs.length, right = T.qs.filter(q => q.res).length, pct = Math.round(100 * right / n);
+    current = null;
+    if (!T.saved) {
+      T.saved = true;
+      DB.test = DB.test || {}; DB.test.best = DB.test.best || {};
+      DB.test.best[T.len] = Math.max(DB.test.best[T.len] || 0, pct); DB.test.count = (DB.test.count || 0) + 1; save();
+    }
+    const mood = pct >= 75 ? "fly" : pct >= 50 ? "hop" : "fold";
+    const grade = pct >= 90 ? ["すばらしい！", "Ausgezeichnet!"] : pct >= 75 ? ["よく できました！", "Gut gemacht!"] : pct >= 50 ? ["ごうかく！", "Bestanden!"] : ["もう すこし！", "Fast – weiter üben!"];
+    const cats = Object.keys(TEST_CAT).map(c => { const qs = T.qs.filter(q => q.cat === c); return [c, qs.length, qs.filter(q => q.res).length]; }).filter(x => x[1]);
+    const wrong = T.qs.filter(q => !q.res);
+    show("Test", `
+      <div class="card center t-result">${pct >= 50 ? `<div class="t-stamp jp">合格</div>` : ""}
+        ${craneStage(mood)}
+        <div class="t-pct">${pct} %</div><h2 class="jp" style="margin:2px 0">${esc(tKana(grade[0]))}</h2>
+        <p style="margin:2px 0 0">${grade[1]} ${right} von ${n} richtig.</p>
+        ${mood === "fold" ? `<p class="small muted" style="margin:6px 0 0">Der Kranich faltet sich zurück zum Papier – beim nächsten Mal fliegt er!</p>` : ""}
+      </div>
+      <h2>Nach Bereichen</h2>
+      <div class="card">${cats.map(([c, a, r]) => `<div class="t-row"><span>${esc(TEST_CAT[c])}</span><span class="t-bar"><i style="width:${Math.round(100 * r / a)}%"></i></span><b>${r}/${a}</b></div>`).join("")}</div>
+      ${wrong.length ? `<h2>Das üben wir noch</h2><div class="card">${wrong.map(q => `<div class="t-wrong"><small class="muted">${esc(TEST_CAT[q.cat])} · ${esc(q.label)}</small><div>${q.sum()}</div></div>`).join("")}</div>` : ""}
+      <button class="btn primary" id="tagain">Neuer Test</button><button class="btn" id="thome">Zur Startseite</button>`, { back: () => testHome() });
+    $("#tagain").onclick = () => testHome(); $("#thome").onclick = home;
   }
 
   // ---------- Kanji (Lernkarten, Üben, Liste) & Kana-Tabelle ----------

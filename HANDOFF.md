@@ -1,9 +1,18 @@
 # Übergabe – Stand 20.11.2026
 
-Online-Version **v43** (`sw.js`): https://bindochnichtbambi.github.io/nihongo-trainer/
+Online-Version **v44** (`sw.js`): https://bindochnichtbambi.github.io/nihongo-trainer/
 Git ist auf diesem Computer installiert (`C:\Program Files\Git\cmd\git.exe`), Anmeldung bei GitHub läuft über den Browser. Hochladen am besten im Terminal-Tab des Benutzers (`git push`), weil die Anmeldung dort ein Fenster öffnen kann.
 
 Konzept, Technik und Konventionen stehen in `CLAUDE.md`.
+
+## Neu in v44 (20.11.2026, online)
+
+- **Lektionen** kompakt: pro Topic beide Lektionen nebeneinander („L5 49“ + Name, grün = gelernt).
+- **Grammatik**: blasse Themen = Lektion noch nicht eingeschaltet (bewusst so, im Tipp erklärt).
+- **Gespräche/Bücher** ohne Lektion („Reise“) zeigen kein rotes Feld mehr.
+- **Neu: Haus** (`js/house.js`): drei Bilder zum Antippen (von aussen mit Stockwerken, Grundriss 3LDK, Zimmer mit Möbeln), Wohnformen, Stockwerk-Lesungen, Anzeigen-Kürzel (1K, 1LDK …), Quiz mit markierten Bildteilen.
+- **Neu: Test** (Kachel mit Origami-Kranich `#i-crane`): 10/25 gemischte Fragen aus Wortschatz, Hören, Grammatik, Satzbau, Lesen, Kanji, Zahlen bis zur höchsten aktiven Lektion. Auswertung nach Bereichen, falsche Antworten, 合格-Stempel ab 50 %. Kranich: ≥75 % fliegt hoch, 50–74 % hüpft, <50 % faltet sich zurück zum Papier (Person wünschte erst „zerknüllen“, dies als freundlichere Variante umgesetzt). Speichert `DB.test`.
+- Startseite: 12 Kacheln (… Schreiben | Spiele, Haus neben Familie, Test neben Spiele).
 
 ## Neu in v37 (20.11.2026, online)
 
