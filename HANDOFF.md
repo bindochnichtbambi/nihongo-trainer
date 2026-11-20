@@ -1,6 +1,6 @@
 # Übergabe – Stand 20.11.2026
 
-Online-Version **v40** (`sw.js`): https://bindochnichtbambi.github.io/nihongo-trainer/
+Online-Version **v41** (`sw.js`): https://bindochnichtbambi.github.io/nihongo-trainer/
 Git ist auf diesem Computer installiert (`C:\Program Files\Git\cmd\git.exe`), Anmeldung bei GitHub läuft über den Browser. Hochladen am besten im Terminal-Tab des Benutzers (`git push`), weil die Anmeldung dort ein Fenster öffnen kann.
 
 Konzept, Technik und Konventionen stehen in `CLAUDE.md`.
@@ -42,6 +42,11 @@ Regel für gelernte Lektionen: nur ergänzen und korrigieren, nichts löschen; G
 - Grammatik: „〜が すきです“ jetzt L5 (mit と, も, いちばん, すきな); 〜を 〜ます ergänzt um いつも/よく/あまり; neu L6 „Ort で 〜を たべます・〜を ください“, neu L8 „〜の うえ・した・なか・よこ“; Adjektive jetzt L7; あります/います ergänzt um いくつ und すんで います.
 - Fragewörter: どこで → L6, いくつ und どんな → L7.
 - Gespräche neu: „Wo essen wir heute?“, „Im Hamburger-Laden“ (L5–6), „Wo ist die Tasse?“ (L7–8).
+- **Paket 1 (L1–4)** (v41, online): Wortschatz ergänzt (L1–2: にほん, にほんご, とうきょう, ふじさん, そら, ほん, タクシー, ひらがな/カタカナ/かんじ, Länder aus dem Katakana-Kapitel, Grüsse おはよう ございます … おつかれさまでした, Unterrichts-Sätze いますか/まだです; L3–4: わたし(たち), にほんじん, スイスじん, ドイツ, エジプト, オーストラリア, Sprachen, なにご, ひとり–さんにん, なんにん, なんさい, かわいい, かっこいい + Sätze). えいご, ドイツご, フランスご, スペインご, できます, すこし, すごい von L11-12 nach L3-4 verschoben – **Migration in app.js** (Liste neben パートナー→かれし) nimmt den Lernstand mit. Aus späteren (ausgeschalteten) Gruppen entfernt: タクシー (L13), かわいい/かっこいい (L15–16), まんが/ふじさん (L17–18).
+- Grammatik: A は B です jetzt L3 (mit じゃないです wie im Kurs), neu L3 „わたしも・〜が できます“, neu L4 „〜と 〜・〜に すんで います“, A の B jetzt L4, これ・それ・あれ jetzt L8 (mit Hinweis, wann was kommt). `GRAMMAR` wird am Ende von grammar.js nach `l` sortiert.
+- Fragewörter: なん L3 (おしごとは なんですか), なんさい/なんにん/どこ L4, どちら L3 (どちらからですか), どの L6, どれ L16.
+- Gespräche neu: „Im Unterricht“ (L1–2), „Das Familienfoto“ (L3–4).
+- Damit sind alle 18 Lektionen mit den Kursheften abgeglichen.
 
 ## Neu in v36 (Rückmeldungen nach ein paar Tagen Testen)
 

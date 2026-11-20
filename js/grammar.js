@@ -3,21 +3,46 @@
 // quiz: Lückensätze – q mit ＿ als Lücke, o = Antworten (die erste ist richtig), de = Übersetzung
 window.GRAMMAR = [
   {
-    id: "desu", l: 1, title: "A は B です", sub: "„A ist B“ – und die Verneinung",
+    id: "desu", l: 3, title: "A は B です", sub: "„A ist B“ – und die Verneinung",
     expl: `<p><b>は</b> (gesprochen <b>wa</b>) markiert das Thema: „Was dich betrifft …“. <b>です</b> am Ende macht den Satz höflich und heisst „ist / bin / sind“.</p>
-      <p>Verneinung: <b>じゃ ありません</b> (gesprochen) oder <b>では ありません</b> (geschrieben). Frage: einfach <b>か</b> ans Ende setzen.</p>`,
+      <p>Verneinung: <b>じゃないです</b> (so im Kurs) oder etwas förmlicher <b>じゃ ありません</b>. Frage: einfach <b>か</b> ans Ende setzen. Fragewort „was“ vor です: <b>なん</b> – おしごとは なんですか.</p>`,
     ex: [["わたしは マリアです。", "私はマリアです。", "Ich bin Maria."],
-      ["たなかさんは がくせいじゃ ありません。", "田中さんは学生じゃありません。", "Herr Tanaka ist kein Student."],
+      ["たなかさんは がくせいじゃないです。", "田中さんは学生じゃないです。", "Herr Tanaka ist kein Student."],
       ["スイスじんですか。", "スイス人ですか。", "Bist du Schweizer/in?"]],
     quiz: [{ q: "わたし＿ ゆきです。", o: ["は", "を", "に"], de: "Ich bin Yuki." },
       { q: "これは ペンです＿。", o: ["か", "の", "を"], de: "Ist das ein Stift?" },
-      { q: "あには せんせい＿ ありません。", o: ["じゃ", "が", "で"], de: "Mein Bruder ist kein Lehrer." },
+      { q: "あには せんせい＿ないです。", o: ["じゃ", "が", "で"], de: "Mein Bruder ist kein Lehrer." },
       { q: "やまださんは にほんじん＿。", o: ["です", "ます", "でした"], de: "Frau Yamada ist Japanerin." }],
   },
   {
-    id: "kosoado", l: 2, title: "これ・それ・あれ・どれ", sub: "Das hier, das da, das dort – und welches?",
+    id: "mo-dekimasu", l: 3, title: "わたしも・〜が できます", sub: "Ich auch – und welche Sprachen kannst du?",
+    expl: `<p><b>も</b> heisst „auch“ und ersetzt は oder が: <b>わたしも エンジニアです</b> (Ich bin auch Ingenieur/in). Kurz: <b>わたしもです</b> (Ich auch).</p>
+      <p>Können: <b>Sprache が できます</b>. Nicht können: <b>Sprache は できません</b>. Frage: <b>なにごが できますか</b>. Abstufen: <b>すこし できます</b> (ein bisschen). Antwort, wenn man gerade lernt: <b>べんきょうちゅうです</b>.</p>`,
+    ex: [["えいごが できます。", "英語ができます。", "Ich kann Englisch."],
+      ["フランスごは できません。", "フランス語はできません。", "Französisch kann ich nicht."],
+      ["わたしも がくせいです。", "私も学生です。", "Ich bin auch Student/in."]],
+    quiz: [{ q: "にほんご＿ できますか。", o: ["が", "を", "の"], de: "Kannst du Japanisch?" },
+      { q: "ちゅうごくご＿ できません。", o: ["は", "が", "を"], de: "Chinesisch kann ich nicht." },
+      { q: "わたし＿ かいしゃいんです。", o: ["も", "の", "を"], de: "Ich bin auch Angestellte/r." },
+      { q: "はい、＿ できます。", o: ["すこし", "ぜんぜん", "あまり"], de: "Ja, ein bisschen." }],
+  },
+  {
+    id: "sunde-imasu", l: 4, title: "〜と 〜・〜に すんで います", sub: "Familie vorstellen: wer, wie alt, wo?",
+    expl: `<p>Personen aufzählen mit <b>と</b> (und): <b>ちちと ははと わたしです</b>. Wie viele? <b>かぞくは なんにんですか</b> → さんにんです (ひとり, ふたり, さんにん, よにん …).</p>
+      <p>Wohnort: <b>Ort に すんで います</b>. Frage: <b>どこに すんで いますか</b>. Alter: <b>なんさいですか</b> (höflich: <b>おいくつですか</b>). Auf ein Foto zeigen: <b>この ひとは だれですか</b>.</p>`,
+    ex: [["わたしの かぞくは よにんです。", "私の家族は4人です。", "Wir sind vier in meiner Familie."],
+      ["ちちと ははと あにと わたしです。", "父と母と兄と私です。", "Mein Vater, meine Mutter, mein Bruder und ich."],
+      ["わたしたちは おおさかに すんで います。", "私たちは大阪に住んでいます。", "Wir wohnen in Osaka."]],
+    quiz: [{ q: "ちち＿ はは＿ わたしです。", o: ["と", "の", "も"], de: "Mein Vater, meine Mutter und ich." },
+      { q: "とうきょう＿ すんで います。", o: ["に", "を", "が"], de: "Ich wohne in Tokio." },
+      { q: "かぞくは ＿ですか。", o: ["なんにん", "なんさい", "なんじ"], de: "Wie viele seid ihr in der Familie?" },
+      { q: "この ひとは ＿ですか。", o: ["だれ", "どこ", "なに"], de: "Wer ist diese Person?" }],
+  },
+  {
+    id: "kosoado", l: 8, title: "これ・それ・あれ・どれ", sub: "Das hier, das da, das dort – und welches?",
     expl: `<p>Japanisch unterscheidet drei Entfernungen: <b>こ-</b> = bei mir, <b>そ-</b> = bei dir, <b>あ-</b> = weit weg von uns beiden. <b>ど-</b> ist das Fragewort.</p>
-      <p><b>これ / それ / あれ / どれ</b> = dieses Ding … · <b>ここ / そこ / あそこ / どこ</b> = Ort · <b>この / その / あの / どの</b> + Nomen (この ほん = dieses Buch).</p>`,
+      <p><b>これ / それ / あれ / どれ</b> = dieses Ding … · <b>ここ / そこ / あそこ / どこ</b> = Ort · <b>この / その / あの / どの</b> + Nomen (この ほん = dieses Buch).</p>
+      <p>Im Kurs kommt das nach und nach: この ひと (L4), あの みせ (L6), これ・ここ (L8), この・その・あの und どれ beim Einkaufen (L16).</p>`,
     ex: [["これは なんですか。", "これは何ですか。", "Was ist das (hier)?"],
       ["トイレは あそこです。", "", "Die Toilette ist dort drüben."],
       ["その かばんは いくらですか。", "", "Wie viel kostet die Tasche (bei dir)?"]],
@@ -27,7 +52,7 @@ window.GRAMMAR = [
       { q: "＿が いいですか。", o: ["どれ", "どこ", "どの"], de: "Welches ist gut? / Welches möchtest du?" }],
   },
   {
-    id: "no", l: 3, title: "A の B", sub: "Besitz und Zugehörigkeit",
+    id: "no", l: 4, title: "A の B", sub: "Besitz und Zugehörigkeit",
     expl: `<p><b>の</b> verbindet zwei Nomen: A の B = „B von A“. Das kann Besitz sein (わたしの ほん = mein Buch), Herkunft (にほんの くるま = ein Auto aus Japan) oder eine Beschreibung (にほんごの せんせい = Japanischlehrer/in).</p>
       <p>Wenn klar ist, worum es geht, fällt B weg: これは わたしのです = Das ist meins.</p>`,
     ex: [["わたしの なまえは ゆきです。", "私の名前はゆきです。", "Mein Name ist Yuki."],
@@ -350,30 +375,33 @@ window.GRAMMAR = [
   },
 ];
 
+// nach Kurs-Lektion ordnen (gleiche Lektion: Reihenfolge wie oben)
+window.GRAMMAR.sort((a, b) => a.l - b.l);
+
 // Fragewörter: [kana, kanji, Bedeutung, Frage kana, Frage kanji, Frage deutsch, Antwort kana, Antwort kanji, Antwort deutsch, Lektion]
 // Lektion: soweit möglich aus dem Kurs-Inhaltsverzeichnis (Marugoto A1), sonst geschätzt – die Person liefert die genauen Lektionen noch nach
 window.QWORDS = [
   ["なに", "何", "was", "なにを たべますか。", "何を食べますか。", "Was isst du?", "すしを たべます。", "寿司を食べます。", "Ich esse Sushi.", 5],
-  ["なん", "何", "was (vor です, の und Zählwörtern)", "これは なんですか。", "これは何ですか。", "Was ist das?", "ペンです。", "", "Das ist ein Stift.", 2],
+  ["なん", "何", "was (vor です, の und Zählwörtern)", "おしごとは なんですか。", "お仕事は何ですか。", "Was ist Ihr Beruf?", "がくせいです。", "学生です。", "Ich bin Student/in.", 3],
   ["なんじ", "何時", "wie viel Uhr", "いま なんじですか。", "今何時ですか。", "Wie spät ist es?", "さんじです。", "三時です。", "Drei Uhr.", 9],
   ["なんぷん", "何分", "wie viele Minuten", "えきまで なんぷんですか。", "駅まで何分ですか。", "Wie viele Minuten bis zum Bahnhof?", "ごふんです。", "五分です。", "Fünf Minuten.", 9],
   ["なんようび", "何曜日", "welcher Wochentag", "きょうは なんようびですか。", "今日は何曜日ですか。", "Welcher Wochentag ist heute?", "げつようびです。", "月曜日です。", "Montag.", 10],
   ["なんじかん", "何時間", "wie viele Stunden", "まいにち なんじかん しごとを しますか。", "毎日何時間仕事をしますか。", "Wie viele Stunden arbeitest du täglich?", "はちじかんです。", "8時間です。", "Acht Stunden.", 10],
   ["なんがつ", "何月", "welcher Monat", "たんじょうびは なんがつですか。", "誕生日は何月ですか。", "In welchem Monat hast du Geburtstag?", "しがつです。", "四月です。", "Im April.", 12],
   ["なんにち", "何日", "welcher Tag (Datum)", "きょうは なんにちですか。", "今日は何日ですか。", "Der Wievielte ist heute?", "とおかです。", "十日です。", "Der 10.", 12],
-  ["なんさい", "何歳", "wie alt", "なんさいですか。", "何歳ですか。", "Wie alt bist du?", "にじゅうごさいです。", "二十五歳です。", "Ich bin 25.", 3],
-  ["なんにん", "何人", "wie viele Personen", "かぞくは なんにんですか。", "家族は何人ですか。", "Wie viele seid ihr in der Familie?", "よにんです。", "四人です。", "Vier.", 3],
+  ["なんさい", "何歳", "wie alt", "なんさいですか。", "何歳ですか。", "Wie alt bist du?", "にじゅうごさいです。", "二十五歳です。", "Ich bin 25.", 4],
+  ["なんにん", "何人", "wie viele Personen", "かぞくは なんにんですか。", "家族は何人ですか。", "Wie viele seid ihr in der Familie?", "よにんです。", "四人です。", "Vier.", 4],
   ["なにご", "何語", "welche Sprache", "なにごを はなしますか。", "何語を話しますか。", "Welche Sprache sprichst du?", "ドイツごを はなします。", "ドイツ語を話します。", "Ich spreche Deutsch.", 3],
   ["なにじん", "何人", "welche Nationalität", "なにじんですか。", "何人ですか。", "Woher kommst du? (Nationalität)", "スイスじんです。", "スイス人です。", "Ich bin Schweizer/in.", 3],
   ["いつ", "", "wann", "たんじょうびは いつですか。", "誕生日はいつですか。", "Wann hast du Geburtstag?", "ごがつ みっかです。", "五月三日です。", "Am 3. Mai.", 10],
-  ["どこ", "", "wo", "トイレは どこですか。", "", "Wo ist die Toilette?", "あそこです。", "", "Dort drüben.", 2],
+  ["どこ", "", "wo", "どこに すんで いますか。", "どこに住んでいますか。", "Wo wohnst du?", "おおさかに すんで います。", "大阪に住んでいます。", "In Osaka.", 4],
   ["どこで", "", "wo (tut man etwas / findet etwas statt)", "きょうは どこで たべますか。", "今日はどこで食べますか。", "Wo essen wir heute?", "あの みせで たべましょう。", "あの店で食べましょう。", "In dem Restaurant dort.", 6],
   ["だれ", "誰", "wer", "あの ひとは だれですか。", "あの人は誰ですか。", "Wer ist diese Person?", "たなかさんです。", "田中さんです。", "Das ist Frau Tanaka.", 4],
   ["いくら", "", "wie viel (Preis)", "これは いくらですか。", "", "Wie viel kostet das?", "ごひゃくえんです。", "五百円です。", "500 Yen.", 12],
   ["いくつ", "", "wie viele (Stück); bei Kindern auch: wie alt", "りんごは いくつですか。", "", "Wie viele Äpfel sind es?", "みっつです。", "三つです。", "Drei.", 7],
-  ["どれ", "", "welches (von mehreren)", "どれが いいですか。", "", "Welches möchtest du?", "これが いいです。", "", "Das hier.", 2],
-  ["どの", "", "welcher / welche + Nomen", "どの かばんですか。", "", "Welche Tasche ist es?", "あの あかい かばんです。", "あの赤いかばんです。", "Die rote dort.", 2],
-  ["どちら", "", "welches von zweien; höflich auch: wo", "コーヒーと おちゃと どちらが いいですか。", "コーヒーとお茶とどちらがいいですか。", "Kaffee oder Tee – was möchtest du?", "おちゃが いいです。", "お茶がいいです。", "Lieber Tee.", 3],
+  ["どれ", "", "welches (von mehreren)", "どれが いいですか。", "", "Welches möchtest du?", "これが いいです。", "", "Das hier.", 16],
+  ["どの", "", "welcher / welche + Nomen", "どの みせですか。", "どの店ですか。", "Welches Restaurant ist es?", "あの みせです。", "あの店です。", "Das dort drüben.", 6],
+  ["どちら", "", "höflich für „wo / woher“; auch: welches von zweien", "どちらからですか。", "", "Woher kommen Sie?", "ちゅうごくです。", "中国です。", "Aus China.", 3],
   ["どう", "", "wie (ist/war es)", "やすみは どうでしたか。", "休みはどうでしたか。", "Wie waren die Ferien?", "たのしかったです。", "楽しかったです。", "Es hat Spass gemacht.", 17],
   ["なにいろ", "何色", "welche Farbe", "なにいろが すきですか。", "何色が好きですか。", "Welche Farbe magst du?", "あおが すきです。", "青が好きです。", "Ich mag Blau.", 16],
   ["どんな", "", "was für ein", "どんな おんがくが すきですか。", "どんな音楽が好きですか。", "Was für Musik magst du?", "ロックが すきです。", "ロックが好きです。", "Ich mag Rock.", 7],

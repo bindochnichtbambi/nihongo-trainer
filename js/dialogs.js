@@ -21,6 +21,19 @@ window.GLOSS = {
 };
 
 window.DIALOGS = [
+  { id: "d-unterricht", title: "Im Unterricht", lesson: "Lektion 1–2", emoji: "🏫", icon: "s-school",
+    roles: { A: ["せんせい", "av-oldman"], B: ["アンナ", "av-woman"] },
+    lines: [
+      ["A", "_おはよう ございます。==Guten Morgen.", "Guten Morgen!"],
+      ["B", "おはよう ございます。==Guten Morgen.", "Guten Morgen!"],
+      ["A", "じゅぎょう=授業=Unterricht|を|_はじめます。=始めます。=beginnen", "Wir beginnen mit dem Unterricht."],
+      ["A", "アンナさん、==Anna|ごページ=5ページ=Seite 5|を|_よんで=読んで=lesen|ください。", "Anna, lesen Sie bitte Seite 5."],
+      ["B", "_すみません。|もう いちど=もう一度=noch einmal|おねがいします。=お願いします。=bitte", "Entschuldigung, noch einmal bitte."],
+      ["A", "ごページ=5ページ=Seite 5|を|よんで=読んで=lesen|ください。", "Lesen Sie bitte Seite 5."],
+      ["B", "はい、|_わかりました。=分かりました。=verstanden", "Ja, verstanden."],
+      ["A", "じゅぎょう=授業=Unterricht|を|_おわります。=終わります。=beenden", "Wir beenden den Unterricht."],
+      ["B", "ありがとう ございました。==Vielen Dank.|_さようなら。==Auf Wiedersehen.", "Vielen Dank. Auf Wiedersehen!"],
+    ] },
   { id: "d-kennen", title: "Erstes Kennenlernen", lesson: "Lektion 3–4", emoji: "🤝", icon: "s-bubble",
     roles: { A: ["やまだ", "av-man"], B: ["アンナ", "av-woman"] },
     lines: [
@@ -31,6 +44,18 @@ window.DIALOGS = [
       ["A", "そうですか。|おしごと=お仕事|は|なん=何=was|ですか。", "Ach so. Was ist Ihr Beruf?"],
       ["B", "_かいしゃいん=会社員|です。|やまださん==Herr Yamada|は？", "Ich bin Angestellte. Und Sie, Herr Yamada?"],
       ["A", "わたし=私=ich|は|_きょうし=教師|です。", "Ich bin Lehrer."],
+    ] },
+  { id: "d-familie", title: "Das Familienfoto", lesson: "Lektion 3–4", emoji: "👪", icon: "s-family",
+    roles: { A: ["キム", "av-woman"], B: ["すずき", "av-girl"] },
+    lines: [
+      ["A", "すずきさん、==Frau Suzuki|かぞく=家族|は|_なんにん=何人=wie viele Personen|ですか。", "Frau Suzuki, wie viele seid ihr in der Familie?"],
+      ["B", "_よにん=4人=vier Personen|です。|ちち=父|と|はは=母|と|あに=兄|と|わたし=私|です。", "Vier. Mein Vater, meine Mutter, mein älterer Bruder und ich."],
+      ["A", "どこ|に|_すんで います=住んでいます=wohnt|か。", "Wo wohnt ihr?"],
+      ["B", "_おおさか=大阪=Osaka|に|すんで います。=住んでいます。=wohnen", "In Osaka."],
+      ["A", "この==dieser|おとこの こ=男の子=Junge|は|_だれ=誰|ですか。", "Wer ist dieser Junge?"],
+      ["B", "あに=兄|の|_こども=子ども|です。", "Das ist das Kind meines Bruders."],
+      ["A", "_かわいい|ですね。|なんさい=何歳=wie alt|ですか。", "Wie süss! Wie alt ist er?"],
+      ["B", "_よんさい=4歳=vier Jahre alt|です。", "Vier Jahre alt."],
     ] },
   { id: "d-cafe", title: "Im Café", lesson: "Lektion 5–6", emoji: "☕", icon: "s-coffee",
     roles: { A: ["てんいん", "av-chef"], B: ["おきゃくさん", "av-man"] },

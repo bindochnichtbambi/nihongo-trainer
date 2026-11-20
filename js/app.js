@@ -23,7 +23,8 @@
   let DB = load();
   DB.counterCats = (DB.counterCats || []).filter(c => c !== "kal");
   // umbenannte Wörter: Lernstand mitnehmen
-  [["L3-4|パートナー", "L3-4|かれし"]].forEach(([a, b]) => { if (DB.progress && DB.progress[a] && !DB.progress[b]) { DB.progress[b] = DB.progress[a]; delete DB.progress[a]; } });
+  // v41: Wörter, die im Kurs schon in Lektion 3 kommen, von L11-12 nach L3-4 verschoben
+  [["L3-4|パートナー", "L3-4|かれし"], ...["えいご", "ドイツご", "フランスご", "スペインご", "できます", "すこし", "すごい"].map(w => ["L11-12|" + w, "L3-4|" + w])].forEach(([a, b]) => { if (DB.progress && DB.progress[a] && !DB.progress[b]) { DB.progress[b] = DB.progress[a]; delete DB.progress[a]; } });
   // v37: Lektion 13–14 ist jetzt in zwei Gruppen geteilt (L13-13, L14-14) – Auswahl und Lernstand übernehmen
   (function splitL1314() {
     const find = id => (window.VOCAB_GROUPS.find(g => g.id === id) || { items: [] }).items.map(it => it[0]);
