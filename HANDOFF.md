@@ -11,7 +11,7 @@ Konzept, Technik und Konventionen stehen in `CLAUDE.md`.
 - Vokabeln, Stufe Aussprechen: Bei sehr kurzen Wörtern (z. B. え) gibt es einen Hinweis, sie in einem kleinen Satz zu sagen („え です“). Ein Rahmen wie これは … です wird beim Vergleich entfernt.
 - Zählwörter, Kanji (Lernen) und Schreiben haben denselben Aufbau: Auswahl-Karte oben, Kacheln „Was willst du üben?“, Tipp unten. Kanji hat dort einen Memory-Knopf.
 - Offen: Die Stimmen gefallen der Person nicht. Optionen besprochen (Stimme auf dem Handy wählen oder fertige Aufnahmen, z. B. mit VOICEVOX), noch nicht entschieden.
-- Kursunterlagen liegen in `C:\Users\Admin\Claude\Kursunterlagen` (nur lokal, nie hochladen, nicht abschreiben): Inhaltsverzeichnisse Rikai + Katsudoo (alle 18 Lektionen: Themen, Sätze, Kanji je Lektion) und Lektion 13 aus beiden Heften. Die Person ist bei **Lektion 13**.
+- Kursunterlagen liegen in `C:\Users\Admin\Claude\Kursunterlagen` (nur lokal, nie hochladen, nicht abschreiben): Unterordner `Katsudo` und `Rikai`, je ein PDF pro Topic (alle 9 Topics) plus Inhaltsverzeichnisse. Die Scans sind Bilder; zum Lesen die JPEG-Streams aus dem PDF herausziehen (kleines PowerShell-Skript, Bilder auf ~1150 px verkleinern). Die Person ist bei **Lektion 13**.
 - Danach angepasst:
   - Wortschatz: Gruppe „L13-14“ geteilt in `L13-13` (neu nach Kursbuch, dazu トラム/ケーブルカー der Person) und `L14-14` (vorläufig, gekürzt). Migration in app.js übernimmt Auswahl und Lernstand.
   - Kanji: Gruppen „nach Kurs-Lektion“ (`COURSE` in kanji.js, `course: true`), neue Kanji 口 卵 京. Kacheln in Kanji und Schreiben in Abschnitte geteilt (Kana / Kurs-Lektion / Thema).
@@ -165,10 +165,12 @@ Regel für gelernte Lektionen: nur ergänzen und korrigieren, nichts löschen; G
 
 ## Nächste Schritte (Vorschlag)
 
-1. **Git installieren**, dann v36 hochladen (nach „Ja, hochladen“).
-2. **Auf dem Pixel testen** (v36) und Rückmeldungen einarbeiten.
-3. **Lektion 13–18 prüfen**, sobald die Person sie im Kurs erreicht.
-4. Passende **Gespräche und Bücher für Lektion 13–18** schreiben (Stadt/Wegbeschreibung, Einkaufen, Ferien/Reisen).
+Stand 20.11.2026 (Sitzungsende): v43 online, alles committet und gepusht. Alle 18 Lektionen sind mit den Kursheften abgeglichen (Wortschatz, Grammatik, Fragewörter, Gespräche, Bücher).
+
+1. **Auf dem Pixel testen** (v37–v43, vor allem: Übernahme des Lernstands auf die einzelnen Lektionen, Lektionen-Seite nach Topic) und Rückmeldungen einarbeiten.
+2. Offen: **Stimmen** (gefallen der Person nicht; Optionen Handy-Stimme wählen oder fertige Aufnahmen, z. B. VOICEVOX).
+3. Offen: **Kanji-Merkbilder** – Person sucht selbst Vorlagen; abwarten.
+4. Ideen: **Satz-Puzzles** für L13–18 ergänzen; Kanji-Gruppen nach Lektion prüfen (L1–4 und L7, L14, L15, L17 haben bisher keine Kurs-Kanji in `COURSE`).
 5. **Grammatik erweitern**, sobald der Kurs weiter ist (z. B. て-Form genauer, 〜ています, Vergleiche より/ほうが).
 6. Später **A2 in derselben App** (eigene Wortschatz-Datei `js/vocab-a2.js`).
 
