@@ -39,9 +39,9 @@ window.GRAMMAR = [
       { q: "その かばんは あね＿です。", o: ["の", "に", "と"], de: "Die Tasche gehört meiner älteren Schwester." }],
   },
   {
-    id: "ga-suki", l: 4, title: "〜が すきです・わかります", sub: "Mögen, können, verstehen",
-    expl: `<p>Bei manchen Ausdrücken steht das Objekt mit <b>が</b> statt を: <b>すき</b> (mögen), <b>きらい</b> (nicht mögen), <b>じょうず</b> (gut können), <b>わかります</b> (verstehen).</p>
-      <p>Abstufen mit: とても (sehr), すこし (ein bisschen), あまり 〜ません (nicht so), ぜんぜん 〜ません (gar nicht).</p>`,
+    id: "ga-suki", l: 5, title: "〜が すきです・すきじゃないです", sub: "Mögen und nicht mögen",
+    expl: `<p>Was man mag, steht mit <b>が</b>: にくが すきです. Was man nicht mag, steht meist mit <b>は</b>: さかなは すきじゃないです. Frage: <b>なにが すきですか</b>. Auch so funktionieren <b>きらい</b> (nicht mögen) und <b>わかります</b> (verstehen).</p>
+      <p>Mehrere Dinge mit <b>と</b>: にくと やさいが すきです. „Auch“ mit <b>も</b>: さかなも すきです (も ersetzt が). Am liebsten: <b>〜が いちばん すきです</b>. Lieblings-: <b>すきな りょうりは カレーです</b>.</p>`,
     ex: [["ねこが すきです。", "猫が好きです。", "Ich mag Katzen."],
       ["えいごが すこし わかります。", "英語が少し分かります。", "Ich verstehe ein bisschen Englisch."],
       ["にくは あまり すきじゃ ありません。", "肉はあまり好きじゃありません。", "Fleisch mag ich nicht so sehr."]],
@@ -53,7 +53,8 @@ window.GRAMMAR = [
   {
     id: "o-masu", l: 5, title: "〜を 〜ます", sub: "Verben in der höflichen Form",
     expl: `<p><b>を</b> (gesprochen <b>o</b>) markiert das Objekt: Was esse ich? → すしを たべます.</p>
-      <p>Die Höflichkeitsform hat vier Endungen: <b>〜ます</b> (Gegenwart/Zukunft), <b>〜ません</b> (nicht), <b>〜ました</b> (Vergangenheit), <b>〜ませんでした</b> (nicht getan). Das Verb steht immer am Satzende.</p>`,
+      <p>Die Höflichkeitsform hat vier Endungen: <b>〜ます</b> (Gegenwart/Zukunft), <b>〜ません</b> (nicht), <b>〜ました</b> (Vergangenheit), <b>〜ませんでした</b> (nicht getan). Das Verb steht immer am Satzende.</p>
+      <p>Wie oft? <b>いつも</b> (immer) · <b>よく</b> (oft) mit 〜ます, <b>あまり</b> (nicht oft) mit 〜ません. Bei Verneinung wird を oft zu <b>は</b>: たまごは あまり たべません.</p>`,
     ex: [["あさ コーヒーを のみます。", "朝コーヒーを飲みます。", "Morgens trinke ich Kaffee."],
       ["きのう えいがを みました。", "昨日映画を見ました。", "Gestern habe ich einen Film gesehen."],
       ["さかなは たべません。", "魚は食べません。", "Fisch esse ich nicht."]],
@@ -63,9 +64,22 @@ window.GRAMMAR = [
       { q: "しゅくだいを しませんで＿。", o: ["した", "す", "せん"], de: "Ich habe die Hausaufgaben nicht gemacht." }],
   },
   {
+    id: "doko-de", l: 6, title: "Ort で 〜を たべます・〜を ください", sub: "Wo isst du? Bestellen im Restaurant",
+    expl: `<p>Der Ort, an dem man etwas tut, bekommt <b>で</b>: <b>コーヒーショップで ひるごはんを たべます</b>. Frage: <b>どこで たべますか</b>.</p>
+      <p>Bestellen: <b>Sache を Anzahl ください</b> oder ohne を: <b>ハンバーガー ひとつ ください</b>. Zählen von Dingen: ひとつ, ふたつ, みっつ … Mehrere Sachen mit <b>と</b>: ハンバーガー ふたつと コーヒー ひとつ. Vorschlag: <b>〜で たべましょう</b> (Lass uns … essen).</p>`,
+    ex: [["きょうは どこで たべますか。", "今日はどこで食べますか。", "Wo essen wir heute?"],
+      ["あの みせで たべましょう。", "あの店で食べましょう。", "Lass uns in dem Restaurant dort essen."],
+      ["ハンバーガー ふたつと コーヒー ひとつ ください。", "", "Zwei Hamburger und einen Kaffee, bitte."]],
+    quiz: [{ q: "どこ＿ ひるごはんを たべますか。", o: ["で", "に", "を"], de: "Wo isst du zu Mittag?" },
+      { q: "ラーメンや＿ たべます。", o: ["で", "を", "が"], de: "Ich esse im Ramen-Restaurant." },
+      { q: "サンドイッチ＿ たべます。", o: ["を", "で", "に"], de: "Ich esse ein Sandwich." },
+      { q: "コーヒーを ＿ ください。", o: ["ふたつ", "ふたり", "にじ"], de: "Zwei Kaffee, bitte." }],
+  },
+  {
     id: "aru-iru", l: 7, title: "あります・います", sub: "Es gibt … / … ist da",
     expl: `<p>Für Dinge und Pflanzen: <b>あります</b>. Für Menschen und Tiere (alles, was sich selbst bewegt): <b>います</b>.</p>
-      <p>Ort + <b>に</b> + Ding + <b>が</b> あります: へやに ベッドが あります = Im Zimmer gibt es ein Bett. Oder umgekehrt: Ding + <b>は</b> + Ort + に あります = Das Bett ist im Zimmer.</p>`,
+      <p>Ort + <b>に</b> + Ding + <b>が</b> あります: へやに ベッドが あります = Im Zimmer gibt es ein Bett. Gibt es nicht: テレビ<b>は</b> ありません. Wie viele? <b>いくつ ありますか</b> → ふたつ あります (Zahl ohne Partikel vor dem Verb).</p>
+      <p>Wohnen: <b>Ort に すんで います</b>. Mit wem: <b>かぞくと</b> / <b>ひとりで</b> (allein) すんで います.</p>`,
     ex: [["へやに テレビが あります。", "部屋にテレビがあります。", "Im Zimmer gibt es einen Fernseher."],
       ["こうえんに こどもが います。", "公園に子供がいます。", "Im Park sind Kinder."],
       ["ねこは ソファの うえに います。", "猫はソファの上にいます。", "Die Katze ist auf dem Sofa."]],
@@ -75,8 +89,8 @@ window.GRAMMAR = [
       { q: "あにが ふたり ＿。", o: ["います", "あります", "です"], de: "Ich habe zwei ältere Brüder." }],
   },
   {
-    id: "adj", l: 8, title: "い-Adjektive und な-Adjektive", sub: "Dinge beschreiben",
-    expl: `<p><b>い-Adjektive</b> enden auf い: おおきい いえ (grosses Haus). Verneinung: い → <b>くない</b>です (おおきくないです). Achtung: いい → よくないです.</p>
+    id: "adj", l: 7, title: "い-Adjektive und な-Adjektive", sub: "Dinge beschreiben",
+    expl: `<p><b>い-Adjektive</b> enden auf い: おおきい いえ (grosses Haus). Verneinung: い → <b>くない</b>です (おおきくないです, やすくないです). Achtung: いい → よくないです.</p>
       <p><b>な-Adjektive</b> bekommen vor einem Nomen ein <b>な</b>: しずかな へや (ruhiges Zimmer). Verneinung: しずか<b>じゃ ありません</b>. Bekannte な-Adjektive: きれい, しずか, げんき, ゆうめい, べんり, すき.</p>`,
     ex: [["あたらしい アパートです。", "新しいアパートです。", "Es ist eine neue Wohnung."],
       ["きれいな へやですね。", "きれいな部屋ですね。", "Was für ein schönes Zimmer!"],
@@ -85,6 +99,18 @@ window.GRAMMAR = [
       { q: "へやは ひろ＿ないです。", o: ["く", "い", "な"], de: "Das Zimmer ist nicht gross (weit)." },
       { q: "てんきが ＿ないです。", o: ["よく", "いく", "いい"], de: "Das Wetter ist nicht gut." },
       { q: "ここは べんり＿ ありません。", o: ["じゃ", "く", "な"], de: "Hier ist es nicht praktisch." }],
+  },
+  {
+    id: "ue-shita", l: 8, title: "〜の うえ・した・なか・よこ", sub: "Wo ist das? Dinge im Zimmer",
+    expl: `<p>Frage: <b>Ding は どこですか</b>. Antwort: <b>Ort の Lage です</b>: たなの うえです (auf dem Regal). Lagewörter: <b>うえ</b> (auf, oben) · <b>した</b> (unter) · <b>なか</b> (in) · <b>よこ</b> (neben).</p>
+      <p>Wohin soll es? <b>はこの なかに おねがいします</b> (In die Schachtel, bitte). Weitere Lagewörter wie まえ, となり, ちかく kommen in Lektion 14.</p>`,
+    ex: [["カップは どこですか。", "", "Wo ist die Tasse?"],
+      ["たなの うえです。とけいの よこです。", "棚の上です。時計の横です。", "Auf dem Regal. Neben der Uhr."],
+      ["にんぎょうは はこの なかに おねがいします。", "人形は箱の中にお願いします。", "Die Puppe bitte in die Schachtel."]],
+    quiz: [{ q: "ほんは テーブル＿ うえです。", o: ["の", "に", "が"], de: "Das Buch ist auf dem Tisch." },
+      { q: "いぬは ベッドの ＿です。", o: ["した", "なか", "うえ"], de: "Der Hund ist unter dem Bett. (unter)" },
+      { q: "とけいは ＿ですか。", o: ["どこ", "なに", "だれ"], de: "Wo ist die Uhr?" },
+      { q: "はこの なか＿ おねがいします。", o: ["に", "で", "を"], de: "In die Schachtel, bitte." }],
   },
   {
     id: "time-ni", l: 9, title: "Zeit + に", sub: "Wann passiert etwas?",
@@ -341,16 +367,16 @@ window.QWORDS = [
   ["なにじん", "何人", "welche Nationalität", "なにじんですか。", "何人ですか。", "Woher kommst du? (Nationalität)", "スイスじんです。", "スイス人です。", "Ich bin Schweizer/in.", 3],
   ["いつ", "", "wann", "たんじょうびは いつですか。", "誕生日はいつですか。", "Wann hast du Geburtstag?", "ごがつ みっかです。", "五月三日です。", "Am 3. Mai.", 10],
   ["どこ", "", "wo", "トイレは どこですか。", "", "Wo ist die Toilette?", "あそこです。", "", "Dort drüben.", 2],
-  ["どこで", "", "wo (findet etwas statt / tut man etwas)", "まつりは どこで ありますか。", "祭りはどこでありますか。", "Wo findet das Fest statt?", "こうえんで あります。", "公園であります。", "Im Park.", 11],
+  ["どこで", "", "wo (tut man etwas / findet etwas statt)", "きょうは どこで たべますか。", "今日はどこで食べますか。", "Wo essen wir heute?", "あの みせで たべましょう。", "あの店で食べましょう。", "In dem Restaurant dort.", 6],
   ["だれ", "誰", "wer", "あの ひとは だれですか。", "あの人は誰ですか。", "Wer ist diese Person?", "たなかさんです。", "田中さんです。", "Das ist Frau Tanaka.", 4],
   ["いくら", "", "wie viel (Preis)", "これは いくらですか。", "", "Wie viel kostet das?", "ごひゃくえんです。", "五百円です。", "500 Yen.", 12],
-  ["いくつ", "", "wie viele (Stück); bei Kindern auch: wie alt", "りんごは いくつですか。", "", "Wie viele Äpfel sind es?", "みっつです。", "三つです。", "Drei.", 4],
+  ["いくつ", "", "wie viele (Stück); bei Kindern auch: wie alt", "りんごは いくつですか。", "", "Wie viele Äpfel sind es?", "みっつです。", "三つです。", "Drei.", 7],
   ["どれ", "", "welches (von mehreren)", "どれが いいですか。", "", "Welches möchtest du?", "これが いいです。", "", "Das hier.", 2],
   ["どの", "", "welcher / welche + Nomen", "どの かばんですか。", "", "Welche Tasche ist es?", "あの あかい かばんです。", "あの赤いかばんです。", "Die rote dort.", 2],
   ["どちら", "", "welches von zweien; höflich auch: wo", "コーヒーと おちゃと どちらが いいですか。", "コーヒーとお茶とどちらがいいですか。", "Kaffee oder Tee – was möchtest du?", "おちゃが いいです。", "お茶がいいです。", "Lieber Tee.", 3],
   ["どう", "", "wie (ist/war es)", "やすみは どうでしたか。", "休みはどうでしたか。", "Wie waren die Ferien?", "たのしかったです。", "楽しかったです。", "Es hat Spass gemacht.", 17],
   ["なにいろ", "何色", "welche Farbe", "なにいろが すきですか。", "何色が好きですか。", "Welche Farbe magst du?", "あおが すきです。", "青が好きです。", "Ich mag Blau.", 16],
-  ["どんな", "", "was für ein", "どんな おんがくが すきですか。", "どんな音楽が好きですか。", "Was für Musik magst du?", "ロックが すきです。", "ロックが好きです。", "Ich mag Rock.", 11],
+  ["どんな", "", "was für ein", "どんな おんがくが すきですか。", "どんな音楽が好きですか。", "Was für Musik magst du?", "ロックが すきです。", "ロックが好きです。", "Ich mag Rock.", 7],
   ["どうして", "", "warum", "どうして にほんごを べんきょうしますか。", "どうして日本語を勉強しますか。", "Warum lernst du Japanisch?", "アニメが すきですから。", "アニメが好きですから。", "Weil ich Anime mag.", 13],
   ["どのくらい", "", "wie lange / wie viel", "どのくらい かかりますか。", "", "Wie lange dauert es?", "いちじかんぐらいです。", "一時間ぐらいです。", "Etwa eine Stunde.", 13],
   ["なんで", "何で", "womit (Verkehrsmittel); locker auch: warum", "なんで いきますか。", "何で行きますか。", "Womit fährst du hin?", "でんしゃで いきます。", "電車で行きます。", "Mit dem Zug.", 13],

@@ -1,5 +1,5 @@
 // Offline-Cache. Bei Änderungen an der App VERSION erhöhen.
-const VERSION = "v39";
+const VERSION = "v40";
 const FILES = [
   "./", "index.html", "css/style.css", "js/vocab.js", "js/kana.js", "js/counters.js", "js/kanji.js", "js/kanji-info.js", "js/family.js", "js/dialogs.js", "js/tadoku.js", "js/games-data.js", "js/grammar.js", "js/app.js",
   "manifest.webmanifest", "icons/icon.svg", "icons/icon-192.png", "icons/icon-512.png",

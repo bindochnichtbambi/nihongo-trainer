@@ -1,6 +1,6 @@
 # Übergabe – Stand 20.11.2026
 
-Online-Version **v39** (`sw.js`): https://bindochnichtbambi.github.io/nihongo-trainer/
+Online-Version **v40** (`sw.js`): https://bindochnichtbambi.github.io/nihongo-trainer/
 Git ist auf diesem Computer installiert (`C:\Program Files\Git\cmd\git.exe`), Anmeldung bei GitHub läuft über den Browser. Hochladen am besten im Terminal-Tab des Benutzers (`git push`), weil die Anmeldung dort ein Fenster öffnen kann.
 
 Konzept, Technik und Konventionen stehen in `CLAUDE.md`.
@@ -38,6 +38,10 @@ Regel für gelernte Lektionen: nur ergänzen und korrigieren, nichts löschen; G
 - Grammatik neu: L10 „いつが いいですか・〜じかん“, L11 „〜が できます・よく／ときどき“, L12 „みに いきます・〜で 〜が あります“; „Zeit + に“ erklärt jetzt auch ごろ.
 - Fragewörter: neu なんじかん (L10), どこで (L11); なんようび → L10, なんがつ/なんにち/いくら → L12.
 - Gespräche neu: „Wann passt es dir?“ (L9–10), „Was kannst du?“ (L11–12).
+- **Paket 2 (L5–8)** (v40, online): Wortschatz ergänzt (L5–6: いつも, すきな/きらいな, みせ, レストラン, うどんや/そばや/すしや, メニュー, チーズバーガー, ホットドッグ, コーラ, ホット/アイス, ひとつ–みっつ, いちばん, ください, いらっしゃいませ + Bestell-Sätze; L7–8: ひとりで, デパート, よっつ–むっつ, ええっと + Sätze). Dafür aus L14–17 entfernt: みせ, デパート, レストラン, すしや, そばや, すんでいます, いらっしゃいませ, いちばん, ひとりで. よく/あまり bleiben in L11–12 (dort schon gelernt), obwohl sie im Kurs ab L5 vorkommen.
+- Grammatik: „〜が すきです“ jetzt L5 (mit と, も, いちばん, すきな); 〜を 〜ます ergänzt um いつも/よく/あまり; neu L6 „Ort で 〜を たべます・〜を ください“, neu L8 „〜の うえ・した・なか・よこ“; Adjektive jetzt L7; あります/います ergänzt um いくつ und すんで います.
+- Fragewörter: どこで → L6, いくつ und どんな → L7.
+- Gespräche neu: „Wo essen wir heute?“, „Im Hamburger-Laden“ (L5–6), „Wo ist die Tasse?“ (L7–8).
 
 ## Neu in v36 (Rückmeldungen nach ein paar Tagen Testen)
 
