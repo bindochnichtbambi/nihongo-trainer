@@ -111,7 +111,7 @@ window.GRAMMAR = [
       { q: "かぞく＿ りょこうします。", o: ["と", "で", "が"], de: "Ich reise mit meiner Familie." }],
   },
   {
-    id: "masenka", l: 11, title: "〜ませんか・〜ましょう", sub: "Jemanden einladen",
+    id: "masenka", l: 12, title: "〜ませんか・〜ましょう", sub: "Jemanden einladen",
     expl: `<p>Einladen: Verb mit <b>〜ませんか</b> – wörtlich „Wollen wir nicht …?“, das ist sehr höflich: いっしょに えいがを みませんか.</p>
       <p>Zusagen: <b>いいですね。〜ましょう</b> (Gute Idee, lass uns …). Absagen: <b>すみません、ちょっと…</b> – man lässt den Satz offen, das ist höflicher als „nein“.</p>`,
     ex: [["いっしょに ひるごはんを たべませんか。", "一緒に昼ご飯を食べませんか。", "Wollen wir zusammen zu Mittag essen?"],
@@ -121,18 +121,6 @@ window.GRAMMAR = [
       { q: "いいですね。のみ＿。", o: ["ましょう", "ません", "ませんでした"], de: "Gute Idee, lass uns etwas trinken." },
       { q: "すみません、あしたは ＿…。", o: ["ちょっと", "とても", "いっしょに"], de: "Sorry, morgen geht es leider nicht so …" },
       { q: "しゅうまつ テニスを ＿ませんか。", o: ["し", "み", "き"], de: "Wollen wir am Wochenende Tennis spielen?" }],
-  },
-  {
-    id: "past-adj", l: 12, title: "Adjektive in der Vergangenheit", sub: "Wie war es?",
-    expl: `<p><b>い-Adjektive</b>: い → <b>かったです</b>: たのしい → たのし<b>かった</b>です (es war lustig). Verneint: <b>くなかったです</b>. Achtung: いい → <b>よかった</b>です.</p>
-      <p><b>な-Adjektive und Nomen</b>: <b>でした</b>: しずか<b>でした</b>, あめ<b>でした</b>. Verneint: <b>じゃ ありませんでした</b>. Frage: <b>どうでしたか</b> = Wie war es?</p>`,
-    ex: [["コンサートは たのしかったです。", "コンサートは楽しかったです。", "Das Konzert hat Spass gemacht."],
-      ["りょこうは どうでしたか。", "旅行はどうでしたか。", "Wie war die Reise?"],
-      ["てんきは あまり よくなかったです。", "天気はあまりよくなかったです。", "Das Wetter war nicht so gut."]],
-    quiz: [{ q: "えいがは おもしろ＿です。", o: ["かった", "い", "でした"], de: "Der Film war interessant." },
-      { q: "ホテルは しずか＿。", o: ["でした", "かったです", "いです"], de: "Das Hotel war ruhig." },
-      { q: "パーティーは ＿か。", o: ["どうでした", "なんでした", "どこでした"], de: "Wie war die Party?" },
-      { q: "りょこうは とても ＿です。", o: ["よかった", "いかった", "いいでした"], de: "Die Reise war sehr gut." }],
   },
   {
     id: "kara-made", l: 13, title: "から・まで・で・のります", sub: "Von wo bis wo, womit – einsteigen und aussteigen",
@@ -173,6 +161,69 @@ window.GRAMMAR = [
       { q: "みず＿ ください。", o: ["を", "が", "に"], de: "Wasser, bitte." }],
   },
   {
+    id: "ichi", l: 14, title: "〜の まえ・となり・ちかく", sub: "Wo ist etwas? Wo ist jemand?",
+    expl: `<p>Den Ort genauer angeben: <b>Ort の まえ / うしろ / なか / となり / ちかく に</b>. えきの まえに あります = „ist vor dem Bahnhof“.</p>
+      <p>Für Dinge <b>あります</b>, für Menschen <b>います</b>: ぎんこうは えきの となりに あります · わたしは コンビニの まえに います. Verneint: <b>ありません / いません</b>.</p>
+      <p>Am Telefon: <b>いま どこに いますか</b> = „Wo bist du gerade?“</p>`,
+    ex: [["びょういんは こうえんの ちかくに あります。", "病院は公園の近くにあります。", "Das Spital ist in der Nähe des Parks."],
+      ["ともだちは きっさてんの なかに います。", "友達は喫茶店の中にいます。", "Meine Freundin ist im Café."],
+      ["ぎんこうは えきの まえには ありません。", "銀行は駅の前にはありません。", "Die Bank ist nicht vor dem Bahnhof."]],
+    quiz: [{ q: "ポストは えき＿ まえに あります。", o: ["の", "に", "を"], de: "Der Briefkasten ist vor dem Bahnhof." },
+      { q: "ゆきさんは デパートの なかに ＿。", o: ["います", "あります", "です"], de: "Yuki ist im Warenhaus." },
+      { q: "コンビニは ぎんこうの ＿に あります。", o: ["となり", "となる", "とおり"], de: "Der Convenience Store ist neben der Bank." },
+      { q: "いま どこ＿ いますか。", o: ["に", "で", "を"], de: "Wo bist du gerade?" }],
+  },
+  {
+    id: "machi", l: 14, title: "ゆうめいな おてら・ふるい じんじゃ", sub: "Was gibt es in deiner Stadt?",
+    expl: `<p>Ein Adjektiv steht <b>vor</b> dem Nomen. い-Adjektive bleiben, wie sie sind: ふるい じんじゃ (alter Schrein). な-Adjektive bekommen ein <b>な</b>: にぎやかな とおり (belebte Strasse), ゆうめいな おてら.</p>
+      <p>Was es in einer Stadt gibt: <b>Ort に + Ding が あります</b>. Was es nicht gibt: <b>Ort に + Ding は ありません</b>. Frage: <b>Ort に なにが ありますか</b>. Und wie ist die Stadt? <b>どんな まちですか</b>.</p>`,
+    ex: [["わたしの まちに ふるい おてらが あります。", "私の町に古いお寺があります。", "In meiner Stadt gibt es einen alten Tempel."],
+      ["えきの まえに にぎやかな とおりが あります。", "駅の前ににぎやかな通りがあります。", "Vor dem Bahnhof gibt es eine belebte Strasse."],
+      ["この まちに びじゅつかんは ありません。", "この町に美術館はありません。", "In dieser Stadt gibt es kein Kunstmuseum."]],
+    quiz: [{ q: "ゆうめい＿ じんじゃが あります。", o: ["な", "い", "の"], de: "Es gibt einen berühmten Schrein." },
+      { q: "たか＿ ビルが あります。", o: ["い", "な", "の"], de: "Es gibt ein hohes Gebäude." },
+      { q: "まちに なに＿ ありますか。", o: ["が", "を", "で"], de: "Was gibt es in der Stadt?" },
+      { q: "スイスは ＿ くにですか。", o: ["どんな", "どこ", "なに"], de: "Was für ein Land ist die Schweiz?" }],
+  },
+  {
+    id: "hoshii", l: 15, title: "〜が ほしいです", sub: "Ich hätte gern …",
+    expl: `<p><b>Ding が ほしいです</b> = „ich möchte … haben“. ほしい ist ein い-Adjektiv, verneint also <b>ほしくないです</b>.</p>
+      <p>Mit einem Adjektiv davor wird es genauer: <b>かわいい ハンカチが ほしいです</b>. Fragen: <b>なにが ほしいですか</b> · <b>どんな 〜が ほしいですか</b>.</p>
+      <p>Für Tätigkeiten („ich möchte … tun“) braucht man 〜たいです (Lektion 18).</p>`,
+    ex: [["あたらしい さいふが ほしいです。", "新しい財布が欲しいです。", "Ich hätte gern ein neues Portemonnaie."],
+      ["どんな おみやげが ほしいですか。", "どんなお土産が欲しいですか。", "Was für ein Mitbringsel möchtest du?"],
+      ["くるまは ほしくないです。", "車は欲しくないです。", "Ein Auto möchte ich nicht."]],
+    quiz: [{ q: "カメラ＿ ほしいです。", o: ["が", "を", "に"], de: "Ich hätte gern eine Kamera." },
+      { q: "なにが ＿ですか。", o: ["ほしい", "すき", "たい"], de: "Was möchtest du haben?" },
+      { q: "＿ アクセサリーが ほしいですか。", o: ["どんな", "どこ", "いくら"], de: "Was für Schmuck möchtest du?" },
+      { q: "テレビは ほし＿ないです。", o: ["く", "い", "な"], de: "Einen Fernseher möchte ich nicht." }],
+  },
+  {
+    id: "ageru", l: 15, title: "あげます・もらいます", sub: "Schenken und bekommen",
+    expl: `<p><b>A は B に Ding を あげます</b> = A gibt/schenkt B etwas. <b>B は A に Ding を もらいます</b> = B bekommt etwas von A.</p>
+      <p>Achtung bei <b>に</b>: Bei あげます ist es die Person, die etwas bekommt. Bei もらいます ist es die Person, von der es kommt.</p>
+      <p>Vergangenheit wie bei allen Verben: あげ<b>ました</b>, もらい<b>ました</b>, verneint 〜ませんでした. Fragen: <b>だれに あげますか</b> · <b>なにを もらいましたか</b>.</p>`,
+    ex: [["わたしは ははに はなを あげました。", "私は母に花をあげました。", "Ich habe meiner Mutter Blumen geschenkt."],
+      ["ともだちに えはがきを もらいました。", "友達に絵はがきをもらいました。", "Ich habe von einer Freundin eine Ansichtskarte bekommen."],
+      ["だれに おみやげを あげますか。", "誰にお土産をあげますか。", "Wem schenkst du ein Mitbringsel?"]],
+    quiz: [{ q: "あねに ハンカチ＿ あげます。", o: ["を", "に", "が"], de: "Ich schenke meiner Schwester ein Taschentuch." },
+      { q: "ちちに とけいを ＿ました。（ich habe bekommen）", o: ["もらい", "あげ", "かい"], de: "Ich habe von meinem Vater eine Uhr bekommen." },
+      { q: "＿に あげますか。", o: ["だれ", "なに", "どこ"], de: "Wem schenkst du es?" },
+      { q: "きのう プレゼントを もらいませんで＿。", o: ["した", "す", "せん"], de: "Gestern habe ich kein Geschenk bekommen." }],
+  },
+  {
+    id: "kaimono", l: 16, title: "この 〜・いくらですか・〜を ください", sub: "Im Laden: Preis fragen und kaufen",
+    expl: `<p><b>これ / それ / あれ は いくらですか</b> = Wie viel kostet das? Mit Nomen: <b>この / その / あの + Nomen</b>: この スカーフは いくらですか. Die Verkäuferin fragt vielleicht zurück: <b>どれですか</b> (Welches?).</p>
+      <p>Kaufen: <b>Ding を ください</b> oder kurz <b>これ、ください</b>. Andere Farbe: <b>ほかの いろは ありますか</b>. Alles zusammen: <b>ぜんぶで いくらですか</b>.</p>`,
+    ex: [["すみません、この ジャケットは いくらですか。", "すみません、このジャケットはいくらですか。", "Entschuldigung, wie viel kostet diese Jacke?"],
+      ["あの あおい かさを ください。", "あの青い傘をください。", "Den blauen Schirm dort drüben, bitte."],
+      ["ほかの いろは ありますか。", "ほかの色はありますか。", "Gibt es eine andere Farbe?"]],
+    quiz: [{ q: "＿ ネクタイは いくらですか。（hier bei mir）", o: ["この", "これ", "ここ"], de: "Wie viel kostet diese Krawatte?" },
+      { q: "＿は いくらですか。（dort drüben）", o: ["あれ", "あの", "あそこ"], de: "Wie viel kostet das dort drüben?" },
+      { q: "この Tシャツ＿ ください。", o: ["を", "が", "に"], de: "Dieses T-Shirt, bitte." },
+      { q: "ほかの ＿は ありますか。", o: ["いろ", "いくら", "どれ"], de: "Gibt es eine andere Farbe?" }],
+  },
+  {
     id: "temoii", l: 16, title: "〜ても いいですか", sub: "Um Erlaubnis fragen",
     expl: `<p><b>て-Form + も いいですか</b> = „Darf ich …?“: しゃしんを とっても いいですか (Darf ich fotografieren?).</p>
       <p>Antworten: <b>はい、どうぞ</b> (Ja, bitte) oder höflich ablehnen mit <b>すみません、ちょっと…</b>.</p>`,
@@ -185,16 +236,53 @@ window.GRAMMAR = [
       { q: "トイレを つかっ＿も いいですか。", o: ["て", "で", "た"], de: "Darf ich die Toilette benutzen?" }],
   },
   {
-    id: "tai", l: 17, title: "〜たいです", sub: "Ich möchte …",
+    id: "past-adj", l: 17, title: "Adjektive in der Vergangenheit", sub: "Wie war es?",
+    expl: `<p><b>い-Adjektive</b>: い → <b>かったです</b>: たのしい → たのし<b>かった</b>です (es hat Spass gemacht). Verneint: <b>くなかったです</b>. Achtung: いい → <b>よかった</b>です.</p>
+      <p><b>な-Adjektive und Nomen</b>: <b>でした</b>: しずか<b>でした</b>, あめ<b>でした</b>. Verneint: <b>じゃなかったです</b> (oder じゃ ありませんでした). Frage: <b>どうでしたか</b> = Wie war es?</p>`,
+    ex: [["コンサートは たのしかったです。", "コンサートは楽しかったです。", "Das Konzert hat Spass gemacht."],
+      ["やすみは どうでしたか。", "休みはどうでしたか。", "Wie waren die Ferien?"],
+      ["まちは あまり にぎやかじゃなかったです。", "町はあまりにぎやかじゃなかったです。", "Die Stadt war nicht besonders belebt."]],
+    quiz: [{ q: "えいがは おもしろ＿です。", o: ["かった", "い", "でした"], de: "Der Film war interessant." },
+      { q: "ホテルは しずか＿。", o: ["でした", "かったです", "いです"], de: "Das Hotel war ruhig." },
+      { q: "パーティーは ＿か。", o: ["どうでした", "なんでした", "どこでした"], de: "Wie war die Party?" },
+      { q: "りょこうは とても ＿です。", o: ["よかった", "いかった", "いいでした"], de: "Die Reise war sehr gut." }],
+  },
+  {
+    id: "nanimo", l: 17, title: "どこにも・なにも 〜ません", sub: "Nirgendwohin, nichts",
+    expl: `<p>Mit verneintem Verb: <b>どこにも 〜ません</b> = nirgendwohin, <b>なにも 〜ません</b> = nichts. Oft in der Vergangenheit: どこにも いきませんでした.</p>
+      <p>Dazu passt: <b>うちで ゆっくり しました</b> = Ich habe mich zu Hause ausgeruht. Reaktionen: <b>よかったですね</b> (wie schön) oder <b>たいへんでしたね</b> (das war sicher anstrengend).</p>`,
+    ex: [["やすみは どこにも いきませんでした。", "休みはどこにも行きませんでした。", "In den Ferien bin ich nirgendwohin gegangen."],
+      ["きのうは なにも かいませんでした。", "昨日は何も買いませんでした。", "Gestern habe ich nichts gekauft."],
+      ["うちで ゆっくり しました。", "家でゆっくりしました。", "Ich habe mich zu Hause ausgeruht."]],
+    quiz: [{ q: "にちようびは どこ＿ いきませんでした。", o: ["にも", "にが", "でも"], de: "Am Sonntag bin ich nirgendwohin gegangen." },
+      { q: "けさは なに＿ たべませんでした。", o: ["も", "が", "を"], de: "Heute Morgen habe ich nichts gegessen." },
+      { q: "どようびは なにも しませ＿。", o: ["んでした", "ました", "んか"], de: "Am Samstag habe ich nichts gemacht." },
+      { q: "A: しごとが いそがしかったです。 B: ＿でしたね。", o: ["たいへん", "よかった", "たのしい"], de: "A: Die Arbeit war stressig. B: Das war sicher anstrengend." }],
+  },
+  {
+    id: "tai", l: 18, title: "〜たいです", sub: "Ich möchte …",
     expl: `<p>ます-Form ohne ます + <b>たいです</b> = „ich möchte … tun“: いきます → いき<b>たい</b>です. Das Objekt kann mit を oder が stehen: すしが たべたいです.</p>
-      <p>Verneint: <b>〜たくないです</b> (möchte nicht). Für Dinge (nicht Tätigkeiten) sagt man <b>〜が ほしいです</b>: あたらしい かばんが ほしいです.</p>`,
+      <p>Verneint: <b>〜たくないです</b> (möchte nicht). Für Dinge (nicht Tätigkeiten) sagt man <b>〜が ほしいです</b> (Lektion 15). Pläne: <b>つぎは 〜たいです</b> = „Das nächste Mal möchte ich …“.</p>`,
     ex: [["ふじさんに のぼりたいです。", "富士山に登りたいです。", "Ich möchte den Fuji besteigen."],
       ["きょうは なにも したくないです。", "今日は何もしたくないです。", "Heute möchte ich gar nichts tun."],
-      ["あかい セーターが ほしいです。", "赤いセーターが欲しいです。", "Ich hätte gern einen roten Pullover."]],
+      ["つぎは しんかんせんに のりたいです。", "次は新幹線に乗りたいです。", "Das nächste Mal möchte ich mit dem Shinkansen fahren."]],
     quiz: [{ q: "にほんへ いき＿です。", o: ["たい", "ます", "たく"], de: "Ich möchte nach Japan reisen." },
       { q: "おんせんに はいり＿ないです。", o: ["たく", "たい", "たかった"], de: "Ich möchte nicht in die heisse Quelle." },
       { q: "あたらしい くつが ＿です。", o: ["ほしい", "たい", "すき"], de: "Ich hätte gern neue Schuhe." },
       { q: "なにが たべ＿ですか。", o: ["たい", "ます", "て"], de: "Was möchtest du essen?" }],
+  },
+  {
+    id: "demo-soshite", l: 18, title: "でも・そして・それから", sub: "Sätze verbinden",
+    expl: `<p><b>でも</b> = aber: zwei Sätze, die in verschiedene Richtungen gehen (gut + schlecht): たかかったです。でも、おいしかったです.</p>
+      <p><b>そして</b> = und (dazu): zwei Sätze in die gleiche Richtung: きれいでした。そして、おもしろかったです.</p>
+      <p><b>それから</b> = danach, und dann: Reihenfolge von Handlungen: おてらを みました。それから、おみやげを かいました.</p>`,
+    ex: [["ホテルは ふるかったです。でも、しずかでした。", "ホテルは古かったです。でも、静かでした。", "Das Hotel war alt. Aber es war ruhig."],
+      ["まつりは にぎやかでした。そして、たのしかったです。", "祭りはにぎやかでした。そして、楽しかったです。", "Das Fest war lebhaft. Und es hat Spass gemacht."],
+      ["あさ じんじゃに いきました。それから、すしを たべました。", "朝神社に行きました。それから、寿司を食べました。", "Morgens war ich beim Schrein. Danach habe ich Sushi gegessen."]],
+    quiz: [{ q: "ラーメンは おいしかったです。＿、たかかったです。", o: ["でも", "そして", "それから"], de: "Die Ramen waren lecker. Aber sie waren teuer." },
+      { q: "うみは きれいでした。＿、しずかでした。", o: ["そして", "でも", "どうして"], de: "Das Meer war schön. Und es war ruhig." },
+      { q: "かいものを しました。＿、きっさてんに いきました。", o: ["それから", "でも", "どうして"], de: "Ich war einkaufen. Danach bin ich ins Café gegangen." },
+      { q: "かぶきは ながかったです。＿、すばらしかったです。", o: ["でも", "そして", "それから"], de: "Kabuki war lang. Aber es war grossartig." }],
   },
 ];
 
@@ -220,7 +308,8 @@ window.QWORDS = [
   ["どれ", "", "welches (von mehreren)", "どれが いいですか。", "", "Welches möchtest du?", "これが いいです。", "", "Das hier.", 2],
   ["どの", "", "welcher / welche + Nomen", "どの かばんですか。", "", "Welche Tasche ist es?", "あの あかい かばんです。", "あの赤いかばんです。", "Die rote dort.", 2],
   ["どちら", "", "welches von zweien; höflich auch: wo", "コーヒーと おちゃと どちらが いいですか。", "コーヒーとお茶とどちらがいいですか。", "Kaffee oder Tee – was möchtest du?", "おちゃが いいです。", "お茶がいいです。", "Lieber Tee.", 3],
-  ["どう", "", "wie (ist es)", "にほんは どうですか。", "日本はどうですか。", "Wie ist es in Japan?", "たのしいです。", "楽しいです。", "Es macht Spass.", 17],
+  ["どう", "", "wie (ist/war es)", "やすみは どうでしたか。", "休みはどうでしたか。", "Wie waren die Ferien?", "たのしかったです。", "楽しかったです。", "Es hat Spass gemacht.", 17],
+  ["なにいろ", "何色", "welche Farbe", "なにいろが すきですか。", "何色が好きですか。", "Welche Farbe magst du?", "あおが すきです。", "青が好きです。", "Ich mag Blau.", 16],
   ["どんな", "", "was für ein", "どんな おんがくが すきですか。", "どんな音楽が好きですか。", "Was für Musik magst du?", "ロックが すきです。", "ロックが好きです。", "Ich mag Rock.", 11],
   ["どうして", "", "warum", "どうして にほんごを べんきょうしますか。", "どうして日本語を勉強しますか。", "Warum lernst du Japanisch?", "アニメが すきですから。", "アニメが好きですから。", "Weil ich Anime mag.", 13],
   ["どのくらい", "", "wie lange / wie viel", "どのくらい かかりますか。", "", "Wie lange dauert es?", "いちじかんぐらいです。", "一時間ぐらいです。", "Etwa eine Stunde.", 13],

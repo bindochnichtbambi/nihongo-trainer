@@ -1,11 +1,11 @@
-# Übergabe – Stand 16.11.2026
+# Übergabe – Stand 20.11.2026
 
-Online-Version **v36** (`sw.js`): https://bindochnichtbambi.github.io/nihongo-trainer/
+Online-Version **v38** (`sw.js`): https://bindochnichtbambi.github.io/nihongo-trainer/
 Git ist auf diesem Computer installiert (`C:\Program Files\Git\cmd\git.exe`), Anmeldung bei GitHub läuft über den Browser. Hochladen am besten im Terminal-Tab des Benutzers (`git push`), weil die Anmeldung dort ein Fenster öffnen kann.
 
 Konzept, Technik und Konventionen stehen in `CLAUDE.md`.
 
-## Neu in v37 (20.11.2026, lokal – noch nicht hochgeladen)
+## Neu in v37 (20.11.2026, online)
 
 - Vorlesen: Fragewörter, Kanji-Karten, Kanji-Quiz und Satzbau lesen die Kana vor (何 wurde als „ka“ gelesen). In Gesprächen werden Wörter mit 何 aus den Kana gelesen (`sayForm`).
 - Vokabeln, Stufe Aussprechen: Bei sehr kurzen Wörtern (z. B. え) gibt es einen Hinweis, sie in einem kleinen Satz zu sagen („え です“). Ein Rahmen wie これは … です wird beim Vergleich entfernt.
@@ -18,7 +18,16 @@ Konzept, Technik und Konventionen stehen in `CLAUDE.md`.
   - Grammatik: neu „から・まで・で・のります“ und „〜が いいです・〜から“ (beide L13). 〜て ください bleibt bei L13 (kommt im Katsudoo-Heft L13 vor).
   - Fragewörter: どうやって neu; Lektionen von いつ, だれ, いくら, いくつ, どちら, どう, どんな nach Inhaltsverzeichnis.
   - Gespräche: „Mit dem Taxi“ und „Wie kommst du zum Flughafen?“ (Lektion 13, selbst geschrieben).
-- Nächster Schritt: Lektion 14 fertig machen, sobald die Person dort ist (Scans anfragen).
+
+## Neu in v38 (20.11.2026, online)
+
+- Inzwischen liegen **beide Hefte komplett** als Scans vor (`Kursunterlagen\Katsudo\topic1–9…pdf`, `Kursunterlagen\Rikai\topic1–9…pdf`).
+- Wortschatz **Lektion 14–18 mit dem Kursbuch abgeglichen** (20.11.2026): `L14-14`, `L15-16`, `L17-18` enthalten jetzt nur Wörter aus Rikai und Katsudoo plus selbst geschriebene Beispielsätze. Wörter, die schon in früheren Lektionen stehen, sind nicht doppelt drin. Frühere geratene Zusatzwörter (z. B. ゆびわ, セーター, てんき, はる/なつ …) wurden entfernt. Gruppen-IDs unverändert, keine Migration nötig.
+- Kanji `COURSE` für L16 (買百千万円) und L18 (行来会休本京) passt zum Kursbuch.
+- Grammatik nach den Scans (20.11.2026): 〜ませんか jetzt L12 (Kurs: „いっしょに いきませんか“), Adjektive in der Vergangenheit jetzt L17 (nicht L12), 〜たいです jetzt L18. Neu: L14 „〜の まえ・となり・ちかく“ und „ゆうめいな おてら・ふるい じんじゃ“, L15 „〜が ほしいです“ und „あげます・もらいます“, L16 „この 〜・いくらですか・〜を ください“, L17 „どこにも・なにも 〜ません“, L18 „でも・そして・それから“.
+- Fragewörter: neu なにいろ (L16); Beispiel von どう auf „やすみは どうでしたか“ (L17) geändert.
+- Gespräche (selbst geschrieben): „Meine Stadt“ und „Wo bist du gerade?“ (L14), „Mitbringsel kaufen“ (L15), „Im Kleiderladen“ (L16), „Wie war das Wochenende?“ (L17), „Wie war die Reise?“ (L18). GLOSS um häufige Formen ergänzt (ありますか, でした, しました …).
+- Nächster Schritt: passende Bücher (Bildergeschichten) für Lektion 14–18; Satz-Puzzles für L14–18.
 
 ## Neu in v36 (Rückmeldungen nach ein paar Tagen Testen)
 
@@ -104,7 +113,7 @@ Konzept, Technik und Konventionen stehen in `CLAUDE.md`.
   - Stimmen: Auf dem Pixel gibt es meist nur eine japanische Stimme; dann wird nur die Tonhöhe verändert. Ob das gut klingt, muss die Person sagen.
   - Lange Aufnahme im Rollenspiel (Mikrofon geht im Vorschau-Browser nicht).
 - **v31–v35** waren ebenfalls noch nicht auf dem Pixel getestet.
-- **Wortschatz Lektion 13–18**: Kana und Kanji aus Romaji und Bedeutung erschlossen; beim Erreichen der Lektionen mit dem Kurs abgleichen.
+- **Wortschatz Lektion 13–18**: mit dem Kursbuch abgeglichen (Stand 20.11.2026).
 - **Eigene Inhalte**: Grammatik, Dialoge, Geschichten, Puzzle-Sätze, Füllwörter, Eselsbrücken und Kanji-Beispiele sind selbst geschrieben und nicht von Muttersprachlern geprüft. Die Eselsbrücken sind Merkhilfen, keine echte Herkunft der Zeichen.
 
 ## Offene Probleme / bekannte Bugs

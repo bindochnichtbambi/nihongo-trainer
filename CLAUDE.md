@@ -22,7 +22,7 @@ Persönliche Lern-App für Japanisch, gebaut für **eine Person**:
 - Vokabeln lernen / Gelernte üben (Extra-Übung, ändert den Lernplan nicht)
 - Lektionen (Wortgruppen ein- und ausschalten)
 - Wortliste mit eigenen Wörtern
-- Grammatik (16 A1-Themen mit Übung, dazu Satzbau und Fragewörter)
+- Grammatik (23 A1-Themen mit Übung, nach Kurs-Lektion geordnet, dazu Satzbau und Fragewörter)
 - Gespräche (Lesen, Lückentext, Rollenspiel per Sprache; Stimmen passend zur Figur) + Füllwörter & Reaktionen mit Quiz
 - Bücher (eigene Bildergeschichten mit Quiz und Links zu Tadoku; hiess früher „Lesebücher“)
 - Zählwörter
@@ -57,8 +57,8 @@ Persönliche Lern-App für Japanisch, gebaut für **eine Person**:
 | `js/kanji.js` | Schreib-Sets: Hiragana, Katakana, Kanji-Gruppen, „alle JLPT N5 (79)“ |
 | `js/kanji-info.js` | `KANJI_INFO`: je Kanji Merkbild (Sprite-Symbol oder gezeichnet: `n:`, `dir:`, `col:`, `pos:`), Eselsbrücke, Beispielwörter, Beispielsatz (alles selbst geschrieben) |
 | `js/family.js` | `FAMILY` (Stammbaum: mein Wort / Wort für andere / Anrede, Position) und `FAMILY_WORDS` |
-| `js/dialogs.js` | 9 Dialoge, 8 Bücher (`STORIES`), Szenen (`SCENES`), Glossar (`GLOSS`), Füllwörter (`FILLERS`). Rollen: `[Name, Avatar, Stimme?]`, Stimme m/f/g/b/o, sonst nach Avatar |
-| `js/grammar.js` | 16 Grammatik-Themen (`GRAMMAR`) und Fragewörter (`QWORDS`) (eigene Erklärungen, Beispiele, Lückensätze; erste Antwort = richtig) |
+| `js/dialogs.js` | 17 Dialoge (Lektion 3–18 und Reise), 8 Bücher (`STORIES`), Szenen (`SCENES`), Glossar (`GLOSS`), Füllwörter (`FILLERS`). Rollen: `[Name, Avatar, Stimme?]`, Stimme m/f/g/b/o, sonst nach Avatar |
+| `js/grammar.js` | 23 Grammatik-Themen (`GRAMMAR`, Reihenfolge nach `l`) und Fragewörter (`QWORDS`) (eigene Erklärungen, Beispiele, Lückensätze; erste Antwort = richtig) |
 | `js/games-data.js` | Daten für die Spiele: Kana-Listen und Verwechslungspaare, Sushi-Kategorien, Satz-Puzzles |
 | `js/tadoku.js` | Linkliste zu kostenlosen Tadoku-Büchern (nur Titel und ID) |
 | `sw.js` | Service Worker mit `VERSION` und `FILES` |
