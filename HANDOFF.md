@@ -1,6 +1,6 @@
 # Übergabe – Stand 20.11.2026
 
-Online-Version **v38** (`sw.js`): https://bindochnichtbambi.github.io/nihongo-trainer/
+Online-Version **v39** (`sw.js`): https://bindochnichtbambi.github.io/nihongo-trainer/
 Git ist auf diesem Computer installiert (`C:\Program Files\Git\cmd\git.exe`), Anmeldung bei GitHub läuft über den Browser. Hochladen am besten im Terminal-Tab des Benutzers (`git push`), weil die Anmeldung dort ein Fenster öffnen kann.
 
 Konzept, Technik und Konventionen stehen in `CLAUDE.md`.
@@ -28,6 +28,16 @@ Konzept, Technik und Konventionen stehen in `CLAUDE.md`.
 - Fragewörter: neu なにいろ (L16); Beispiel von どう auf „やすみは どうでしたか“ (L17) geändert.
 - Gespräche (selbst geschrieben): „Meine Stadt“ und „Wo bist du gerade?“ (L14), „Mitbringsel kaufen“ (L15), „Im Kleiderladen“ (L16), „Wie war das Wochenende?“ (L17), „Wie war die Reise?“ (L18). GLOSS um häufige Formen ergänzt (ありますか, でした, しました …).
 - Nächster Schritt: passende Bücher (Bildergeschichten) für Lektion 14–18; Satz-Puzzles für L14–18.
+
+## Abgleich ältere Lektionen (v39, online)
+
+Vorgehen in Paketen (Person wünscht stückchenweise): Paket 3 = L9–12 ✓, danach Paket 2 = L5–8, Paket 1 = L1–4.
+Regel für gelernte Lektionen: nur ergänzen und korrigieren, nichts löschen; Gruppen-IDs bleiben, damit der Lernstand erhalten bleibt. Die „häufigen Katakana-Wörter“ am Ende der Gruppen sind bewusst eigene Zusätze und bleiben.
+
+- **Paket 3 (L9–12)**: Wortschatz ergänzt (L9–10: いちにち, じかん, ざんぎょう, ひま, よてい, スケジュール, バースデーパーティー, かんぱい …; L11–12: おりがみ, はいく, Film-/Musik-/Buchgenres, Sprachen, できます, よく/ときどき/あまり/ぜんぜん, ぼんさい, ゴールデンウィーク, いっしょに, みに いきます, Jポップ …). Dafür aus L15–18 entfernt, was im Kurs schon früher kommt (バースデーパーティー, いっしょに, あまり, みに いきます, Jポップ, はなびたいかい, イベント, コーヒーショップ). おそい (L13) = „langsam; spät“.
+- Grammatik neu: L10 „いつが いいですか・〜じかん“, L11 „〜が できます・よく／ときどき“, L12 „みに いきます・〜で 〜が あります“; „Zeit + に“ erklärt jetzt auch ごろ.
+- Fragewörter: neu なんじかん (L10), どこで (L11); なんようび → L10, なんがつ/なんにち/いくら → L12.
+- Gespräche neu: „Wann passt es dir?“ (L9–10), „Was kannst du?“ (L11–12).
 
 ## Neu in v36 (Rückmeldungen nach ein paar Tagen Testen)
 
