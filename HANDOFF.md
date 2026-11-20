@@ -1,6 +1,6 @@
 # Übergabe – Stand 20.11.2026
 
-Online-Version **v41** (`sw.js`): https://bindochnichtbambi.github.io/nihongo-trainer/
+Online-Version **v42** (`sw.js`): https://bindochnichtbambi.github.io/nihongo-trainer/
 Git ist auf diesem Computer installiert (`C:\Program Files\Git\cmd\git.exe`), Anmeldung bei GitHub läuft über den Browser. Hochladen am besten im Terminal-Tab des Benutzers (`git push`), weil die Anmeldung dort ein Fenster öffnen kann.
 
 Konzept, Technik und Konventionen stehen in `CLAUDE.md`.
@@ -47,6 +47,19 @@ Regel für gelernte Lektionen: nur ergänzen und korrigieren, nichts löschen; G
 - Fragewörter: なん L3 (おしごとは なんですか), なんさい/なんにん/どこ L4, どちら L3 (どちらからですか), どの L6, どれ L16.
 - Gespräche neu: „Im Unterricht“ (L1–2), „Das Familienfoto“ (L3–4).
 - Damit sind alle 18 Lektionen mit den Kursheften abgeglichen.
+
+## Lektionen einzeln, nach Topic (v42, online)
+
+- Wortgruppen geteilt: statt `L1-2`, `L3-4` … jetzt `L1-1` … `L18-18`, je mit `topic`. Zuteilung der Wörter nach den Scans (z. B. L1 Hiragana-Wörter + Grüsse, L2 Katakana + Unterrichtssätze, L9 Tagesablauf, L10 Wochentage/Termine; „häufige Katakana-Wörter“ meist bei der passenden Lektion). Skript dafür lag nur im Scratchpad.
+- `splitPairs()` in app.js (direkt nach der L13/14-Migration) übernimmt `DB.groups` und `DB.progress` von den alten Paar-IDs. Getestet mit Beispieldaten.
+- Lektionen-Seite: Topic-Überschriften (rotes „Topic N“-Feld + japanischer/deutscher Name), darunter jede Lektion mit eigenem Häkchen.
+- Gespräche und Bücher: eine Lektion je Eintrag, rotes „L5“-Feld oben rechts (ausgegraut, wenn die Lektion noch nicht eingeschaltet ist), Listen nach Lektion sortiert.
+
+## Bücher zu den Lektionen (v42, online)
+
+- Neue Bildergeschichten (selbst geschrieben, Bilder aus vorhandenen Symbolen): „あたらしい アパート“ (L7–8), „かいしゃ まで“ (L13), „わたし の まち“ (L14), „たんじょうび の プレゼント“ (L15–16), „なつやすみ の りょこう“ (L17–18). Je 5 Seiten und 4 Fragen.
+- `STORIES` werden in dialogs.js nach der ersten Zahl in `lesson` sortiert, „Reise“ ans Ende.
+- GLOSS ergänzt (あめ, ひ, プレゼント, あかい, きょうと, たのしかった, いきたい).
 
 ## Neu in v36 (Rückmeldungen nach ein paar Tagen Testen)
 

@@ -761,3 +761,13 @@ h1, h2, .tile b, .btn, .stat b { font-family: var(--sans); }
 /* Abschnitte bei den Auswahl-Kacheln (Kana / Kurs-Lektion / Thema) */
 .tile-sec { font: 600 13px var(--sans); color: var(--muted); margin: 12px 2px 6px; }
 .wset.later { opacity: .55; }
+
+/* Lektionen nach Topic, rotes L-Feld bei Gesprächen und Büchern */
+.topic-card { padding-top: 4px; }
+.topic-head { display: flex; align-items: center; gap: 8px; margin: 14px 0 2px; padding-bottom: 6px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.topic-head:first-child { margin-top: 6px; }
+.topic-head .jp { font-size: 16px; }
+.topic-head .muted { font-size: 13px; }
+.has-badge { position: relative; }
+.l-badge { position: absolute; top: 8px; right: 8px; z-index: 2; }
+.l-badge.later { opacity: .55; }

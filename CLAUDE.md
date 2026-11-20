@@ -51,13 +51,13 @@ Persönliche Lern-App für Japanisch, gebaut für **eine Person**:
 | `index.html` | Grundgerüst, frühes Theme-Skript im `<head>`, **SVG-Sprite** mit allen selbst gezeichneten Symbolen (`i-…` Menü/Deko, `s-…` Szenen, `c-…` Zählwort-Bilder, `av-…` Avatare), Hintergrund-Deko, Skript-Einbindung |
 | `css/style.css` | Gesamtes Design. Themen-Variablen auf `:root[data-theme="stamp"]`, Hell/Dunkel über `data-mode`. Neue Regeln werden unten angehängt (spätere überschreiben frühere). |
 | `js/app.js` | Gesamte App-Logik (≈2000 Zeilen, ein IIFE): Speicher, Startseite, Lern-Session/SRS, Wortliste, Zählwörter, Kalender, Schreiben, Gespräche, Lesebücher, Tadoku, Grammatik, Spiele, Einstellungen, Zurück-Geste |
-| `js/vocab.js` | Wortschatz `window.VOCAB_GROUPS`: Kurs L1–18 und Zusatzgruppen. Eintrag `[kana, kanji, deutsch, "p"?]` („p“ = Satz/Ausdruck). Gruppen mit `off: true` sind anfangs ausgeschaltet. |
+| `js/vocab.js` | Wortschatz `window.VOCAB_GROUPS`: Kurs L1–18 (je Lektion eine Gruppe `L5-5`, mit `topic: "3 · たべもの · Essen"`; die Lektionen-Seite gliedert danach) und Zusatzgruppen. Eintrag `[kana, kanji, deutsch, "p"?]` („p“ = Satz/Ausdruck). Gruppen mit `off: true` sind anfangs ausgeschaltet. |
 | `js/kana.js` | `Kana.kanaToRomaji`, Vergleich von Eingaben, Bewertung der Spracherkennung |
 | `js/counters.js` | Zählwörter, Zahlenlesungen, Datum/Monate/Wochentage, Kalender-SVG |
 | `js/kanji.js` | Schreib-Sets: Hiragana, Katakana, Kanji-Gruppen, „alle JLPT N5 (79)“ |
 | `js/kanji-info.js` | `KANJI_INFO`: je Kanji Merkbild (Sprite-Symbol oder gezeichnet: `n:`, `dir:`, `col:`, `pos:`), Eselsbrücke, Beispielwörter, Beispielsatz (alles selbst geschrieben) |
 | `js/family.js` | `FAMILY` (Stammbaum: mein Wort / Wort für andere / Anrede, Position) und `FAMILY_WORDS` |
-| `js/dialogs.js` | 17 Dialoge (Lektion 3–18 und Reise), 8 Bücher (`STORIES`), Szenen (`SCENES`), Glossar (`GLOSS`), Füllwörter (`FILLERS`). Rollen: `[Name, Avatar, Stimme?]`, Stimme m/f/g/b/o, sonst nach Avatar |
+| `js/dialogs.js` | 22 Dialoge (Lektion 1–18 und Reise), 13 Bücher (`STORIES`, nach Lektion sortiert), Szenen (`SCENES`), Glossar (`GLOSS`), Füllwörter (`FILLERS`). Rollen: `[Name, Avatar, Stimme?]`, Stimme m/f/g/b/o, sonst nach Avatar |
 | `js/grammar.js` | 23 Grammatik-Themen (`GRAMMAR`, Reihenfolge nach `l`) und Fragewörter (`QWORDS`) (eigene Erklärungen, Beispiele, Lückensätze; erste Antwort = richtig) |
 | `js/games-data.js` | Daten für die Spiele: Kana-Listen und Verwechslungspaare, Sushi-Kategorien, Satz-Puzzles |
 | `js/tadoku.js` | Linkliste zu kostenlosen Tadoku-Büchern (nur Titel und ID) |
@@ -142,7 +142,8 @@ Es braucht keine Installation, keine Abhängigkeiten, keine Umgebungsvariablen u
 
 **Technik**
 - **Romaji**: は/へ werden nur in Sätzen (`p`) als wa/e gelesen (Bug „はは → hawa“ früher behoben).
-- **Lektion 13–18** haben `off: true`. Lektion 13 und 14 sind getrennte Gruppen (`L13-13`, `L14-14`), danach wieder Paare (`L15-16` …). Die Person schaltet sie selbst ein, sobald sie im Kurs drankommen.
+- **Jede Lektion ist eine eigene Gruppe** (`L1-1` … `L18-18`), gegliedert nach den 9 Topics des Kurses. Früher gab es Paare (`L1-2` …); `splitPairs()` in app.js übernimmt Auswahl und Lernstand. **Lektion 13–18** haben `off: true`; die Person schaltet sie selbst ein, sobald sie im Kurs drankommen.
+- Gespräche und Bücher haben je **eine** Lektion (`lesson: "Lektion 5"` oder „Reise“) und zeigen sie als rotes Feld (`lessonBadge`, Stil wie `gram-l`) oben rechts; beide Listen werden nach Lektion sortiert.
 - **Kursunterlagen** (Scans, nur lokal, nie hochladen): `C:\Users\Admin\Claude\Kursunterlagen`. Die Scans sind Bilder in PDFs; zum Lesen die JPEGs herausziehen (pdftoppm ist nicht installiert).
 - **Doppelte Wörter**: Gleiche Kana und Kanji in mehreren aktiven Gruppen werden in `activeWords()` nur einmal abgefragt. Homographen mit anderem Kanji (来ます/着ます) bleiben getrennt.
 - **Zurück-Geste (Android)**: Pro Unterseite gibt es einen History-Eintrag (`syncHistory`). Antippen des Titels wirkt wie „Zurück“.

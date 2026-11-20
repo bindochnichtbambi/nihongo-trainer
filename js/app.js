@@ -37,13 +37,30 @@
       delete DB.progress[k];
     });
   })();
+  // v42: Doppel-Lektionen (L1-2, L3-4 …) in einzelne Lektionen (L1-1, L2-2 …) geteilt – Auswahl und Lernstand übernehmen
+  (function splitPairs() {
+    const items = id => (window.VOCAB_GROUPS.find(g => g.id === id) || { items: [] }).items.map(it => it[0]);
+    let changed = false;
+    [[1, 2], [3, 4], [5, 6], [7, 8], [9, 10], [11, 12], [15, 16], [17, 18]].forEach(([a, b]) => {
+      const old = `L${a}-${b}`, ga = `L${a}-${a}`, gb = `L${b}-${b}`, ka = items(ga), kb = items(gb);
+      if (DB.groups && DB.groups.includes(old)) { DB.groups = [...new Set(DB.groups.filter(g => g !== old).concat([ga, gb]))]; changed = true; }
+      Object.keys(DB.progress || {}).filter(k => k.startsWith(old + "|")).forEach(k => {
+        const kana = k.slice(old.length + 1);
+        const to = [ga, gb].find(g => (g === ga ? ka : kb).includes(kana) && !DB.progress[g + "|" + kana]);
+        if (to) DB.progress[to + "|" + kana] = DB.progress[k];
+        if (to || [ga, gb].some(g => DB.progress[g + "|" + kana])) delete DB.progress[k];
+        changed = true;
+      });
+    });
+    if (changed) try { localStorage.setItem(KEY, JSON.stringify(DB)); } catch (e) { }
+  })();
   function save() { try { localStorage.setItem(KEY, JSON.stringify(DB)); } catch (e) { toast("Speichern nicht möglich"); } }
   try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch (e) { }
 
   // ---------- Wörter ----------
   let WORDS = [], GROUPS = [];
   function buildWords() {
-    GROUPS = window.VOCAB_GROUPS.map(g => ({ id: g.id, name: g.name, kind: g.kind, off: !!g.off }));
+    GROUPS = window.VOCAB_GROUPS.map(g => ({ id: g.id, name: g.name, kind: g.kind, off: !!g.off, topic: g.topic }));
     GROUPS.push({ id: "custom", name: "Eigene Wörter", kind: "custom" });
     WORDS = [];
     for (const g of window.VOCAB_GROUPS) {
@@ -298,17 +315,25 @@
   // ---------- Gruppenauswahl ----------
   function groupsView() {
     current = null;
-    const block = kind => GROUPS.filter(g => g.kind === kind).map(g => {
+    const row = g => {
       const ws = WORDS.filter(w => w.g === g.id);
       const done = ws.filter(w => { const p = prog(w); return p && p.s >= 5; }).length;
       return `<label class="check"><input type="checkbox" data-g="${g.id}" ${DB.groups.includes(g.id) ? "checked" : ""}>
         <span class="main">${esc(g.name)}<br><span class="small muted">${ws.length} Einträge · ${done} gelernt</span></span></label>`;
+    };
+    const block = kind => GROUPS.filter(g => g.kind === kind).map(row).join("");
+    // Kurs: nach Topic gegliedert, jede Lektion einzeln wählbar
+    const topics = [...new Set(GROUPS.filter(g => g.kind === "kurs").map(g => g.topic || ""))];
+    const kurs = topics.map(t => {
+      const [nr, jpT, deT] = t.split(" · ");
+      return `<div class="topic-head"><span class="gram-l">Topic ${esc(nr)}</span><b class="jp">${esc(jpT || "")}</b><span class="muted">${esc(deT || "")}</span></div>
+        ${GROUPS.filter(g => g.kind === "kurs" && (g.topic || "") === t).map(row).join("")}`;
     }).join("");
     show("Lektionen", `
-      <h2>Kurs (Marugoto A1)</h2><div class="card">${block("kurs")}</div>
+      <h2>Kurs (Marugoto A1)</h2><div class="card topic-card">${kurs}</div>
       <h2>Zusatzwortschatz</h2><div class="card">${block("extra")}</div>
       <h2>Eigene</h2><div class="card">${block("custom")}</div>
-      ${tipBox(`Neue Wörter kommen in der Reihenfolge der Lektionen dran. Lektion 13–18 sind zu Beginn ausgeschaltet – einfach einschalten, sobald ihr sie im Kurs habt.`)}
+      ${tipBox(`Jede Lektion lässt sich einzeln ein- und ausschalten. Neue Wörter kommen in der Reihenfolge der Lektionen dran. Lektion 13–18 sind zu Beginn ausgeschaltet – einfach einschalten, sobald ihr sie im Kurs habt.`)}
     `, { back: home });
     $app.querySelectorAll("input[data-g]").forEach(cb => cb.onchange = () => {
       const id = cb.dataset.g;
@@ -1431,16 +1456,16 @@
   const roleVoice = (d, who) => voiceFor(d.roles[who][2] || VOICE_KIND[d.roles[who][1]]);
 
   // ---------- Gespräche ----------
+  // rotes Lektions-Feld (wie bei der Grammatik): „L5“ oder z. B. „Reise“
+  const lessonBadge = lesson => { const m = /\d+/.exec(lesson || ""); return `<span class="gram-l l-badge${m && +m[0] > maxLesson() ? " later" : ""}">${m ? "L" + m[0] : esc(lesson || "")}</span>`; };
   function dialogList() {
     current = { rerender: dialogList };
     const st = DB.dlg || {};
-    const groups = [...new Set(window.DIALOGS.map(d => d.lesson))];
-    void groups;
     show("Gespräche", wideTile("m-fill", "s-bubble", "💬", "Füllwörter & Reaktionen", "えっと, あのう, そうですか …") + `<div class="tiles">` + window.DIALOGS.map((d, i) => {
       const s = st[d.id];
-      return `<button class="tile small-tile ${(Math.floor(i / 2) + i % 2) % 2 ? "beige" : "red"}" data-d="${d.id}">
+      return `<button class="tile small-tile has-badge ${(Math.floor(i / 2) + i % 2) % 2 ? "beige" : "red"}" data-d="${d.id}">${lessonBadge(d.lesson)}
         <span class="ico"><i class="emo">${d.emoji}</i><svg class="pic"><use href="#${d.icon}"/></svg></span>
-        <b>${esc(d.title)}</b><small>${esc(d.lesson)}${s && s.gap === 100 ? " · ✓" : ""}</small></button>`;
+        <b>${esc(d.title)}</b>${s && s.gap === 100 ? "<small>✓ geschafft</small>" : ""}</button>`;
     }).join("") + `</div>${tipBox("Kurz auf ein Wort <b>tippen</b> = anhören<br><b>Lange drücken</b> = Übersetzung")}`, { back: home });
     $app.querySelectorAll("[data-d]").forEach(b => b.onclick = () => dialogView(window.DIALOGS.find(d => d.id === b.dataset.d), "read"));
     $("#m-fill").onclick = () => fillerView();
@@ -1658,9 +1683,9 @@
     current = { rerender: storyList };
     TOKS = [];
     const st = DB.story || {};
-    show("Bücher", `<div class="story-grid">${window.STORIES.map(s => `<button class="story-card" data-s="${s.id}">
+    show("Bücher", `<div class="story-grid">${window.STORIES.map(s => `<button class="story-card has-badge" data-s="${s.id}">${lessonBadge(s.lesson)}
         <svg class="cover-pic"><use href="#${s.icon}"/></svg><div class="cover cover-emo">${s.cover}</div><div class="jp st-title">${tokText({ kana: s.title, kanji: "" })}</div>
-        <div class="small muted">${esc(s.de)}</div><div class="small muted">${esc(s.lesson)}${st[s.id] != null ? ` · ${st[s.id]}% ✓` : ""}</div></button>`).join("")}</div>
+        <div class="small muted">${esc(s.de)}</div>${st[s.id] != null ? `<div class="small muted">${st[s.id]}% ✓</div>` : ""}</button>`).join("")}</div>
       ${tipBox("Kurz auf ein Wort <b>tippen</b> = anhören<br><b>Lange drücken</b> = Übersetzung")}
       <button class="btn" id="tadoku"><svg class="btn-ic"><use href="#s-books"/></svg>Mehr Bücher zum Lesen &amp; Hören (Tadoku)</button>`, { back: home });
     $app.querySelectorAll("[data-s]").forEach(b => b.onclick = () => storyPage(window.STORIES.find(s => s.id === b.dataset.s), 0));
